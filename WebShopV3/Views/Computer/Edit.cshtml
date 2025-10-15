@@ -1,0 +1,117 @@
+﻿@model WebShopV3.Models.Computer
+@{
+    ViewData["Title"] = "Редактировать компьютер";
+}
+
+<h1>Редактировать компьютер</h1>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    
+    <!-- Убрано поле ввода цены -->
+    <!-- <div class="form-group">
+        <label asp-for="Price" class="control-label"></label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div> -->
+    
+    <div class="form-group">
+        <label asp-for="Quantity" class="control-label"></label>
+        <input asp-for="Quantity" class="form-control" />
+        <span asp-validation-for="Quantity" class="text-danger"></span>
+    </div>
+    
+    <div class="form-group">
+        <label asp-for="ImageUrl" class="control-label"></label>
+        <input asp-for="ImageUrl" class="form-control" />
+        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">Комплектующие:</label>
+        <div class="alert alert-info">
+            <strong>Текущая цена:</strong> @Model.Price.ToString("C")<br>
+            <small>Цена пересчитается автоматически при сохранении</small>
+        </div>
+        <div>
+            @if (ViewBag.Components != null)
+            {
+                foreach (var component in ViewBag.Components)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="selectedComponents" value="@component.Id" 
+                               id="component_@component.Id" 
+                               @(Model.ComputerComponents.Any(cc => cc.ComponentId == component.Id) ? "checked" : "")>
+                        <label class="form-check-label" for="component_@component.Id">
+                            @component.Name - @component.Price.ToString("C") (@component.Type)
+                        </label>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">Нет доступных комплектующих</p>
+            }
+        </div>
+    </div>
+
+    <div class="form-group mt-3">
+        <input type="submit" value="Сохранить" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        function calculatePrice() {
+            let total = 0;
+            // Суммируем цены выбранных комплектующих
+            document.querySelectorAll('input[name="selectedComponents"]:checked').forEach(checkbox => {
+                const label = document.querySelector('label[for="' + checkbox.id + '"]');
+                const priceText = label.textContent.match(/[\d.,]+\s*₽/); // Ищем цену в формате "1000 ₽"
+                if (priceText) {
+                    const price = parseFloat(priceText[0].replace(/[^\d.,]/g, '').replace(',', '.'));
+                    total += price;
+                }
+            });
+            
+            // Добавляем 10%
+            const finalPrice = total * 1.1;
+            
+            // Показываем расчет (можно добавить куда-нибудь на страницу)
+            const calculationElement = document.getElementById('price-calculation');
+            if (calculationElement) {
+                calculationElement.innerHTML = `
+                    <strong>Расчет цены:</strong><br>
+                    Сумма комплектующих: ${total.toFixed(2)} ₽<br>
+                    Наценка 10%: ${(total * 0.1).toFixed(2)} ₽<br>
+                    <strong>Итоговая цена: ${finalPrice.toFixed(2)} ₽</strong>
+                `;
+            }
+        }
+        
+        // Слушаем изменения чекбоксов
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('input[name="selectedComponents"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', calculatePrice);
+            });
+            // Первоначальный расчет
+            calculatePrice();
+        });
+    </script>
+}

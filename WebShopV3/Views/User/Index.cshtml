@@ -1,0 +1,57 @@
+﻿@model IEnumerable<WebShopV3.Models.User>
+@{
+    ViewData["Title"] = "Пользователи";
+}
+
+<h1>Пользователи</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Добавить пользователя</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Имя пользователя</th>
+            <th>Email</th>
+            <th>Имя</th>
+            <th>Фамилия</th>
+            <th>Телефон</th>
+            <th>Роль</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Username</td>
+                <td>@item.Email</td>
+                <td>@item.FirstName</td>
+                <td>@item.LastName</td>
+                <td>@item.Phone</td>
+                <td>
+                    <span class="badge @GetRoleBadgeClass(item.UserType?.Name)">@item.UserType?.Name</span>
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Подробнее</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Редактировать</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions {
+    public string GetRoleBadgeClass(string role)
+    {
+        return role switch
+        {
+            "Админ" => "bg-danger",
+            "Менеджер" => "bg-warning",
+            "Пользователь" => "bg-primary",
+            _ => "bg-secondary"
+        };
+    }
+}

@@ -1,0 +1,74 @@
+﻿@model WebShopV3.Models.Order
+@{
+    ViewData["Title"] = "Детали заказа";
+}
+
+<h1>Детали заказа #@Model.Id</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Информация о заказе</h4>
+        <dl class="row">
+            <dt class="col-sm-4">Дата заказа:</dt>
+            <dd class="col-sm-8">@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</dd>
+
+            <dt class="col-sm-4">Пользователь:</dt>
+            <dd class="col-sm-8">@Model.User?.Username (@Model.User?.Email)</dd>
+
+            <dt class="col-sm-4">Тип заказа:</dt>
+            <dd class="col-sm-8">@Model.OrderType?.Name</dd>
+
+            <dt class="col-sm-4">Статус:</dt>
+            <dd class="col-sm-8">
+                <span class="badge @GetStatusBadgeClass(Model.Status?.Name)">@Model.Status?.Name</span>
+            </dd>
+
+            <dt class="col-sm-4">Общая сумма:</dt>
+            <dd class="col-sm-8"><strong>@Model.TotalAmount.ToString("C")</strong></dd>
+        </dl>
+    </div>
+</div>
+
+@if (Model.ComputerOrders.Any())
+{
+    <h4>Компьютеры в заказе</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Компьютер</th>
+                <th>Количество</th>
+                <th>Цена за шт.</th>
+                <th>Общая стоимость</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var co in Model.ComputerOrders)
+            {
+                <tr>
+                    <td>@co.Computer?.Name</td>
+                    <td>@co.Quantity</td>
+                    <td>@co.UnitPrice.ToString("C")</td>
+                    <td>@((co.Quantity * co.UnitPrice).ToString("C"))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редактировать</a>
+    <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Выполнен" => "bg-success",
+            "В ожидании" => "bg-warning",
+            "Отменен" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

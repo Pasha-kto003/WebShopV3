@@ -1,0 +1,75 @@
+﻿@model WebShopV3.Models.Computer
+@{
+    ViewData["Title"] = "Подробности о компьютере";
+}
+
+<h1>Подробности о компьютере</h1>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Название:</dt>
+        <dd class="col-sm-10">@Model.Name</dd>
+
+        <dt class="col-sm-2">Описание:</dt>
+        <dd class="col-sm-10">@Model.Description</dd>
+
+        <dt class="col-sm-2">Цена:</dt>
+        <dd class="col-sm-10">
+            <strong>@Model.Price.ToString("C")</strong>
+            <br>
+            <small class="text-muted">(сумма комплектующих + 10%)</small>
+        </dd>
+
+        <dt class="col-sm-2">Количество:</dt>
+        <dd class="col-sm-10">@Model.Quantity</dd>
+
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <dt class="col-sm-2">Изображение:</dt>
+            <dd class="col-sm-10">
+                <img src="/Images/@Model.ImageUrl" alt="@Model.Name" style="max-width: 300px;" />
+            </dd>
+        }
+
+        @if (Model.ComputerComponents.Any())
+        {
+            <dt class="col-sm-2">Комплектующие:</dt>
+            <dd class="col-sm-10">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Тип</th>
+                            <th>Цена</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var comp in Model.ComputerComponents)
+                        {
+                            <tr>
+                                <td>@comp.Component.Name</td>
+                                <td>@comp.Component.Type</td>
+                                <td>@comp.Component.Price.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2"><strong>Сумма комплектующих:</strong></td>
+                            <td><strong>@Model.ComputerComponents.Sum(cc => cc.Component.Price).ToString("C")</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><strong>Наценка (10%):</strong></td>
+                            <td><strong>@((Model.ComputerComponents.Sum(cc => cc.Component.Price) * 0.1m).ToString("C"))</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </dd>
+        }
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редактировать</a>
+    <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+</div>

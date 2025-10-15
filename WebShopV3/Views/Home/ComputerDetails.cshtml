@@ -1,0 +1,41 @@
+﻿@model WebShopV3.Models.Computer
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="row">
+    <div class="col-md-6">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="/Images/@Model.ImageUrl" class="img-fluid" alt="@Model.Name">
+        }
+        else
+        {
+            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                <span class="text-muted">Нет изображения</span>
+            </div>
+        }
+    </div>
+    <div class="col-md-6">
+        <h1>@Model.Name</h1>
+        <p class="lead">@Model.Description</p>
+        <h3 class="text-primary">@Model.Price.ToString("C")</h3>
+        <p>В наличии: @Model.Quantity шт.</p>
+        
+        @if (Model.ComputerComponents.Any())
+        {
+            <h4>Комплектующие:</h4>
+            <ul>
+                @foreach (var comp in Model.ComputerComponents)
+                {
+                    <li>@comp.Component.Name - @comp.Component.Price.ToString("C")</li>
+                }
+            </ul>
+        }
+        
+        <div class="mt-4">
+            <a class="btn btn-success btn-lg">Добавить в корзину</button>
+            <a href="@Url.Action("Catalog", "Home")" class="btn btn-outline-secondary">Назад к каталогу</a>
+        </div>
+    </div>
+</div>

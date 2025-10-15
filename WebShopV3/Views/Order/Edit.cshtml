@@ -1,0 +1,49 @@
+﻿@model WebShopV3.Models.Order
+@{
+    ViewData["Title"] = "Редактировать заказ";
+}
+
+<h1>Редактировать заказ #@Model.Id</h1>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label">Пользователь</label>
+                <select asp-for="UserId" class="form-control" required>
+                    @foreach (var user in ViewBag.Users)
+                    {
+                        <option value="@user.Id" selected="@(user.Id == Model.UserId)">@user.Username</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Тип заказа</label>
+                <select asp-for="OrderTypeId" class="form-control" required>
+                    @foreach (var type in ViewBag.OrderTypes)
+                    {
+                        <option value="@type.Id" selected="@(type.Id == Model.OrderTypeId)">@type.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Статус</label>
+                <select asp-for="StatusId" class="form-control" required>
+                    @foreach (var status in ViewBag.Statuses)
+                    {
+                        <option value="@status.Id" selected="@(status.Id == Model.StatusId)">@status.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group mt-3">
+        <input type="submit" value="Сохранить" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+    </div>
+</form>

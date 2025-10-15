@@ -1,0 +1,62 @@
+﻿@model IEnumerable<WebShopV3.Models.Order>
+@{
+    ViewData["Title"] = "Мои заказы";
+}
+
+<h1>Мои заказы</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <h4>У вас пока нет заказов</h4>
+        <p>Начните покупки в нашем каталоге!</p>
+        <a href="@Url.Action("Catalog", "Home")" class="btn btn-primary">Перейти в каталог</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID заказа</th>
+                    <th>Дата заказа</th>
+                    <th>Тип заказа</th>
+                    <th>Статус</th>
+                    <th>Сумма</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@item.OrderType?.Name</td>
+                        <td>
+                            <span class="badge @GetStatusBadgeClass(item.Status?.Name)">@item.Status?.Name</span>
+                        </td>
+                        <td>@item.TotalAmount.ToString("C")</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Подробнее</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@functions {
+    public string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Выполнен" => "bg-success",
+            "В ожидании" => "bg-warning",
+            "Отменен" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

@@ -1,0 +1,79 @@
+﻿@model WebShopV3.Models.Order
+@{
+    ViewData["Title"] = "Создать заказ";
+}
+
+<h1>Создать заказ</h1>
+
+<form asp-action="Create">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label">Пользователь</label>
+                <select name="UserId" class="form-control" required>
+                    <option value="">Выберите пользователя</option>
+                    @foreach (var user in ViewBag.Users)
+                    {
+                        <option value="@user.Id">@user.Username (@user.Email)</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Тип заказа</label>
+                <select asp-for="OrderTypeId" class="form-control" required>
+                    <option value="">Выберите тип заказа</option>
+                    @foreach (var type in ViewBag.OrderTypes)
+                    {
+                        <option value="@type.Id">@type.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Статус</label>
+                <select asp-for="StatusId" class="form-control" required>
+                    <option value="">Выберите статус</option>
+                    @foreach (var status in ViewBag.Statuses)
+                    {
+                        <option value="@status.Id">@status.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mt-4">Компьютеры в заказе</h4>
+    <div class="row">
+        @{
+            var computers = ViewBag.Computers as List<WebShopV3.Models.Computer>;
+            if (computers != null && computers.Any())
+            {
+                for (int i = 0; i < computers.Count; i++)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">@computers[i].Name</h6>
+                                <p class="card-text">@computers[i].Price.ToString("C")</p>
+                                <p class="card-text">В наличии: @computers[i].Quantity шт.</p>
+                                <div class="form-group">
+                                    <label>Количество:</label>
+                                    <input type="number" name="quantities" value="0" min="0" max="@computers[i].Quantity" 
+                                           class="form-control" onchange="document.getElementById('computer_@i').checked = this.value > 0">
+                                    <input type="checkbox" name="selectedComputers" value="@computers[i].Id" 
+                                           id="computer_@i" style="display: none;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+    </div>
+
+    <div class="form-group mt-3">
+        <input type="submit" value="Создать заказ" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+    </div>
+</form>

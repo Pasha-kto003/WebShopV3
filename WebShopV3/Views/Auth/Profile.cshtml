@@ -1,0 +1,88 @@
+﻿@model WebShopV3.Models.User
+@{
+    ViewData["Title"] = "Личный кабинет";
+}
+
+<h1>Личный кабинет</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Информация о пользователе</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Имя пользователя:</strong> @Model.Username</p>
+                <p><strong>Email:</strong> @Model.Email</p>
+                <p><strong>Имя:</strong> @Model.FirstName</p>
+                <p><strong>Фамилия:</strong> @Model.LastName</p>
+                <p><strong>Телефон:</strong> @Model.Phone</p>
+                <p><strong>Роль:</strong> <span class="badge bg-primary">@Model.UserType.Name</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Мои заказы</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Orders.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID заказа</th>
+                                    <th>Дата</th>
+                                    <th>Тип</th>
+                                    <th>Статус</th>
+                                    <th>Сумма</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model.Orders)
+                                {
+                                    <tr>
+                                        <td>@order.Id</td>
+                                        <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                        <td>@order.OrderType.Name</td>
+                                        <td>
+                                            <span class="badge @GetStatusBadgeClass(order.Status.Name)">
+                                                @order.Status.Name
+                                            </span>
+                                        </td>
+                                        <td>@order.TotalAmount.ToString("C")</td>
+                                        <td>
+                                            <a href="@Url.Action("Details", "Order", new { id = order.Id })" class="btn btn-info btn-sm">Подробнее</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">У вас пока нет заказов.</p>
+                    <a href="@Url.Action("Create", "Order")" class="btn btn-primary">Создать первый заказ</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Выполнен" => "bg-success",
+            "В ожидании" => "bg-warning",
+            "Отменен" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

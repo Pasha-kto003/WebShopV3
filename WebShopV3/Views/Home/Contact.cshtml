@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Контакты";
+}
+
+<h1>Контакты</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Свяжитесь с нами</h3>
+        <form>
+            <div class="form-group">
+                <label for="name" class="control-label">Ваше имя</label>
+                <input type="text" id="name" class="form-control" required />
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="control-label">Email</label>
+                <input type="email" id="email" class="form-control" required />
+            </div>
+            
+            <div class="form-group">
+                <label for="message" class="control-label">Сообщение</label>
+                <textarea id="message" class="form-control" rows="5" required></textarea>
+            </div>
+            
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Отправить сообщение</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-md-6">
+        <h3>Наши контакты</h3>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">ComputerShop</h5>
+                <p class="card-text">
+                    <strong>Адрес:</strong><br>
+                    г. Москва, ул. Примерная, д. 123<br>
+                    Бизнес-центр "Технопарк"
+                </p>
+                <p class="card-text">
+                    <strong>Телефон:</strong><br>
+                    +7 (495) 123-45-67
+                </p>
+                <p class="card-text">
+                    <strong>Email:</strong><br>
+                    info@computershop.ru<br>
+                    support@computershop.ru
+                </p>
+                <p class="card-text">
+                    <strong>Режим работы:</strong><br>
+                    Понедельник - Пятница: 9:00 - 18:00<br>
+                    Суббота: 10:00 - 16:00<br>
+                    Воскресенье: выходной
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

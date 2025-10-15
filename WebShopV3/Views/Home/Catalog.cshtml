@@ -1,0 +1,29 @@
+﻿@model List<WebShopV3.Models.Computer>
+@{
+    ViewData["Title"] = "Каталог компьютеров";
+}
+
+<h1>Каталог компьютеров</h1>
+
+<div class="row">
+    @foreach (var computer in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                @if (!string.IsNullOrEmpty(computer.ImageUrl))
+                {
+                    <img src="/Images/@computer.ImageUrl" class="card-img-top" alt="@computer.Name">
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@computer.Name</h5>
+                    <p class="card-text">@computer.Description</p>
+                    <p class="card-text"><strong>Цена: @computer.Price.ToString("C")</strong></p>
+                    <p class="card-text">В наличии: @computer.Quantity шт.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="@Url.Action("ComputerDetails", "Home", new { id = computer.Id })" class="btn btn-primary">Подробнее</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

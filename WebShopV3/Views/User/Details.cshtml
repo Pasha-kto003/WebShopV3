@@ -1,0 +1,48 @@
+﻿@model WebShopV3.Models.User
+@{
+    ViewData["Title"] = "Подробности о пользователе";
+}
+
+<h1>Подробности о пользователе</h1>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Имя пользователя:</dt>
+        <dd class="col-sm-10">@Model.Username</dd>
+
+        <dt class="col-sm-2">Email:</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+
+        <dt class="col-sm-2">Имя:</dt>
+        <dd class="col-sm-10">@Model.FirstName</dd>
+
+        <dt class="col-sm-2">Фамилия:</dt>
+        <dd class="col-sm-10">@Model.LastName</dd>
+
+        <dt class="col-sm-2">Телефон:</dt>
+        <dd class="col-sm-10">@Model.Phone</dd>
+
+        <dt class="col-sm-2">Роль:</dt>
+        <dd class="col-sm-10">
+            <span class="badge @GetRoleBadgeClass(Model.UserType?.Name)">@Model.UserType?.Name</span>
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редактировать</a>
+    <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+</div>
+
+@functions {
+    public string GetRoleBadgeClass(string role)
+    {
+        return role switch
+        {
+            "Админ" => "bg-danger",
+            "Менеджер" => "bg-warning",
+            "Пользователь" => "bg-primary",
+            _ => "bg-secondary"
+        };
+    }
+}
