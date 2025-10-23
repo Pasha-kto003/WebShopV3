@@ -3,27 +3,161 @@
     ViewData["Title"] = "Каталог компьютеров";
 }
 
-<h1>Каталог компьютеров</h1>
-
 <div class="row">
-    @foreach (var computer in Model)
-    {
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                @if (!string.IsNullOrEmpty(computer.ImageUrl))
-                {
-                    <img src="/Images/@computer.ImageUrl" class="card-img-top" alt="@computer.Name">
-                }
-                <div class="card-body">
-                    <h5 class="card-title">@computer.Name</h5>
-                    <p class="card-text">@computer.Description</p>
-                    <p class="card-text"><strong>Цена: @computer.Price.ToString("C")</strong></p>
-                    <p class="card-text">В наличии: @computer.Quantity шт.</p>
+    <!-- Боковая панель с фильтрами -->
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Фильтры</h5>
+            </div>
+            <div class="card-body">
+                <!-- Поиск -->
+                <div class="mb-3">
+                    <label for="searchInput" class="form-label">Поиск</label>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Введите название..." value="@ViewBag.SearchQuery">
                 </div>
-                <div class="card-footer">
-                    <a href="@Url.Action("ComputerDetails", "Home", new { id = computer.Id })" class="btn btn-primary">Подробнее</a>
+
+                <!-- Тип комплектующих -->
+                <div class="mb-3">
+                    <label for="componentTypeFilter" class="form-label">Тип комплектующих</label>
+                    <select class="form-select" id="componentTypeFilter">
+                        <option value="all">Все типы</option>
+                        @foreach (var type in ViewBag.ComponentTypes)
+                        {
+                            <option value="@type" selected="@(ViewBag.ComponentType == type)">@type</option>
+                        }
+                    </select>
                 </div>
+
+                <!-- Цена -->
+                <div class="mb-3">
+                    <label class="form-label">Цена</label>
+                    <div class="row">
+                        <div class="col-6">
+                            <input type="number" class="form-control" id="minPrice" placeholder="От" value="@ViewBag.MinPrice">
+                        </div>
+                        <div class="col-6">
+                            <input type="number" class="form-control" id="maxPrice" placeholder="До" value="@ViewBag.MaxPrice">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Кнопка сброса -->
+                <button type="button" class="btn btn-outline-secondary w-100" id="resetFilters">
+                    Сбросить фильтры
+                </button>
             </div>
         </div>
-    }
+    </div>
+
+    <!-- Основной контент -->
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Каталог компьютеров</h1>
+            
+            <!-- Сортировка -->
+            <div class="d-flex align-items-center">
+                <label for="sortSelect" class="form-label me-2 mb-0">Сортировка:</label>
+                <select class="form-select" id="sortSelect" style="width: auto;">
+                    <option value="default">По умолчанию</option>
+                    <option value="price_asc" selected="@(ViewBag.SortBy == "price_asc")">Цена по возрастанию</option>
+                    <option value="price_desc" selected="@(ViewBag.SortBy == "price_desc")">Цена по убыванию</option>
+                    <option value="name_asc" selected="@(ViewBag.SortBy == "name_asc")">Название А-Я</option>
+                    <option value="name_desc" selected="@(ViewBag.SortBy == "name_desc")">Название Я-А</option>
+                    <option value="newest" selected="@(ViewBag.SortBy == "newest")">Сначала новые</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Результаты поиска -->
+        <div id="computerList">
+            @await Html.PartialAsync("_ComputerListPartial", Model)
+        </div>
+
+        <!-- Индикатор загрузки -->
+        <div id="loadingIndicator" class="text-center" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-2">Поиск компьютеров...</p>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        let searchTimeout;
+
+        function performSearch() {
+            // Показываем индикатор загрузки
+            $('#loadingIndicator').show();
+            $('#computerList').hide();
+
+            // Отменяем предыдущий таймаут
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            // Устанавливаем новый таймаут для поиска (задержка 500ms)
+            searchTimeout = setTimeout(() => {
+                const searchParams = {
+                    search: $('#searchInput').val(),
+                    sortBy: $('#sortSelect').val(),
+                    componentType: $('#componentTypeFilter').val(),
+                    minPrice: $('#minPrice').val(),
+                    maxPrice: $('#maxPrice').val()
+                };
+
+                $.post('@Url.Action("SearchComputers", "Home")', searchParams)
+                    .done(function(data) {
+                        $('#computerList').html(data);
+                        $('#computerList').show();
+                    })
+                    .fail(function() {
+                        $('#computerList').html('<div class="alert alert-danger">Ошибка при загрузке данных</div>');
+                        $('#computerList').show();
+                    })
+                    .always(function() {
+                        $('#loadingIndicator').hide();
+                    });
+            }, 500);
+        }
+
+        // События для элементов фильтрации
+        $('#searchInput').on('input', performSearch);
+        $('#sortSelect').on('change', performSearch);
+        $('#componentTypeFilter').on('change', performSearch);
+        $('#minPrice, #maxPrice').on('input', performSearch);
+
+        // Сброс фильтров
+        $('#resetFilters').on('click', function() {
+            $('#searchInput').val('');
+            $('#componentTypeFilter').val('all');
+            $('#minPrice').val('');
+            $('#maxPrice').val('');
+            $('#sortSelect').val('default');
+            performSearch();
+        });
+
+        // Инициализация при загрузке страницы
+        $(document).ready(function() {
+            // Устанавливаем выбранные значения из ViewBag
+            $('#sortSelect').val('@ViewBag.SortBy' || 'default');
+            $('#componentTypeFilter').val('@ViewBag.ComponentType' || 'all');
+        });
+    </script>
+
+    <style>
+        .computer-card {
+            transition: transform 0.2s ease-in-out;
+        }
+        .computer-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .component-badge {
+            font-size: 0.7em;
+            margin-right: 2px;
+        }
+    </style>
+}

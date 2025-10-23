@@ -34,8 +34,9 @@
     </div>
     
     <div class="form-group">
-        <label asp-for="ImageUrl" class="control-label"></label>
-        <input asp-for="ImageUrl" class="form-control" />
+        <label asp-for="ImageUrl" class="control-label">Текущее изображение: @Model.ImageUrl</label>
+        @* <input asp-for="ImageUrl" class="form-control" /> *@
+        <input type="file"asp-for="ImageUrl" class="form-control"/>
         <span asp-validation-for="ImageUrl" class="text-danger"></span>
     </div>
 

@@ -198,33 +198,44 @@ namespace WebShopV3.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // Находим существующий заказ со всеми ComputerOrders
+                var existingOrder = await _context.Orders
+                    .Include(o => o.ComputerOrders)
+                    .FirstOrDefaultAsync(o => o.Id == id);
+
+                if (existingOrder == null)
                 {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Заказ успешно обновлен!";
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OrderExists(order.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
+                // Обновляем только разрешенные поля
+                existingOrder.StatusId = order.StatusId;
+                existingOrder.OrderTypeId = order.OrderTypeId;
+                existingOrder.UserId = order.UserId;
+
+                // Пересчитываем сумму заказа на основе ComputerOrders
+                existingOrder.TotalAmount = existingOrder.ComputerOrders.Sum(co => co.Quantity * co.UnitPrice);
+
+                _context.Update(existingOrder);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Заказ успешно обновлен!";
                 return RedirectToAction(nameof(Index));
             }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!OrderExists(order.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
-            ViewBag.Users = _context.Users.ToList();
-            ViewBag.OrderTypes = _context.OrderTypes.ToList();
-            ViewBag.Statuses = _context.Statuses.ToList();
-
-            return View(order);
         }
 
         // GET: Order/Delete/5

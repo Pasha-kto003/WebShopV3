@@ -1,0 +1,217 @@
+﻿@model WebShopV3.Models.Cart
+@{
+    ViewData["Title"] = "Оформление заказа";
+    
+    // Получаем данные пользователя из ViewBag
+    var userData = ViewBag.UserData as dynamic;
+    var firstName = userData?.FirstName ?? "";
+    var lastName = userData?.LastName ?? "";
+    var email = userData?.Email ?? "";
+    var phone = userData?.Phone ?? "";
+}
+
+<h1>Оформление заказа</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-check"></i> Данные для заказа
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> 
+                    <strong>Ваши данные заполнены автоматически.</strong> 
+                    Проверьте их и при необходимости исправьте. Поля с адресом и комментарием нужно заполнить вручную.
+                </div>
+
+                <form id="checkout-form" asp-action="CompleteOrder" method="post">
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-person"></i> Имя *
+                                </label>
+                                <input type="text" class="form-control" name="firstName" value="@firstName" required>
+                                <div class="form-text">Ваше имя</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-person"></i> Фамилия *
+                                </label>
+                                <input type="text" class="form-control" name="lastName" value="@lastName" required>
+                                <div class="form-text">Ваша фамилия</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-envelope"></i> Email *
+                        </label>
+                        <input type="email" class="form-control" name="email" value="@email" required>
+                        <div class="form-text">На этот email придет подтверждение заказа</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-telephone"></i> Телефон *
+                        </label>
+                        <input type="tel" class="form-control" name="phone" value="@phone" required>
+                        <div class="form-text">Для связи по поводу доставки</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-geo-alt"></i> Адрес доставки *
+                        </label>
+                        <textarea class="form-control" name="address" rows="3" placeholder="Введите полный адрес доставки..." required></textarea>
+                        <div class="form-text">Укажите город, улицу, дом, квартиру</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-chat-text"></i> Комментарий к заказу
+                        </label>
+                        <textarea class="form-control" name="comment" rows="3" placeholder="Дополнительные пожелания..."></textarea>
+                        <div class="form-text">Необязательное поле</div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-bag-check"></i> Ваш заказ
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="d-flex justify-content-between mb-2 border-bottom pb-2">
+                            <div>
+                                <small class="fw-bold">@item.ComputerName</small>
+                                <br>
+                                <small class="text-muted">@item.Quantity × @item.Price.ToString("C")</small>
+                            </div>
+                            <small class="fw-bold">@item.TotalPrice.ToString("C")</small>
+                        </div>
+                    }
+                </div>
+                
+                <hr>
+                <div class="d-flex justify-content-between mb-3">
+                    <strong>Итого:</strong>
+                    <strong class="text-primary fs-5">@Model.TotalAmount.ToString("C")</strong>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" form="checkout-form" class="btn btn-success btn-lg">
+                        <i class="bi bi-check-circle"></i> Подтвердить заказ
+                    </button>
+
+                    <a href="@Url.Action("Index", "Cart")" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Вернуться в корзину
+                    </a>
+                </div>
+
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check"></i> 
+                        Ваши данные защищены. Мы не передаем их третьим лицам.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Автоподстановка адреса, если пользователь ранее его указывал
+            function loadSavedAddress() {
+                const savedAddress = localStorage.getItem('userAddress');
+                if (savedAddress) {
+                    $('textarea[name="address"]').val(savedAddress);
+                }
+            }
+
+            // Сохранение адреса при изменении
+            $('textarea[name="address"]').on('input', function() {
+                const address = $(this).val();
+                if (address.length > 5) {
+                    localStorage.setItem('userAddress', address);
+                }
+            });
+
+            // Валидация формы
+            $('#checkout-form').on('submit', function(e) {
+                const address = $('textarea[name="address"]').val().trim();
+                if (address.length < 10) {
+                    e.preventDefault();
+                    alert('Пожалуйста, укажите полный адрес доставки (не менее 10 символов)');
+                    $('textarea[name="address"]').focus();
+                    return false;
+                }
+
+                const phone = $('input[name="phone"]').val().trim();
+                if (!isValidPhone(phone)) {
+                    e.preventDefault();
+                    alert('Пожалуйста, укажите корректный номер телефона');
+                    $('input[name="phone"]').focus();
+                    return false;
+                }
+
+                // Показываем индикатор загрузки
+                $('button[type="submit"]').prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Оформляем заказ...');
+            });
+
+            function isValidPhone(phone) {
+                // Простая валидация телефона
+                const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
+                return phoneRegex.test(phone);
+            }
+
+            // Загружаем сохраненный адрес при загрузке страницы
+            loadSavedAddress();
+
+            // Подсказка для адреса
+            $('textarea[name="address"]').on('focus', function() {
+                if (!$(this).val()) {
+                    $(this).attr('placeholder', 'Например: г. Москва, ул. Примерная, д. 123, кв. 45');
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .form-label {
+            font-weight: 600;
+        }
+        
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+    </style>
+}

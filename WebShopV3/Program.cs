@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using WebShopV3.Models;
 
 var builder = WebApplication.CreateBuilder(args);

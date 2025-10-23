@@ -1,0 +1,189 @@
+﻿@model WebShopV3.Models.Cart
+@{
+    ViewData["Title"] = "Корзина покупок";
+}
+
+<h1>Корзина покупок</h1>
+
+@if (!Model.Items.Any())
+{
+    <div class="alert alert-info">
+        <h4>Корзина пуста</h4>
+        <p>Добавьте товары из каталога, чтобы сделать заказ.</p>
+        <a href="@Url.Action("Catalog", "Home")" class="btn btn-primary">Перейти в каталог</a>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Товары в корзине</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Товар</th>
+                                    <th>Цена</th>
+                                    <th>Количество</th>
+                                    <th>Сумма</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                                {
+                                                    <img src="~/images/@item.ImageUrl" alt="@item.ComputerName" style="width: 60px; height: 60px; object-fit: cover;" class="me-3 rounded">
+                                                }
+                                                <div>
+                                                    <h6 class="mb-0">@item.ComputerName</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@item.Price.ToString("C")</td>
+                                        <td>
+                                            <div class="input-group input-group-sm" style="width: 120px;">
+                                                <input type="number" class="form-control quantity-input" 
+                                                       value="@item.Quantity" min="1" 
+                                                       data-computer-id="@item.ComputerId">
+                                            </div>
+                                        </td>
+                                        <td>@item.TotalPrice.ToString("C")</td>
+                                        <td>
+                                            <button class="btn btn-outline-danger btn-sm remove-from-cart" 
+                                                    data-computer-id="@item.ComputerId"
+                                                    title="Удалить из корзины">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <button class="btn btn-outline-secondary" id="clear-cart">
+                    <i class="bi bi-trash"></i> Очистить корзину
+                </button>
+                <a href="@Url.Action("Catalog", "Home")" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> Продолжить покупки
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Итого</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Товары (@Model.TotalItems шт.):</span>
+                        <span>@Model.TotalAmount.ToString("C")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Доставка:</span>
+                        <span class="text-success">Бесплатно</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Общая сумма:</strong>
+                        <strong class="text-primary">@Model.TotalAmount.ToString("C")</strong>
+                    </div>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a href="@Url.Action("Checkout", "Cart")" class="btn btn-success w-100 btn-lg">
+                            <i class="bi bi-credit-card"></i> Оформить заказ
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <p class="mb-2">Для оформления заказа необходимо войти в систему</p>
+                            <a href="@Url.Action("Login", "Auth")" class="btn btn-primary w-100">Войти</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Обновление количества
+            $('.quantity-input').on('change', function() {
+                const computerId = $(this).data('computer-id');
+                const quantity = $(this).val();
+
+                updateCartQuantity(computerId, quantity);
+            });
+
+            // Удаление из корзины
+            $('.remove-from-cart').on('click', function() {
+                const computerId = $(this).data('computer-id');
+                removeFromCart(computerId);
+            });
+
+            // Очистка корзины
+            $('#clear-cart').on('click', function() {
+                if (confirm('Вы уверены, что хотите очистить корзину?')) {
+                    clearCart();
+                }
+            });
+        });
+
+        function updateCartQuantity(computerId, quantity) {
+            $.post('@Url.Action("UpdateQuantity", "Cart")', { computerId, quantity })
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload(); // Просто перезагружаем страницу для обновления
+                    } else {
+                        alert(response.message);
+                    }
+                })
+                .fail(function() {
+                    alert('Ошибка при обновлении количества');
+                });
+        }
+
+        function removeFromCart(computerId) {
+            $.post('@Url.Action("RemoveFromCart", "Cart")', { computerId })
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                })
+                .fail(function() {
+                    alert('Ошибка при удалении товара');
+                });
+        }
+
+        function clearCart() {
+            $.post('@Url.Action("Clear", "Cart")')
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload();
+                    }
+                })
+                .fail(function() {
+                    alert('Ошибка при очистке корзины');
+                });
+        }
+    </script>
+}
