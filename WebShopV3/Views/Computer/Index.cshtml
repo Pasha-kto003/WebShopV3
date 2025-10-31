@@ -3,36 +3,259 @@
     ViewData["Title"] = "Компьютеры";
 }
 
-<h1>Компьютеры</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок и кнопка добавления -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">Компьютеры</h1>
+                <p class="text-gray-400">Управление каталогом компьютеров</p>
+            </div>
+            <a asp-action="Create" class="mt-4 sm:mt-0 bg-gradient-to-r from-primary to-green-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300">
+                + Добавить новый компьютер
+            </a>
+        </div>
 
-<p>
-    <a asp-action="Create" class="btn btn-success">Добавить новый компьютер</a>
-</p>
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Название</th>
-            <th>Описание</th>
-            <th>Цена</th>
-            <th>Количество</th>
-            <th>Действия</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+        @if (!Model.Any())
         {
-            <tr>
-                <td>@item.Name</td>
-                <td>@item.Description</td>
-                <td>@item.Price.ToString("C")</td>
-                <td>@item.Quantity</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Подробнее</a>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Редактировать</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Удалить</a>
-                </td>
-            </tr>
+            <!-- Пустой список -->
+            <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 text-center">
+                <div class="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">Компьютеры не найдены</h3>
+                <p class="text-gray-400 mb-6">Начните с добавления первого компьютера в каталог</p>
+                <a asp-action="Create" class="inline-flex items-center bg-gradient-to-r from-primary to-green-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300">
+                    + Добавить компьютер
+                </a>
+            </div>
         }
-    </tbody>
-</table>
+        else
+        {
+            <!-- Статистика -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-white">@Model.Count()</div>
+                            <div class="text-gray-400 text-sm">Всего компьютеров</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-white">@Model.Count(c => c.Quantity > 0)</div>
+                            <div class="text-gray-400 text-sm">В наличии</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-white">@Model.Count(c => c.Quantity == 0)</div>
+                            <div class="text-gray-400 text-sm">Нет в наличии</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-white">@Model.Sum(c => c.Price).ToString("C")</div>
+                            <div class="text-gray-400 text-sm">Общая стоимость</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Таблица компьютеров -->
+            <div class="bg-dark-card rounded-2xl border border-gray-800 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-800">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Название</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Описание</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Цена</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Количество</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            @foreach (var item in Model)
+                            {
+                                <tr class="hover:bg-gray-800 transition duration-200 group">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center">
+                                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                            {
+                                                <div class="w-10 h-10 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center mr-3 overflow-hidden">
+                                                    <img src="/Images/@item.ImageUrl" alt="@item.Name" class="w-full h-full object-cover">
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="w-10 h-10 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center mr-3">
+                                                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                                    </svg>
+                                                </div>
+                                            }
+                                            <div class="text-sm font-medium text-white">@item.Name</div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-300 max-w-xs truncate">@item.Description</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-primary">@item.Price.ToString("C")</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <span class="text-sm text-white mr-2">@item.Quantity</span>
+                                            @if (item.Quantity > 0)
+                                            {
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-500/20 text-green-400">
+                                                    В наличии
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-500/20 text-red-400">
+                                                    Нет в наличии
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition duration-200">
+                                            <a asp-action="Details" asp-route-id="@item.Id" 
+                                               class="text-blue-400 hover:text-blue-300 transition duration-200"
+                                               title="Подробнее">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.Id" 
+                                               class="text-yellow-400 hover:text-yellow-300 transition duration-200"
+                                               title="Редактировать">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                </svg>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" 
+                                               class="text-red-400 hover:text-red-300 transition duration-200"
+                                               title="Удалить">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Пагинация -->
+            <div class="flex justify-between items-center mt-6">
+                <div class="text-gray-400 text-sm">
+                    Показано @Model.Count() из @Model.Count() компьютеров
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 bg-dark-card border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-primary transition duration-200">
+                        ← Назад
+                    </button>
+                    <button class="px-4 py-2 bg-primary text-dark rounded-lg font-semibold">1</button>
+                    <button class="px-4 py-2 bg-dark-card border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-primary transition duration-200">
+                        Далее →
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Подсветка строк таблицы
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(4px)';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        tbody tr {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
+}

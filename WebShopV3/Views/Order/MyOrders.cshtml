@@ -3,60 +3,248 @@
     ViewData["Title"] = "Мои заказы";
 }
 
-<h1>Мои заказы</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок -->
+        <div class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Мои заказы
+            </h1>
+            <p class="text-xl text-gray-400">
+                История ваших заказов и их статусы
+            </p>
+        </div>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        <h4>У вас пока нет заказов</h4>
-        <p>Начните покупки в нашем каталоге!</p>
-        <a href="@Url.Action("Catalog", "Home")" class="btn btn-primary">Перейти в каталог</a>
+        @if (!Model.Any())
+        {
+            <!-- Пустой список заказов -->
+            <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 text-center">
+                <div class="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">У вас пока нет заказов</h3>
+                <p class="text-gray-400 mb-6">Начните покупки в нашем каталоге!</p>
+                <a href="@Url.Action("Catalog", "Home")" class="inline-flex items-center bg-gradient-to-r from-primary to-green-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300">
+                    Перейти в каталог
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Список заказов -->
+            <div class="bg-dark-card rounded-2xl border border-gray-800 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-800">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID заказа</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Дата заказа</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Тип заказа</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Статус</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Сумма</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            @foreach (var item in Model)
+                            {
+                                <tr class="hover:bg-gray-800 transition duration-200">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-white">#@item.Id</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-white">@item.OrderDate.ToString("dd.MM.yyyy")</div>
+                                        <div class="text-sm text-gray-400">@item.OrderDate.ToString("HH:mm")</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-white">@item.OrderType?.Name</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full @GetStatusBadgeClass(item.Status?.Name)">
+                                            @item.Status?.Name
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-primary">@item.TotalAmount.ToString("C")</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a asp-action="Details" asp-route-id="@item.Id" 
+                                           class="text-blue-400 hover:text-blue-300 transition duration-200 font-semibold">
+                                            Подробнее
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Статистика заказов -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-white">@Model.Count(o => o.Status?.Name == "Выполнен")</div>
+                            <div class="text-gray-400 text-sm">Выполненных заказов</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-white">@Model.Count(o => o.Status?.Name == "В ожидании" || o.Status?.Name == "В обработке")</div>
+                            <div class="text-gray-400 text-sm">Активных заказов</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-white">@Model.Sum(o => o.TotalAmount).ToString("C")</div>
+                            <div class="text-gray-400 text-sm">Общая сумма</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Пагинация (если нужно) -->
+            <div class="flex justify-between items-center mt-8">
+                <div class="text-gray-400 text-sm">
+                    Показано @Model.Count() из @Model.Count() заказов
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 bg-dark-card border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-primary transition duration-200">
+                        ← Назад
+                    </button>
+                    <button class="px-4 py-2 bg-primary text-dark rounded-lg font-semibold">1</button>
+                    <button class="px-4 py-2 bg-dark-card border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-primary transition duration-200">
+                        Далее →
+                    </button>
+                </div>
+            </div>
+        }
+
+        <!-- Быстрые действия -->
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                <h3 class="text-xl font-bold text-white mb-4">Нужна помощь с заказом?</h3>
+                <p class="text-gray-400 mb-4">Если у вас есть вопросы по вашим заказам, наша служба поддержки готова помочь</p>
+                <div class="space-y-3">
+                    <button class="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-400 transition duration-200">
+                        📞 Связаться с поддержкой
+                    </button>
+                    <button class="w-full bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition duration-200">
+                        ❓ Частые вопросы
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                <h3 class="text-xl font-bold text-white mb-4">Создать новый заказ</h3>
+                <p class="text-gray-400 mb-4">Хотите приобрести что-то новое? Перейдите в наш каталог</p>
+                <div class="space-y-3">
+                    <a href="@Url.Action("Catalog", "Home")" class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-200 text-center block">
+                        🛒 Перейти в каталог
+                    </a>
+                    <a href="@Url.Action("Create", "Order")" class="w-full bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 text-center block">
+                        📝 Создать заказ
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID заказа</th>
-                    <th>Дата заказа</th>
-                    <th>Тип заказа</th>
-                    <th>Статус</th>
-                    <th>Сумма</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>@item.Id</td>
-                        <td>@item.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
-                        <td>@item.OrderType?.Name</td>
-                        <td>
-                            <span class="badge @GetStatusBadgeClass(item.Status?.Name)">@item.Status?.Name</span>
-                        </td>
-                        <td>@item.TotalAmount.ToString("C")</td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Подробнее</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+</div>
 
 @functions {
     public string GetStatusBadgeClass(string status)
     {
         return status switch
         {
-            "Выполнен" => "bg-success",
-            "В ожидании" => "bg-warning",
-            "Отменен" => "bg-danger",
-            _ => "bg-secondary"
+            "Выполнен" => "bg-green-500/20 text-green-400",
+            "В ожидании" => "bg-yellow-500/20 text-yellow-400",
+            "Отменен" => "bg-red-500/20 text-red-400",
+            "В обработке" => "bg-blue-500/20 text-blue-400",
+            "Собирается" => "bg-purple-500/20 text-purple-400",
+            "Готов к отправке" => "bg-indigo-500/20 text-indigo-400",
+            "Отправлен" => "bg-cyan-500/20 text-cyan-400",
+            _ => "bg-gray-500/20 text-gray-400"
         };
     }
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Подсветка строк таблицы при наведении
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(4px)';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        tbody tr {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
 }

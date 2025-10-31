@@ -112,18 +112,13 @@ namespace WebShopV3.Controllers
             order.OrderDate = DateTime.Now;
             order.TotalAmount = 0;
 
-            // Убеждаемся, что пользователь создает заказ только для себя
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             order.UserId = userId;
             order.StatusId = 2; // Статус "В ожидании" по умолчанию
 
-            order.OrderDate = DateTime.Now;
-            order.TotalAmount = 0;
-
             _context.Add(order);
             await _context.SaveChangesAsync();
 
-            // Добавляем компьютеры в заказ
             if (selectedComputers != null && quantities != null)
             {
                 for (int i = 0; i < selectedComputers.Length; i++)
@@ -141,7 +136,6 @@ namespace WebShopV3.Controllers
 
                         order.TotalAmount += computer.Price * quantities[i];
 
-                        // Уменьшаем количество на складе
                         computer.Quantity -= quantities[i];
                         _context.Computers.Update(computer);
 
@@ -200,7 +194,6 @@ namespace WebShopV3.Controllers
 
             try
             {
-                // Находим существующий заказ со всеми ComputerOrders
                 var existingOrder = await _context.Orders
                     .Include(o => o.ComputerOrders)
                     .FirstOrDefaultAsync(o => o.Id == id);
@@ -210,12 +203,10 @@ namespace WebShopV3.Controllers
                     return NotFound();
                 }
 
-                // Обновляем только разрешенные поля
                 existingOrder.StatusId = order.StatusId;
                 existingOrder.OrderTypeId = order.OrderTypeId;
                 existingOrder.UserId = order.UserId;
 
-                // Пересчитываем сумму заказа на основе ComputerOrders
                 existingOrder.TotalAmount = existingOrder.ComputerOrders.Sum(co => co.Quantity * co.UnitPrice);
 
                 _context.Update(existingOrder);
@@ -283,7 +274,7 @@ namespace WebShopV3.Controllers
             var order = await _context.Orders.FindAsync(id);
             if (order != null)
             {
-                order.StatusId = 1; // Статус "Выполнен"
+                order.StatusId = 1;
                 _context.Update(order);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Заказ отмечен как выполненный!";

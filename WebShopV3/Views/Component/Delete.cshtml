@@ -3,24 +3,334 @@
     ViewData["Title"] = "Удалить комплектующее";
 }
 
-<h1>Удалить комплектующее</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок -->
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Удалить комплектующее
+            </h1>
+            <p class="text-xl text-red-400 font-semibold">
+                Вы уверены, что хотите удалить это комплектующее?
+            </p>
+        </div>
 
-<h3>Вы уверены, что хотите удалить это комплектующее?</h3>
-<div>
-    <h4>@Model.Name</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Название:</dt>
-        <dd class="col-sm-10">@Model.Name</dd>
-        <dt class="col-sm-2">Тип:</dt>
-        <dd class="col-sm-10">@Model.Type</dd>
-        <dt class="col-sm-2">Цена:</dt>
-        <dd class="col-sm-10">@Model.Price.ToString("C")</dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Удалить" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
-    </form>
+        <!-- Карточка с информацией о комплектующем -->
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl mb-8">
+            <!-- Заголовок карточки -->
+            <div class="flex items-center mb-6">
+                <svg class="w-6 h-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                <h2 class="text-2xl font-bold text-white">@Model.Name</h2>
+            </div>
+
+            <!-- Информация о комплектующем -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="space-y-1">
+                    <label class="block text-sm font-semibold text-gray-400">Название</label>
+                    <div class="flex items-center text-white text-lg">
+                        <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        @Model.Name
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-sm font-semibold text-gray-400">Тип</label>
+                    <div class="flex items-center">
+                        <span class="@GetTypeBadgeClass(Model.Type) px-4 py-2 rounded-full text-sm font-bold">
+                            @GetTypeDisplayName(Model.Type)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-sm font-semibold text-gray-400">Цена</label>
+                    <div class="flex items-center text-white text-lg">
+                        <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                        @Model.Price.ToString("C")
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-sm font-semibold text-gray-400">Количество на складе</label>
+                    <div class="flex items-center">
+                        <span class="@GetQuantityBadgeClass(Model.Quantity) px-4 py-2 rounded-full text-sm font-bold">
+                            @Model.Quantity шт.
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Дополнительная информация -->
+            <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div class="text-center">
+                        <div class="text-gray-400">ID</div>
+                        <div class="text-white font-semibold">#@Model.Id</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-gray-400">Общая стоимость</div>
+                        <div class="text-primary font-semibold">@((Model.Price * Model.Quantity).ToString("C"))</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-gray-400">Статус</div>
+                        <div class="@GetStatusBadgeClass(Model.Quantity) px-2 py-1 rounded-full text-xs font-bold">
+                            @GetStatusText(Model.Quantity)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Описание -->
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="mt-6">
+                    <label class="block text-sm font-semibold text-gray-400 mb-2">Описание</label>
+                    <div class="text-gray-300 bg-gray-800/30 rounded-lg p-4 border border-gray-700">
+                        @Model.Description
+                    </div>
+                </div>
+            }
+
+            <!-- Предупреждение -->
+            <div class="mt-8 bg-red-500/10 border border-red-500/30 rounded-xl p-6">
+                <div class="flex items-start">
+                    <svg class="w-6 h-6 text-red-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                    <div>
+                        <h4 class="text-red-400 font-bold text-lg mb-2">Внимание!</h4>
+                        <p class="text-red-300 mb-3">
+                            Это действие невозможно отменить. Все данные комплектующего будут безвозвратно удалены из системы.
+                        </p>
+                        @if (Model.Quantity > 0)
+                        {
+                            <p class="text-red-300">
+                                <strong>На складе осталось @Model.Quantity шт.</strong> этого комплектующего. Убедитесь, что это не повлияет на текущие заказы.
+                            </p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Форма удаления -->
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl">
+            <form asp-action="Delete" method="post" class="space-y-6">
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button type="submit" 
+                            class="bg-gradient-to-r from-red-500 to-red-600 text-white py-4 px-8 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-red-500/25 transition duration-300 flex items-center justify-center flex-1 group">
+                        <svg class="w-6 h-6 mr-2 group-hover:scale-110 transition duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Да, удалить комплектующее
+                    </button>
+                    
+                    <a asp-action="Index" 
+                       class="bg-gray-700 text-white py-4 px-8 rounded-lg font-bold text-lg hover:bg-gray-600 transition duration-300 flex items-center justify-center border border-gray-600">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Дополнительная информация -->
+        <div class="mt-8 text-center">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400 mb-6">
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    Безопасное удаление
+                </div>
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    Контроль доступа
+                </div>
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Поддержка 24/7
+                </div>
+            </div>
+            
+            <p class="text-gray-500 text-sm">
+                © 2024 GameTech PCs. Все права защищены.
+            </p>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach(function(el) {
+                observer.observe(el);
+            });
+
+            // Подтверждение удаления с дополнительной проверкой
+            const deleteForm = document.querySelector('form');
+            deleteForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const componentName = '@Model.Name';
+                const componentType = '@GetTypeDisplayName(Model.Type)';
+                const componentPrice = '@Model.Price.ToString("C")';
+                const componentQuantity = @Model.Quantity;
+                
+                const confirmationMessage = 
+                    `Вы уверены, что хотите удалить комплектующее?\n\n` +
+                    `Название: ${componentName}\n` +
+                    `Тип: ${componentType}\n` +
+                    `Цена: ${componentPrice}\n` +
+                    `Количество: ${componentQuantity} шт.\n\n` +
+                    `Это действие невозможно отменить!`;
+                
+                if (confirm(confirmationMessage)) {
+                    // Дополнительная проверка для комплектующих в наличии
+                    if (componentQuantity > 0) {
+                        const stockCheck = confirm(
+                            'Внимание! На складе осталось ' + componentQuantity + ' шт. этого комплектующего. ' +
+                            'Вы абсолютно уверены, что хотите его удалить?'
+                        );
+                        if (stockCheck) {
+                            deleteForm.submit();
+                        }
+                    } else {
+                        deleteForm.submit();
+                    }
+                }
+            });
+
+            // Пульсирующая анимация для кнопки удаления
+            const deleteButton = document.querySelector('button[type="submit"]');
+            if (deleteButton) {
+                setInterval(function() {
+                    deleteButton.classList.toggle('shadow-red-500/25');
+                    deleteButton.classList.toggle('shadow-red-500/40');
+                }, 2000);
+            }
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        .shadow-red-500\\/25 {
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.25);
+        }
+        
+        .shadow-red-500\\/40 {
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.4);
+        }
+    </style>
+}
+
+@functions {
+    public string GetTypeBadgeClass(string type)
+    {
+        return type switch
+        {
+            "CPU" => "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+            "GPU" => "bg-purple-500/20 text-purple-400 border border-purple-500/30",
+            "RAM" => "bg-green-500/20 text-green-400 border border-green-500/30",
+            "SSD" => "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
+            "HDD" => "bg-orange-500/20 text-orange-400 border border-orange-500/30",
+            "MB" => "bg-red-500/20 text-red-400 border border-red-500/30",
+            "PSU" => "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30",
+            "Case" => "bg-gray-500/20 text-gray-400 border border-gray-500/30",
+            _ => "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+        };
+    }
+
+    public string GetTypeDisplayName(string type)
+    {
+        return type switch
+        {
+            "CPU" => "Процессор",
+            "GPU" => "Видеокарта",
+            "RAM" => "Оперативная память",
+            "SSD" => "SSD накопитель",
+            "HDD" => "Жесткий диск",
+            "MB" => "Материнская плата",
+            "PSU" => "Блок питания",
+            "Case" => "Корпус",
+            _ => type
+        };
+    }
+
+    public string GetQuantityBadgeClass(int quantity)
+    {
+        return quantity switch
+        {
+            0 => "bg-red-500/20 text-red-400 border border-red-500/30",
+            < 5 => "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
+            _ => "bg-green-500/20 text-green-400 border border-green-500/30"
+        };
+    }
+
+    public string GetStatusBadgeClass(int quantity)
+    {
+        return quantity switch
+        {
+            0 => "bg-red-500/20 text-red-400 border border-red-500/30",
+            < 5 => "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
+            _ => "bg-green-500/20 text-green-400 border border-green-500/30"
+        };
+    }
+
+    public string GetStatusText(int quantity)
+    {
+        return quantity switch
+        {
+            0 => "Нет в наличии",
+            < 5 => "Мало на складе",
+            _ => "В наличии"
+        };
+    }
+}

@@ -3,47 +3,326 @@
     ViewData["Title"] = "Редактировать заказ";
 }
 
-<h1>Редактировать заказ #@Model.Id</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Хлебные крошки -->
+        <nav class="flex mb-8" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li>
+                    <a asp-action="Index" class="text-gray-400 hover:text-white transition duration-200">Заказы</a>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-gray-600 mx-2">/</span>
+                    <span class="text-primary">Редактирование заказа #@Model.Id</span>
+                </li>
+            </ol>
+        </nav>
 
-<form asp-action="Edit">
-    <input type="hidden" asp-for="Id" />
-    
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-                <label class="control-label">Пользователь</label>
-                <select asp-for="UserId" class="form-control" required>
-                    @foreach (var user in ViewBag.Users)
-                    {
-                        <option value="@user.Id" selected="@(user.Id == Model.UserId)">@user.Username</option>
-                    }
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label">Тип заказа</label>
-                <select asp-for="OrderTypeId" class="form-control" required>
-                    @foreach (var type in ViewBag.OrderTypes)
-                    {
-                        <option value="@type.Id" selected="@(type.Id == Model.OrderTypeId)">@type.Name</option>
-                    }
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label">Статус</label>
-                <select asp-for="StatusId" class="form-control" required>
-                    @foreach (var status in ViewBag.Statuses)
-                    {
-                        <option value="@status.Id" selected="@(status.Id == Model.StatusId)">@status.Name</option>
-                    }
-                </select>
+        <!-- Заголовок -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">Редактировать заказ #@Model.Id</h1>
+                <p class="text-gray-400">Заказ от @Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</p>
             </div>
         </div>
-    </div>
 
-    <div class="form-group mt-3">
-        <input type="submit" value="Сохранить" class="btn btn-primary" />
-        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+        <form asp-action="Edit" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <input type="hidden" asp-for="Id" />
+            
+            <!-- Основная информация -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Информация о заказе -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-semibold text-white mb-4">Основная информация</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Пользователь</label>
+                            <select asp-for="UserId" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary" required>
+                                @foreach (var user in ViewBag.Users)
+                                {
+                                    <option value="@user.Id" selected="@(user.Id == Model.UserId)">@user.Username</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Тип заказа</label>
+                            <select asp-for="OrderTypeId" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary" required>
+                                @foreach (var type in ViewBag.OrderTypes)
+                                {
+                                    <option value="@type.Id" selected="@(type.Id == Model.OrderTypeId)">@type.Name</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Статус</label>
+                            <select asp-for="StatusId" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary" required>
+                                @foreach (var status in ViewBag.Statuses)
+                                {
+                                    <option value="@status.Id" selected="@(status.Id == Model.StatusId)">@status.Name</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Общая сумма</label>
+                            <input type="text" value="@Model.TotalAmount.ToString("C")" readonly
+                                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white font-semibold">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Комментарий к заказу</label>
+                        <textarea rows="3" placeholder="Введите комментарий..." 
+                                  class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 resize-none focus:border-primary focus:ring-1 focus:ring-primary"></textarea>
+                    </div>
+                </div>
+
+                <!-- Товары в заказе -->
+                @if (Model.ComputerOrders != null && Model.ComputerOrders.Any())
+                {
+                    <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-white">Товары в заказе</h3>
+                            <button type="button" class="text-primary hover:text-green-400 transition duration-200 text-sm font-semibold">
+                                + Добавить товар
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            @foreach (var item in Model.ComputerOrders)
+                            {
+                                <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
+                                            <span class="text-xl">🎮</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-white font-semibold">@item.Computer?.Name</div>
+                                            <div class="text-gray-400 text-sm">@item.Computer?.Description</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex items-center border border-gray-700 rounded-lg">
+                                            <button type="button" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white">−</button>
+                                            <span class="w-8 h-8 flex items-center justify-center text-white font-semibold">@item.Quantity</span>
+                                            <button type="button" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white">+</button>
+                                        </div>
+                                        <div class="text-primary font-bold text-lg">@((item.Quantity * item.UnitPrice).ToString("C"))</div>
+                                        <button type="button" class="text-gray-400 hover:text-red-400 transition duration-200 ml-4">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        
+                        <!-- Итоговая сумма -->
+                        <div class="border-t border-gray-700 mt-4 pt-4">
+                            <div class="flex justify-between items-center text-lg">
+                                <span class="text-gray-300">Итого:</span>
+                                <span class="text-2xl font-bold text-primary">@Model.TotalAmount.ToString("C")</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- История изменений -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-semibold text-white mb-4">История изменений</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                            <div class="flex-1">
+                                <div class="text-white">Заказ создан</div>
+                                <div class="text-gray-400 text-sm">Система • @Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Боковая панель -->
+            <div class="space-y-6">
+                <!-- Информация о клиенте -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-semibold text-white mb-4">Информация о клиенте</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Имя пользователя</label>
+                            <input type="text" value="@Model.User?.Username" readonly
+                                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-400">
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(Model.User?.Email))
+                        {
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-2">Email</label>
+                                <input type="email" value="@Model.User.Email" readonly
+                                       class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-400">
+                            </div>
+                        }
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">ID клиента</label>
+                            <input type="text" value="#@Model.UserId" readonly
+                                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-400">
+                        </div>
+                    </div>
+                    
+                    <a href="@Url.Action("Details", "User", new { id = Model.UserId })" 
+                       class="w-full mt-4 bg-gray-700 text-white py-2 rounded-lg font-semibold hover:bg-gray-600 transition duration-200 text-center block">
+                        Просмотреть профиль клиента
+                    </a>
+                </div>
+
+                <!-- Доставка и оплата -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-semibold text-white mb-4">Дополнительная информация</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Дата создания</label>
+                            <input type="datetime-local" value="@Model.OrderDate.ToString("yyyy-MM-ddTHH:mm")" readonly
+                                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-400">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Дата обновления</label>
+                            <input type="datetime-local" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Действия -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-semibold text-white mb-4">Действия</h3>
+                    
+                    <div class="space-y-3">
+                        <button type="submit" 
+                                class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300">
+                            Сохранить изменения
+                        </button>
+                        
+                        <a asp-action="Index" 
+                           class="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-500 transition duration-200 text-center block">
+                            Отмена
+                        </a>
+                        
+                        <button type="button" 
+                                class="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-400 transition duration-200">
+                            📧 Отправить уведомление
+                        </button>
+                        
+                        <a asp-action="Details" asp-route-id="@Model.Id" 
+                           class="w-full bg-purple-500 text-white py-2 rounded-lg font-semibold hover:bg-purple-400 transition duration-200 text-center block">
+                            📊 Просмотреть детали
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
-</form>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработчики для изменения количества товаров
+            document.querySelectorAll('button').forEach(button => {
+                if (button.textContent === '−' || button.textContent === '+') {
+                    button.addEventListener('click', function() {
+                        const quantitySpan = this.parentElement.querySelector('span');
+                        let quantity = parseInt(quantitySpan.textContent);
+                        
+                        if (this.textContent === '−' && quantity > 1) {
+                            quantitySpan.textContent = quantity - 1;
+                        } else if (this.textContent === '+') {
+                            quantitySpan.textContent = quantity + 1;
+                        }
+                        
+                        // Здесь можно добавить пересчет общей суммы
+                        updateTotalAmount();
+                    });
+                }
+            });
+
+            // Функция обновления общей суммы
+            function updateTotalAmount() {
+                let total = 0;
+                document.querySelectorAll('.bg-gray-800.rounded-lg').forEach(item => {
+                    const quantity = parseInt(item.querySelector('span').textContent);
+                    const priceText = item.querySelector('.text-lg').textContent;
+                    const price = parseFloat(priceText.replace(/[^\d.]/g, ''));
+                    total += quantity * price;
+                });
+                
+                // Обновляем отображение общей суммы
+                const totalElement = document.querySelector('.text-2xl.font-bold.text-primary');
+                if (totalElement) {
+                    totalElement.textContent = new Intl.NumberFormat('ru-RU', {
+                        style: 'currency',
+                        currency: 'RUB'
+                    }).format(total);
+                }
+            }
+
+            // Обработчик удаления товара
+            document.querySelectorAll('button:textContent("🗑️")').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (confirm('Вы уверены, что хотите удалить этот товар из заказа?')) {
+                        this.closest('.bg-gray-800.rounded-lg').remove();
+                        updateTotalAmount();
+                    }
+                });
+            });
+
+            // Валидация формы
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const requiredFields = form.querySelectorAll('[required]');
+                let isValid = true;
+
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('border-red-500');
+                    } else {
+                        field.classList.remove('border-red-500');
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Пожалуйста, заполните все обязательные поля.');
+                }
+            });
+        });
+    </script>
+
+    <style>
+        input:read-only, textarea:read-only {
+            cursor: not-allowed;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
+}

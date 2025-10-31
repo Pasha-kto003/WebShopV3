@@ -91,27 +91,23 @@ namespace WebShopV3.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    _context.Update(component);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ComponentExists(component.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(component);
+                await _context.SaveChangesAsync();
             }
-            return View(component);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ComponentExists(component.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));    
         }
 
         // GET: Component/Delete/5

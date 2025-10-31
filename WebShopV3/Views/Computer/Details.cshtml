@@ -3,73 +3,268 @@
     ViewData["Title"] = "Подробности о компьютере";
 }
 
-<h1>Подробности о компьютере</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Хлебные крошки -->
+        <nav class="flex mb-8" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li>
+                    <a asp-action="Index" class="text-gray-400 hover:text-white transition duration-200">Компьютеры</a>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-gray-600 mx-2">/</span>
+                    <span class="text-primary">@Model.Name</span>
+                </li>
+            </ol>
+        </nav>
 
-<div>
-    <dl class="row">
-        <dt class="col-sm-2">Название:</dt>
-        <dd class="col-sm-10">@Model.Name</dd>
+        <!-- Заголовок -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">Подробности о компьютере</h1>
+                <p class="text-gray-400">Полная информация о конфигурации компьютера</p>
+            </div>
+            <div class="flex space-x-3 mt-4 sm:mt-0">
+                <a asp-action="Edit" asp-route-id="@Model.Id" 
+                   class="bg-yellow-500 text-dark px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition duration-200 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Редактировать
+                </a>
+                <a asp-action="Index" 
+                   class="bg-dark border border-gray-700 text-white px-6 py-3 rounded-lg font-semibold hover:border-primary transition duration-200 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Назад к списку
+                </a>
+            </div>
+        </div>
 
-        <dt class="col-sm-2">Описание:</dt>
-        <dd class="col-sm-10">@Model.Description</dd>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Основная информация -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Карточка основной информации -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Основная информация
+                    </h3>
 
-        <dt class="col-sm-2">Цена:</dt>
-        <dd class="col-sm-10">
-            <strong>@Model.Price.ToString("C")</strong>
-            <br>
-            <small class="text-muted">(сумма комплектующих + 10%)</small>
-        </dd>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Название</label>
+                            <div class="text-white text-lg font-semibold">@Model.Name</div>
+                        </div>
 
-        <dt class="col-sm-2">Количество:</dt>
-        <dd class="col-sm-10">@Model.Quantity</dd>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Количество в наличии</label>
+                            <div class="flex items-center">
+                                <span class="text-white text-lg font-semibold mr-3">@Model.Quantity</span>
+                                @if (Model.Quantity > 0)
+                                {
+                                    <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-green-500/20 text-green-400">
+                                        В наличии
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-red-500/20 text-red-400">
+                                        Нет в наличии
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
 
-        @if (!string.IsNullOrEmpty(Model.ImageUrl))
-        {
-            <dt class="col-sm-2">Изображение:</dt>
-            <dd class="col-sm-10">
-                <img src="/Images/@Model.ImageUrl" alt="@Model.Name" style="max-width: 300px;" />
-            </dd>
-        }
+                    <div class="mt-6">
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Описание</label>
+                        <div class="text-white bg-gray-800/50 rounded-lg p-4">
+                            @Model.Description
+                        </div>
+                    </div>
 
-        @if (Model.ComputerComponents.Any())
-        {
-            <dt class="col-sm-2">Комплектующие:</dt>
-            <dd class="col-sm-10">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Название</th>
-                            <th>Тип</th>
-                            <th>Цена</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var comp in Model.ComputerComponents)
-                        {
-                            <tr>
-                                <td>@comp.Component.Name</td>
-                                <td>@comp.Component.Type</td>
-                                <td>@comp.Component.Price.ToString("C")</td>
-                            </tr>
-                        }
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="2"><strong>Сумма комплектующих:</strong></td>
-                            <td><strong>@Model.ComputerComponents.Sum(cc => cc.Component.Price).ToString("C")</strong></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2"><strong>Наценка (10%):</strong></td>
-                            <td><strong>@((Model.ComputerComponents.Sum(cc => cc.Component.Price) * 0.1m).ToString("C"))</strong></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </dd>
-        }
-    </dl>
+                    <div class="mt-6">
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Цена</label>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-3xl font-bold text-primary">@Model.Price.ToString("C")</div>
+                            <div class="text-gray-400 text-sm">
+                                (сумма комплектующих + 10%)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Комплектующие -->
+                @if (Model.ComputerComponents.Any())
+                {
+                    <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            Комплектующие
+                        </h3>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Название</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Тип</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Цена</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-700">
+                                    @foreach (var comp in Model.ComputerComponents)
+                                    {
+                                        <tr class="hover:bg-gray-800 transition duration-200">
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm text-white">@comp.Component.Name</div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-700 text-gray-300">
+                                                    @comp.Component.Type
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <div class="text-sm font-medium text-primary">@comp.Component.Price.ToString("C")</div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="bg-gray-800/50">
+                                    @{
+                                        var componentsTotal = Model.ComputerComponents.Sum(cc => cc.Component.Price);
+                                        var markup = componentsTotal * 0.1m;
+                                    }
+                                    <tr>
+                                        <td colspan="2" class="px-6 py-4 text-sm font-semibold text-gray-300">Сумма комплектующих:</td>
+                                        <td class="px-6 py-4 text-sm font-semibold text-white">@componentsTotal.ToString("C")</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="px-6 py-4 text-sm font-semibold text-gray-300">Наценка (10%):</td>
+                                        <td class="px-6 py-4 text-sm font-semibold text-primary">@markup.ToString("C")</td>
+                                    </tr>
+                                    <tr class="border-t border-gray-700">
+                                        <td colspan="2" class="px-6 py-4 text-lg font-bold text-white">Итоговая цена:</td>
+                                        <td class="px-6 py-4 text-lg font-bold text-primary">@Model.Price.ToString("C")</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Боковая панель -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Изображение -->
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            Изображение
+                        </h3>
+                        <div class="bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl p-4 flex items-center justify-center">
+                            <img src="/Images/@Model.ImageUrl" alt="@Model.Name" class="max-w-full h-auto rounded-lg max-h-64 object-contain" />
+                        </div>
+                    </div>
+                }
+
+                <!-- Статистика -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        Статистика
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Комплектующих:</span>
+                            <span class="text-white font-semibold">@Model.ComputerComponents.Count()</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Сумма компонентов:</span>
+                            <span class="text-primary font-semibold">@(Model.ComputerComponents.Sum(cc => cc.Component.Price).ToString("C"))</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Наценка:</span>
+                            <span class="text-yellow-400 font-semibold">@((Model.ComputerComponents.Sum(cc => cc.Component.Price) * 0.1m).ToString("C"))</span>
+                        </div>
+                        <div class="border-t border-gray-700 pt-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-white font-bold">Итоговая цена:</span>
+                                <span class="text-2xl font-bold text-primary">@Model.Price.ToString("C")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Быстрые действия -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-bold text-white mb-4">Действия</h3>
+                    <div class="space-y-3">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" 
+                           class="w-full bg-yellow-500 text-dark py-3 rounded-lg font-semibold hover:bg-yellow-400 transition duration-200 text-center block">
+                            Редактировать
+                        </a>
+                        <a asp-action="Index" 
+                           class="w-full bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 text-center block">
+                            Назад к списку
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редактировать</a>
-    <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
-</div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach((el) => {
+                observer.observe(el);
+            });
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
+}

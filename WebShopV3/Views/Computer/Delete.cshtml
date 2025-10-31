@@ -3,24 +3,220 @@
     ViewData["Title"] = "Удалить компьютер";
 }
 
-<h1>Удалить компьютер</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Хлебные крошки -->
+        <nav class="flex mb-8" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li>
+                    <a asp-action="Index" class="text-gray-400 hover:text-white transition duration-200">Компьютеры</a>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-gray-600 mx-2">/</span>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="text-gray-400 hover:text-white transition duration-200">@Model.Name</a>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-gray-600 mx-2">/</span>
+                    <span class="text-red-400">Удаление</span>
+                </li>
+            </ol>
+        </nav>
 
-<h3>Вы уверены, что хотите удалить этот компьютер?</h3>
-<div>
-    <h4>@Model.Name</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Название:</dt>
-        <dd class="col-sm-10">@Model.Name</dd>
-        <dt class="col-sm-2">Цена:</dt>
-        <dd class="col-sm-10">@Model.Price.ToString("C")</dd>
-        <dt class="col-sm-2">Количество:</dt>
-        <dd class="col-sm-10">@Model.Quantity</dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Удалить" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
-    </form>
+        <!-- Заголовок -->
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Удалить компьютер
+            </h1>
+            <p class="text-xl text-gray-400">
+                Это действие нельзя отменить
+            </p>
+        </div>
+
+        <!-- Предупреждение -->
+        <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 mb-8">
+            <div class="flex items-center">
+                <svg class="w-8 h-8 text-red-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                <div>
+                    <h3 class="text-xl font-bold text-red-400 mb-2">Внимание!</h3>
+                    <p class="text-red-300">Вы уверены, что хотите удалить этот компьютер? Это действие нельзя отменить.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Информация о компьютере -->
+        <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 mb-8">
+            <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                Информация о компьютере
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-2">Название</label>
+                    <div class="text-white text-lg font-semibold bg-gray-800/50 rounded-lg p-3">@Model.Name</div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-2">Цена</label>
+                    <div class="text-primary text-lg font-bold bg-gray-800/50 rounded-lg p-3">@Model.Price.ToString("C")</div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-2">Количество в наличии</label>
+                    <div class="flex items-center bg-gray-800/50 rounded-lg p-3">
+                        <span class="text-white text-lg font-semibold mr-3">@Model.Quantity</span>
+                        @if (Model.Quantity > 0)
+                        {
+                            <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-green-500/20 text-green-400">
+                                В наличии
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-red-500/20 text-red-400">
+                                Нет в наличии
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Изображение</label>
+                        <div class="bg-gray-800/50 rounded-lg p-4 flex justify-center">
+                            <img src="/Images/@Model.ImageUrl" alt="@Model.Name" class="max-w-xs h-auto rounded-lg" />
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (Model.ComputerComponents.Any())
+            {
+                <div class="mt-6">
+                    <label class="block text-sm font-semibold text-gray-300 mb-2">Комплектующие (@Model.ComputerComponents.Count() шт.)</label>
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            @foreach (var comp in Model.ComputerComponents.Take(6))
+                            {
+                                <div class="flex items-center text-sm text-gray-300">
+                                    <span class="w-2 h-2 bg-primary rounded-full mr-2"></span>
+                                    @comp.Component.Name
+                                </div>
+                            }
+                            @if (Model.ComputerComponents.Count() > 6)
+                            {
+                                <div class="text-gray-400 text-sm">
+                                    + еще @(Model.ComputerComponents.Count() - 6) комплектующих
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Форма удаления -->
+        <form asp-action="Delete" class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+            <input type="hidden" asp-for="Id" />
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a asp-action="Index" 
+                   class="bg-dark border border-gray-700 text-white px-8 py-4 rounded-lg font-semibold hover:border-primary transition duration-200 text-center flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Отмена
+                </a>
+                <button type="submit" 
+                        class="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-4 rounded-lg font-bold hover:shadow-lg hover:shadow-red-500/25 transition duration-300 flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Удалить компьютер
+                </button>
+            </div>
+
+            <div class="mt-4 text-center">
+                <p class="text-gray-400 text-sm">
+                    После удаления восстановить компьютер будет невозможно
+                </p>
+            </div>
+        </form>
+
+        <!-- Дополнительная информация -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-400">
+            <div class="flex items-center">
+                <svg class="w-4 h-4 mr-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                Все данные о компьютере будут удалены
+            </div>
+            <div class="flex items-center">
+                <svg class="w-4 h-4 mr-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                Связи с комплектующими будут разорваны
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Подтверждение при отправке формы
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const isConfirmed = confirm('Вы уверены, что хотите удалить компьютер \"@Model.Name\"? Это действие нельзя отменить.');
+                if (!isConfirmed) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
+}

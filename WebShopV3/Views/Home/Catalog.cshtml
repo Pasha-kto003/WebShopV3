@@ -3,83 +3,105 @@
     ViewData["Title"] = "Каталог компьютеров";
 }
 
-<div class="row">
-    <!-- Боковая панель с фильтрами -->
-    <div class="col-md-3">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">Фильтры</h5>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок и управление -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Каталог компьютеров</h1>
+                <p class="text-gray-400" id="resultsCount">Найдено @Model.Count готовых сборок</p>
             </div>
-            <div class="card-body">
-                <!-- Поиск -->
-                <div class="mb-3">
-                    <label for="searchInput" class="form-label">Поиск</label>
-                    <input type="text" class="form-control" id="searchInput" placeholder="Введите название..." value="@ViewBag.SearchQuery">
-                </div>
-
-                <!-- Тип комплектующих -->
-                <div class="mb-3">
-                    <label for="componentTypeFilter" class="form-label">Тип комплектующих</label>
-                    <select class="form-select" id="componentTypeFilter">
-                        <option value="all">Все типы</option>
-                        @foreach (var type in ViewBag.ComponentTypes)
-                        {
-                            <option value="@type" selected="@(ViewBag.ComponentType == type)">@type</option>
-                        }
-                    </select>
-                </div>
-
-                <!-- Цена -->
-                <div class="mb-3">
-                    <label class="form-label">Цена</label>
-                    <div class="row">
-                        <div class="col-6">
-                            <input type="number" class="form-control" id="minPrice" placeholder="От" value="@ViewBag.MinPrice">
-                        </div>
-                        <div class="col-6">
-                            <input type="number" class="form-control" id="maxPrice" placeholder="До" value="@ViewBag.MaxPrice">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Кнопка сброса -->
-                <button type="button" class="btn btn-outline-secondary w-100" id="resetFilters">
-                    Сбросить фильтры
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Основной контент -->
-    <div class="col-md-9">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Каталог компьютеров</h1>
             
-            <!-- Сортировка -->
-            <div class="d-flex align-items-center">
-                <label for="sortSelect" class="form-label me-2 mb-0">Сортировка:</label>
-                <select class="form-select" id="sortSelect" style="width: auto;">
+            <div class="flex flex-col sm:flex-row gap-4 mt-4 lg:mt-0">
+                <!-- Переключение вида -->
+                <div class="flex bg-dark-card rounded-lg p-1 border border-gray-800">
+                    <button id="cardViewBtn" class="p-2 rounded-md bg-primary text-dark transition duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                        </svg>
+                    </button>
+                    <button id="listViewBtn" class="p-2 rounded-md text-gray-400 hover:text-white transition duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Сортировка -->
+                <select id="sortSelect" class="bg-dark-card border border-gray-800 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary">
                     <option value="default">По умолчанию</option>
-                    <option value="price_asc" selected="@(ViewBag.SortBy == "price_asc")">Цена по возрастанию</option>
-                    <option value="price_desc" selected="@(ViewBag.SortBy == "price_desc")">Цена по убыванию</option>
-                    <option value="name_asc" selected="@(ViewBag.SortBy == "name_asc")">Название А-Я</option>
-                    <option value="name_desc" selected="@(ViewBag.SortBy == "name_desc")">Название Я-А</option>
-                    <option value="newest" selected="@(ViewBag.SortBy == "newest")">Сначала новые</option>
+                    <option value="price_asc">Цена по возрастанию</option>
+                    <option value="price_desc">Цена по убыванию</option>
+                    <option value="name_asc">Название А-Я</option>
+                    <option value="name_desc">Название Я-А</option>
+                    <option value="newest">Сначала новые</option>
                 </select>
             </div>
         </div>
 
-        <!-- Результаты поиска -->
-        <div id="computerList">
-            @await Html.PartialAsync("_ComputerListPartial", Model)
-        </div>
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Боковая панель с фильтрами -->
+            <div class="lg:w-1/4">
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 mb-6">
+                    <h3 class="text-lg font-bold text-white mb-4">Фильтры</h3>
+                    
+                    <!-- Поиск -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Поиск</label>
+                        <input type="text" id="searchInput" 
+                               class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary" 
+                               placeholder="Введите название..." 
+                               value="@ViewBag.SearchQuery">
+                    </div>
 
-        <!-- Индикатор загрузки -->
-        <div id="loadingIndicator" class="text-center" style="display: none;">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Загрузка...</span>
+                    <!-- Тип комплектующих -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Тип комплектующих</label>
+                        <select id="componentTypeFilter" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary">
+                            <option value="all">Все типы</option>
+                            @foreach (var type in ViewBag.ComponentTypes)
+                            {
+                                <option value="@type" selected="@(ViewBag.ComponentType == type)">@type</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Цена -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">Цена</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" id="minPrice" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary" 
+                                   placeholder="От" 
+                                   value="@ViewBag.MinPrice">
+                            <input type="number" id="maxPrice" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary" 
+                                   placeholder="До" 
+                                   value="@ViewBag.MaxPrice">
+                        </div>
+                    </div>
+
+                    <!-- Кнопка сброса -->
+                    <button type="button" id="resetFilters" 
+                            class="w-full border-2 border-gray-600 text-gray-400 px-4 py-2 rounded-lg font-semibold hover:border-gray-500 hover:text-white transition duration-300">
+                        Сбросить фильтры
+                    </button>
+                </div>
             </div>
-            <p class="mt-2">Поиск компьютеров...</p>
+
+            <!-- Основной контент -->
+            <div class="lg:w-3/4">
+                <!-- Результаты поиска -->
+                <div id="computerList">
+                    @await Html.PartialAsync("_ComputerListPartial", Model)
+                </div>
+
+                <!-- Индикатор загрузки -->
+                <div id="loadingIndicator" class="text-center hidden">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    <p class="mt-2 text-gray-400">Поиск компьютеров...</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -88,10 +110,34 @@
     <script>
         let searchTimeout;
 
+        // Функция переключения вида
+        function switchView(viewType) {
+            const cardsView = document.getElementById('cardsView');
+            const listViewContainer = document.getElementById('listViewContainer');
+            const cardViewBtn = document.getElementById('cardViewBtn');
+            const listViewBtn = document.getElementById('listViewBtn');
+
+            if (viewType === 'cards') {
+                cardsView.classList.remove('hidden');
+                listViewContainer.classList.add('hidden');
+                cardViewBtn.classList.add('bg-primary', 'text-dark');
+                cardViewBtn.classList.remove('text-gray-400');
+                listViewBtn.classList.remove('bg-primary', 'text-dark');
+                listViewBtn.classList.add('text-gray-400');
+            } else {
+                cardsView.classList.add('hidden');
+                listViewContainer.classList.remove('hidden');
+                listViewBtn.classList.add('bg-primary', 'text-dark');
+                listViewBtn.classList.remove('text-gray-400');
+                cardViewBtn.classList.remove('bg-primary', 'text-dark');
+                cardViewBtn.classList.add('text-gray-400');
+            }
+        }
+
         function performSearch() {
             // Показываем индикатор загрузки
-            $('#loadingIndicator').show();
-            $('#computerList').hide();
+            $('#loadingIndicator').removeClass('hidden');
+            $('#computerList').addClass('hidden');
 
             // Отменяем предыдущий таймаут
             if (searchTimeout) {
@@ -111,14 +157,17 @@
                 $.post('@Url.Action("SearchComputers", "Home")', searchParams)
                     .done(function(data) {
                         $('#computerList').html(data);
-                        $('#computerList').show();
+                        $('#computerList').removeClass('hidden');
+                        // Обновляем счетчик результатов
+                        const count = $(data).find('.computer-card').length;
+                        $('#resultsCount').text(`Найдено ${count} готовых сборок`);
                     })
                     .fail(function() {
-                        $('#computerList').html('<div class="alert alert-danger">Ошибка при загрузке данных</div>');
-                        $('#computerList').show();
+                        $('#computerList').html('<div class="bg-red-500/20 border border-red-500/30 text-red-500 px-4 py-3 rounded-lg">Ошибка при загрузке данных</div>');
+                        $('#computerList').removeClass('hidden');
                     })
                     .always(function() {
-                        $('#loadingIndicator').hide();
+                        $('#loadingIndicator').addClass('hidden');
                     });
             }, 500);
         }
@@ -139,25 +188,66 @@
             performSearch();
         });
 
+        // Обработчики переключения вида
+        document.getElementById('cardViewBtn').addEventListener('click', () => switchView('cards'));
+        document.getElementById('listViewBtn').addEventListener('click', () => switchView('list'));
+
         // Инициализация при загрузке страницы
         $(document).ready(function() {
             // Устанавливаем выбранные значения из ViewBag
             $('#sortSelect').val('@ViewBag.SortBy' || 'default');
             $('#componentTypeFilter').val('@ViewBag.ComponentType' || 'all');
+            
+            // Инициализация вида по умолчанию
+            switchView('cards');
+
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.computer-card').forEach((el) => {
+                observer.observe(el);
+            });
         });
     </script>
 
     <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
         .computer-card {
-            transition: transform 0.2s ease-in-out;
+            transition: all 0.3s ease-in-out;
         }
         .computer-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
         }
+        
         .component-badge {
             font-size: 0.7em;
             margin-right: 2px;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
         }
     </style>
 }

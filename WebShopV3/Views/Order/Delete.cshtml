@@ -3,28 +3,264 @@
     ViewData["Title"] = "Удалить заказ";
 }
 
-<h1>Удалить заказ</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок -->
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Удалить заказ
+            </h1>
+            <p class="text-xl text-red-400 font-semibold">
+                Вы уверены, что хотите удалить этот заказ?
+            </p>
+        </div>
 
-<h3>Вы уверены, что хотите удалить этот заказ?</h3>
-<div>
-    <h4>Заказ #@Model.Id</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Дата заказа:</dt>
-        <dd class="col-sm-10">@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</dd>
-        <dt class="col-sm-2">Пользователь:</dt>
-        <dd class="col-sm-10">@Model.User?.Username</dd>
-        <dt class="col-sm-2">Тип заказа:</dt>
-        <dd class="col-sm-10">@Model.OrderType?.Name</dd>
-        <dt class="col-sm-2">Статус:</dt>
-        <dd class="col-sm-10">@Model.Status?.Name</dd>
-        <dt class="col-sm-2">Сумма:</dt>
-        <dd class="col-sm-10">@Model.TotalAmount.ToString("C")</dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Удалить" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
-    </form>
+        <!-- Карточка с информацией о заказе -->
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl mb-8">
+            <!-- Заголовок карточки -->
+            <div class="flex items-center mb-6">
+                <svg class="w-6 h-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                <h2 class="text-2xl font-bold text-white">Заказ #@Model.Id</h2>
+            </div>
+
+            <!-- Информация о заказе -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="space-y-1">
+                    <label class="block text-sm font-semibold text-gray-400">Дата заказа</label>
+                    <div class="flex items-center text-white text-lg">
+                        <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        @Model.OrderDate.ToString("dd.MM.yyyy HH:mm")
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-sm font-semibold text-gray-400">Пользователь</label>
+                    <div class="flex items-center text-white text-lg">
+                        <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        @Model.User?.Username
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-sm font-semibold text-gray-400">Тип заказа</label>
+                    <div class="flex items-center text-white text-lg">
+                        <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        @Model.OrderType?.Name
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-sm font-semibold text-gray-400">Статус</label>
+                    <div class="flex items-center">
+                        <span class="bg-gray-500/20 text-gray-400 border border-gray-500/30 px-4 py-2 rounded-full text-sm font-bold">
+                            @Model.Status?.Name
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Общая сумма -->
+            <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                <div class="flex justify-between items-center">
+                    <span class="text-2xl font-bold text-white">Общая сумма</span>
+                    <span class="text-3xl font-bold text-primary">@Model.TotalAmount.ToString("C")</span>
+                </div>
+            </div>
+
+            <!-- Компьютеры в заказе -->
+            @if (Model.ComputerOrders.Any())
+            {
+                <div class="mt-8">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+                        <svg class="w-5 h-5 text-primary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                        </svg>
+                        Компьютеры в заказе (@Model.ComputerOrders.Count шт.)
+                    </h3>
+                    <div class="space-y-3">
+                        @foreach (var co in Model.ComputerOrders)
+                        {
+                            <div class="flex justify-between items-center bg-gray-800/30 rounded-lg p-4 border border-gray-700">
+                                <div>
+                                    <span class="text-white font-medium">@co.Computer?.Name</span>
+                                    <span class="text-gray-400 text-sm ml-2">× @co.Quantity</span>
+                                </div>
+                                <span class="text-primary font-semibold">@((co.Quantity * co.UnitPrice).ToString("C"))</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Предупреждение -->
+            <div class="mt-8 bg-red-500/10 border border-red-500/30 rounded-xl p-6">
+                <div class="flex items-start">
+                    <svg class="w-6 h-6 text-red-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                    <div>
+                        <h4 class="text-red-400 font-bold text-lg mb-2">Внимание!</h4>
+                        <p class="text-red-300">
+                            Это действие невозможно отменить. Все данные заказа будут безвозвратно удалены из системы.
+                            Убедитесь, что выбран правильный заказ для удаления.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Форма удаления -->
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl">
+            <form asp-action="Delete" method="post" class="space-y-6">
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button type="submit" 
+                            class="bg-gradient-to-r from-red-500 to-red-600 text-white py-4 px-8 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-red-500/25 transition duration-300 flex items-center justify-center flex-1 group">
+                        <svg class="w-6 h-6 mr-2 group-hover:scale-110 transition duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Да, удалить заказ
+                    </button>
+                    
+                    <a asp-action="Index" 
+                       class="bg-gray-700 text-white py-4 px-8 rounded-lg font-bold text-lg hover:bg-gray-600 transition duration-300 flex items-center justify-center border border-gray-600">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Дополнительная информация -->
+        <div class="mt-8 text-center">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400 mb-6">
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    Безопасное удаление
+                </div>
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    Контроль доступа
+                </div>
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Поддержка 24/7
+                </div>
+            </div>
+            
+            <p class="text-gray-500 text-sm">
+                © 2024 GameTech PCs. Все права защищены.
+            </p>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Подтверждение удаления с дополнительной проверкой
+            const deleteForm = document.querySelector('form');
+            deleteForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const orderId = @Model.Id;
+                const orderDate = '@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")';
+                const totalAmount = '@Model.TotalAmount.ToString("C")';
+                
+                const confirmationMessage = 
+                    `Вы уверены, что хотите удалить заказ #${orderId}?\n\n` +
+                    `Дата: ${orderDate}\n` +
+                    `Сумма: ${totalAmount}\n\n` +
+                    `Это действие невозможно отменить!`;
+                
+                if (confirm(confirmationMessage)) {
+                    // Дополнительная проверка для важных заказов
+                    if (@Model.TotalAmount > 1000) {
+                        const finalCheck = confirm(
+                            'Внимание! Это крупный заказ. Вы абсолютно уверены, что хотите его удалить?'
+                        );
+                        if (finalCheck) {
+                            deleteForm.submit();
+                        }
+                    } else {
+                        deleteForm.submit();
+                    }
+                }
+            });
+
+            // Пульсирующая анимация для кнопки удаления
+            const deleteButton = document.querySelector('button[type="submit"]');
+            if (deleteButton) {
+                setInterval(() => {
+                    deleteButton.classList.toggle('shadow-red-500/25');
+                    deleteButton.classList.toggle('shadow-red-500/40');
+                }, 2000);
+            }
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        .shadow-red-500\\/25 {
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.25);
+        }
+        
+        .shadow-red-500\\/40 {
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.4);
+        }
+    </style>
+}

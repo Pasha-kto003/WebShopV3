@@ -2,40 +2,195 @@
     ViewData["Title"] = "Вход в систему";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="text-center">Вход в систему</h2>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок -->
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
             </div>
-            <div class="card-body">
-                <form asp-action="Login" method="post">
-                    <div class="form-group">
-                        <label for="username" class="control-label">Имя пользователя</label>
-                        <input type="text" id="username" name="username" class="form-control" required />
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password" class="control-label">Пароль</label>
-                        <input type="password" id="password" name="password" class="form-control" required />
-                    </div>
-                    
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div class="alert alert-danger">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Вход в систему
+            </h1>
+            <p class="text-xl text-gray-400">
+                Войдите в свой аккаунт GameTech
+            </p>
+        </div>
+
+        <!-- Карточка формы -->
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl">
+            <form asp-action="Login" method="post" class="space-y-6">
+                <!-- Поле имени пользователя -->
+                <div>
+                    <label for="username" class="block text-sm font-semibold text-gray-300 mb-2">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        Имя пользователя *
+                    </label>
+                    <input type="text" id="username" name="username" 
+                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                           placeholder="Введите ваше имя пользователя"
+                           required>
+                </div>
+
+                <!-- Поле пароля -->
+                <div>
+                    <label for="password" class="block text-sm font-semibold text-gray-300 mb-2">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Пароль *
+                    </label>
+                    <input type="password" id="password" name="password" 
+                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                           placeholder="Введите ваш пароль"
+                           required>
+                </div>
+
+                <!-- Сообщения об ошибках -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-red-400 text-sm font-semibold">Ошибка входа</span>
+                        </div>
+                        <div class="text-red-300 text-sm mt-2">
                             @Html.ValidationSummary(true)
                         </div>
-                    }
-                    
-                    <div class="form-group mt-3">
-                        <button type="submit" class="btn btn-primary btn-block">Войти</button>
                     </div>
-                    
-                    <div class="text-center mt-3">
-                        <p>Нет аккаунта? <a asp-action="Register">Зарегистрируйтесь</a></p>
-                    </div>
-                </form>
+                }
+
+                <!-- Кнопка входа -->
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                    </svg>
+                    Войти в систему
+                </button>
+
+                <!-- Ссылка на регистрацию -->
+                <div class="text-center pt-4 border-t border-gray-700">
+                    <p class="text-gray-400">
+                        Нет аккаунта? 
+                        <a asp-action="Register" class="text-primary hover:text-green-400 transition duration-200 font-semibold ml-1">
+                            Зарегистрируйтесь
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <!-- Дополнительная информация -->
+        <div class="mt-8 text-center">
+            <div class="grid grid-cols-3 gap-6 text-xs text-gray-400 mb-6">
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    Безопасно
+                </div>
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    Защита данных
+                </div>
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                        Поддержка 24/7
+                </div>
             </div>
+            
+            <p class="text-gray-500 text-sm">
+                © 2024 GameTech PCs. Все права защищены.
+            </p>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Валидация формы
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                if (!username || !password) {
+                    e.preventDefault();
+                    // Добавляем визуальную обратную связь
+                    if (!username) {
+                        document.getElementById('username').classList.add('border-red-500');
+                    }
+                    if (!password) {
+                        document.getElementById('password').classList.add('border-red-500');
+                    }
+                }
+            });
+
+            // Убираем красную обводку при вводе
+            document.getElementById('username').addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+            });
+            
+            document.getElementById('password').addEventListener('input', function() {
+                this.classList.remove('border-red-500');
+            });
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        input:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        
+        .border-red-500 {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
+}

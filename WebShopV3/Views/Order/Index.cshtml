@@ -3,55 +3,163 @@
     ViewData["Title"] = "Заказы";
 }
 
-<h1>Заказы</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">Заказы</h1>
+                <p class="text-gray-400">Просмотр и управление всеми заказами</p>
+            </div>
+            <a asp-action="Create" class="mt-4 sm:mt-0 bg-gradient-to-r from-primary to-green-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300">
+                Создать заказ
+            </a>
+        </div>
 
-<p>
-    <a asp-action="Create" class="btn btn-success">Создать заказ</a>
-</p>
+        <!-- Фильтры и поиск -->
+        <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-2">Статус</label>
+                    <select class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary">
+                        <option>Все статусы</option>
+                        <option>Новый</option>
+                        <option>В обработке</option>
+                        <option>Собирается</option>
+                        <option>Готов к отправке</option>
+                        <option>Отправлен</option>
+                        <option>Выполнен</option>
+                        <option>Отменен</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-2">Дата от</label>
+                    <input type="date" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-2">Дата до</label>
+                    <input type="date" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-2">Поиск</label>
+                    <input type="text" placeholder="ID заказа или пользователь" 
+                           class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary">
+                </div>
+            </div>
+        </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Дата заказа</th>
-            <th>Пользователь</th>
-            <th>Тип заказа</th>
-            <th>Статус</th>
-            <th>Сумма</th>
-            <th>Действия</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+        <!-- Список заказов -->
+        <div class="bg-dark-card rounded-2xl border border-gray-800 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-800">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Дата заказа</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Пользователь</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Тип заказа</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Статус</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Сумма</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700">
+                        @foreach (var item in Model)
+                        {
+                            <tr class="hover:bg-gray-800 transition duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-white">#@item.Id</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-white">@item.OrderDate.ToString("dd.MM.yyyy")</div>
+                                    <div class="text-sm text-gray-400">@item.OrderDate.ToString("HH:mm")</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-white">@item.User?.Username</div>
+                                    @if (!string.IsNullOrEmpty(item.User?.Email))
+                                    {
+                                        <div class="text-sm text-gray-400">@item.User.Email</div>
+                                    }
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-white">@item.OrderType?.Name</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @GetStatusBadgeClass(item.Status?.Name)">
+                                        @item.Status?.Name
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-primary">@item.TotalAmount.ToString("C")</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <a asp-action="Details" asp-route-id="@item.Id" 
+                                           class="text-blue-400 hover:text-blue-300 transition duration-200">
+                                            Подробнее
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" 
+                                           class="text-yellow-400 hover:text-yellow-300 transition duration-200">
+                                            Редактировать
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" 
+                                           class="text-red-400 hover:text-red-300 transition duration-200">
+                                            Удалить
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @if (!Model.Any())
         {
-            <tr>
-                <td>@item.Id</td>
-                <td>@item.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
-                <td>@item.User?.Username</td>
-                <td>@item.OrderType?.Name</td>
-                <td>
-                    <span class="badge @GetStatusBadgeClass(item.Status?.Name)">@item.Status?.Name</span>
-                </td>
-                <td>@item.TotalAmount.ToString("C")</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Подробнее</a>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Редактировать</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Удалить</a>
-                </td>
-            </tr>
+            <div class="text-center py-12">
+                <div class="text-6xl mb-4">📦</div>
+                <h3 class="text-xl font-bold text-white mb-2">Заказы не найдены</h3>
+                <p class="text-gray-400">Создайте первый заказ или измените параметры фильтрации</p>
+                <a asp-action="Create" class="inline-block mt-4 bg-gradient-to-r from-primary to-green-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300">
+                    Создать заказ
+                </a>
+            </div>
         }
-    </tbody>
-</table>
+
+        <!-- Пагинация -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
+            <div class="text-gray-400 text-sm">
+                Показано @Model.Count() из @Model.Count() заказов
+            </div>
+            <div class="flex space-x-2">
+                <button class="px-3 py-2 bg-dark-card border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-primary transition duration-200">
+                    ← Назад
+                </button>
+                <button class="px-3 py-2 bg-primary text-dark rounded-lg font-semibold">1</button>
+                <button class="px-3 py-2 bg-dark-card border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-primary transition duration-200">2</button>
+                <button class="px-3 py-2 bg-dark-card border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-primary transition duration-200">3</button>
+                <button class="px-3 py-2 bg-dark-card border border-gray-700 rounded-lg text-gray-400 hover:text-white hover:border-primary transition duration-200">
+                    Далее →
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @functions {
     public string GetStatusBadgeClass(string status)
     {
         return status switch
         {
-            "Выполнен" => "bg-success",
-            "В ожидании" => "bg-warning",
-            "Отменен" => "bg-danger",
-            _ => "bg-secondary"
+            "Выполнен" => "bg-green-500/20 text-green-400",
+            "В ожидании" => "bg-yellow-500/20 text-yellow-400",
+            "Отменен" => "bg-red-500/20 text-red-400",
+            "В обработке" => "bg-blue-500/20 text-blue-400",
+            "Собирается" => "bg-purple-500/20 text-purple-400",
+            "Готов к отправке" => "bg-indigo-500/20 text-indigo-400",
+            "Отправлен" => "bg-cyan-500/20 text-cyan-400",
+            _ => "bg-gray-500/20 text-gray-400"
         };
     }
 }

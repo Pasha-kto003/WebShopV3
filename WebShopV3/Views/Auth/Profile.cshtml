@@ -3,72 +3,226 @@
     ViewData["Title"] = "Личный кабинет";
 }
 
-<h1>Личный кабинет</h1>
-
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5>Информация о пользователе</h5>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-white mb-2">Личный кабинет</h1>
+                <p class="text-gray-400">Управление вашим профилем и заказами</p>
             </div>
-            <div class="card-body">
-                <p><strong>Имя пользователя:</strong> @Model.Username</p>
-                <p><strong>Email:</strong> @Model.Email</p>
-                <p><strong>Имя:</strong> @Model.FirstName</p>
-                <p><strong>Фамилия:</strong> @Model.LastName</p>
-                <p><strong>Телефон:</strong> @Model.Phone</p>
-                <p><strong>Роль:</strong> <span class="badge bg-primary">@Model.UserType.Name</span></p>
+            <div class="mt-4 sm:mt-0">
+                <a asp-controller="User" asp-action="Edit" asp-route-id="@Model.Id" class="bg-primary text-dark px-6 py-3 rounded-lg font-bold hover:bg-green-400 transition duration-300">
+                    Редактировать профиль
+                </a>
             </div>
         </div>
-    </div>
-    
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5>Мои заказы</h5>
-            </div>
-            <div class="card-body">
-                @if (Model.Orders.Any())
-                {
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>ID заказа</th>
-                                    <th>Дата</th>
-                                    <th>Тип</th>
-                                    <th>Статус</th>
-                                    <th>Сумма</th>
-                                    <th>Действия</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var order in Model.Orders)
-                                {
-                                    <tr>
-                                        <td>@order.Id</td>
-                                        <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
-                                        <td>@order.OrderType.Name</td>
-                                        <td>
-                                            <span class="badge @GetStatusBadgeClass(order.Status.Name)">
-                                                @order.Status.Name
-                                            </span>
-                                        </td>
-                                        <td>@order.TotalAmount.ToString("C")</td>
-                                        <td>
-                                            <a href="@Url.Action("Details", "Order", new { id = order.Id })" class="btn btn-info btn-sm">Подробнее</a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Левая колонка - Информация о пользователе -->
+            <div class="lg:col-span-1">
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        Информация о пользователе
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-1">Имя пользователя</label>
+                            <div class="text-white font-medium">@Model.Username</div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-1">Email</label>
+                            <div class="text-white font-medium">@Model.Email</div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-1">Имя</label>
+                            <div class="text-white font-medium">@Model.FirstName</div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-1">Фамилия</label>
+                            <div class="text-white font-medium">@Model.LastName</div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-1">Телефон</label>
+                            <div class="text-white font-medium">@Model.Phone</div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-1">Роль</label>
+                            <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-primary/20 text-primary">
+                                @Model.UserType.Name
+                            </span>
+                        </div>
                     </div>
-                }
-                else
-                {
-                    <p class="text-muted">У вас пока нет заказов.</p>
-                    <a href="@Url.Action("Create", "Order")" class="btn btn-primary">Создать первый заказ</a>
-                }
+
+                    <!-- Статистика -->
+                    <div class="mt-6 pt-6 border-t border-gray-700">
+                        <h4 class="text-lg font-semibold text-white mb-4">Статистика</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-primary">@Model.Orders.Count()</div>
+                                <div class="text-gray-400">Всего заказов</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-400">@Model.Orders.Where(o => o.Status.Name == "Выполнен").Count()</div>
+                                <div class="text-gray-400">Выполнено</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Быстрые действия -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 mt-6">
+                    <h3 class="text-xl font-bold text-white mb-4">Быстрые действия</h3>
+                    <div class="space-y-3">
+                        <a href="@Url.Action("Create", "Order")" 
+                           class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300 text-center block">
+                            🛒 Создать заказ
+                        </a>
+                        <a href="@Url.Action("Catalog", "Home")" 
+                           class="w-full bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 text-center block">
+                            📦 Перейти в каталог
+                        </a>
+                        <a href="@Url.Action("Index", "Cart")" 
+                           class="w-full bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 text-center block">
+                            🛍️ Моя корзина
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка - Мои заказы -->
+            <div class="lg:col-span-2">
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            </svg>
+                            Мои заказы
+                        </h3>
+                        <div class="mt-2 sm:mt-0 text-sm text-gray-400">
+                            Всего заказов: @Model.Orders.Count()
+                        </div>
+                    </div>
+
+                    @if (Model.Orders.Any())
+                    {
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ID заказа</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Дата</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Тип</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Статус</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Сумма</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-700">
+                                    @foreach (var order in Model.Orders)
+                                    {
+                                        <tr class="hover:bg-gray-800 transition duration-200">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-white">#@order.Id</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-white">@order.OrderDate.ToString("dd.MM.yyyy")</div>
+                                                <div class="text-sm text-gray-400">@order.OrderDate.ToString("HH:mm")</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-white">@order.OrderType.Name</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full @GetStatusBadgeClass(order.Status.Name)">
+                                                    @order.Status.Name
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-primary">@order.TotalAmount.ToString("C")</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <a href="@Url.Action("Details", "Order", new { id = order.Id })" 
+                                                   class="text-blue-400 hover:text-blue-300 transition duration-200 font-semibold">
+                                                    Подробнее
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Статистика заказов -->
+                        <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="bg-gray-800/50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-primary">@Model.Orders.Count()</div>
+                                <div class="text-gray-400 text-sm">Всего</div>
+                            </div>
+                            <div class="bg-gray-800/50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-yellow-400">@Model.Orders.Count(o => o.Status.Name == "В ожидании" || o.Status.Name == "В обработке")</div>
+                                <div class="text-gray-400 text-sm">Активные</div>
+                            </div>
+                            <div class="bg-gray-800/50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-green-400">@Model.Orders.Count(o => o.Status.Name == "Выполнен")</div>
+                                <div class="text-gray-400 text-sm">Выполнено</div>
+                            </div>
+                            <div class="bg-gray-800/50 rounded-lg p-4 text-center">
+                                <div class="text-2xl font-bold text-primary">@Model.Orders.Sum(o => o.TotalAmount).ToString("C")</div>
+                                <div class="text-gray-400 text-sm">Общая сумма</div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-12">
+                            <div class="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-4">У вас пока нет заказов</h3>
+                            <p class="text-gray-400 mb-6">Создайте свой первый заказ и начните покупать!</p>
+                            <a href="@Url.Action("Create", "Order")" class="inline-flex items-center bg-gradient-to-r from-primary to-green-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300">
+                                Создать первый заказ
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <!-- Последняя активность -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 mt-6">
+                    <h3 class="text-xl font-bold text-white mb-4">Последняя активность</h3>
+                    <div class="space-y-4">
+                        @if (Model.Orders.Any())
+                        {
+                            var lastOrder = Model.Orders.OrderByDescending(o => o.OrderDate).First();
+                            <div class="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center mr-4">
+                                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-white font-semibold">Последний заказ #@lastOrder.Id</div>
+                                        <div class="text-gray-400 text-sm">@lastOrder.OrderDate.ToString("dd.MM.yyyy HH:mm")</div>
+                                    </div>
+                                </div>
+                                <div class="text-primary font-bold">@lastOrder.TotalAmount.ToString("C")</div>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -79,10 +233,55 @@
     {
         return status switch
         {
-            "Выполнен" => "bg-success",
-            "В ожидании" => "bg-warning",
-            "Отменен" => "bg-danger",
-            _ => "bg-secondary"
+            "Выполнен" => "bg-green-500/20 text-green-400",
+            "В ожидании" => "bg-yellow-500/20 text-yellow-400",
+            "Отменен" => "bg-red-500/20 text-red-400",
+            "В обработке" => "bg-blue-500/20 text-blue-400",
+            "Собирается" => "bg-purple-500/20 text-purple-400",
+            "Готов к отправке" => "bg-indigo-500/20 text-indigo-400",
+            "Отправлен" => "bg-cyan-500/20 text-cyan-400",
+            _ => "bg-gray-500/20 text-gray-400"
         };
     }
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach((el) => {
+                observer.observe(el);
+            });
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
 }

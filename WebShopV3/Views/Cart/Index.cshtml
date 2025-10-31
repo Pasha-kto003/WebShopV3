@@ -3,133 +3,345 @@
     ViewData["Title"] = "Корзина покупок";
 }
 
-<h1>Корзина покупок</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок -->
+        <div class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Корзина покупок
+            </h1>
+            <p class="text-xl text-gray-400">
+                Просмотрите и оформите ваш заказ
+            </p>
+        </div>
 
-@if (!Model.Items.Any())
-{
-    <div class="alert alert-info">
-        <h4>Корзина пуста</h4>
-        <p>Добавьте товары из каталога, чтобы сделать заказ.</p>
-        <a href="@Url.Action("Catalog", "Home")" class="btn btn-primary">Перейти в каталог</a>
-    </div>
-}
-else
-{
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Товары в корзине</h5>
+        @if (!Model.Items.Any())
+        {
+            <!-- Пустая корзина -->
+            <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 text-center">
+                <div class="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Товар</th>
-                                    <th>Цена</th>
-                                    <th>Количество</th>
-                                    <th>Сумма</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model.Items)
-                                {
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                @if (!string.IsNullOrEmpty(item.ImageUrl))
-                                                {
-                                                    <img src="~/images/@item.ImageUrl" alt="@item.ComputerName" style="width: 60px; height: 60px; object-fit: cover;" class="me-3 rounded">
-                                                }
-                                                <div>
-                                                    <h6 class="mb-0">@item.ComputerName</h6>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>@item.Price.ToString("C")</td>
-                                        <td>
-                                            <div class="input-group input-group-sm" style="width: 120px;">
-                                                <input type="number" class="form-control quantity-input" 
-                                                       value="@item.Quantity" min="1" 
-                                                       data-computer-id="@item.ComputerId">
-                                            </div>
-                                        </td>
-                                        <td>@item.TotalPrice.ToString("C")</td>
-                                        <td>
-                                            <button class="btn btn-outline-danger btn-sm remove-from-cart" 
-                                                    data-computer-id="@item.ComputerId"
-                                                    title="Удалить из корзины">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-3">
-                <button class="btn btn-outline-secondary" id="clear-cart">
-                    <i class="bi bi-trash"></i> Очистить корзину
-                </button>
-                <a href="@Url.Action("Catalog", "Home")" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-left"></i> Продолжить покупки
+                <h3 class="text-2xl font-bold text-white mb-4">Корзина пуста</h3>
+                <p class="text-gray-400 mb-6">Добавьте товары из каталога, чтобы сделать заказ</p>
+                <a href="@Url.Action("Catalog", "Home")" class="inline-flex items-center bg-gradient-to-r from-primary to-green-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300">
+                    Перейти в каталог
                 </a>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Левая колонка - Товары в корзине -->
+                <div class="lg:col-span-2">
+                    <!-- Список товаров -->
+                    <div class="space-y-6">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 cart-item" data-computer-id="@item.ComputerId" data-price="@item.Price">
+                                <div class="flex flex-col md:flex-row gap-6">
+                                    <!-- Изображение -->
+                                    <div class="flex-shrink-0">
+                                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                        {
+                                            <div class="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center overflow-hidden">
+                                                <img src="/Images/@item.ImageUrl" alt="@item.ComputerName" class="w-full h-full object-cover">
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
+                                                <span class="text-3xl">🎮</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    
+                                    <!-- Информация о товаре -->
+                                    <div class="flex-grow">
+                                        <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
+                                            <div>
+                                                <h3 class="text-xl font-bold text-white mb-2">@item.ComputerName</h3>
+                                            </div>
+                                            <div class="mt-2 md:mt-0">
+                                                <div class="text-2xl font-bold text-primary">@item.Price.ToString("C")</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Управление количеством -->
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-3">
+                                                <span class="text-gray-400 text-sm">Количество:</span>
+                                                <div class="flex items-center border border-gray-700 rounded-lg">
+                                                    <button class="quantity-decrease w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white transition duration-200"
+                                                            data-computer-id="@item.ComputerId">
+                                                        −
+                                                    </button>
+                                                    <span class="quantity w-12 h-10 flex items-center justify-center text-white font-semibold">@item.Quantity</span>
+                                                    <button class="quantity-increase w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white transition duration-200"
+                                                            data-computer-id="@item.ComputerId">
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex items-center space-x-4">
+                                                <button class="text-gray-400 hover:text-primary transition duration-200 flex items-center">
+                                                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                                    </svg>
+                                                    В избранное
+                                                </button>
+                                                <button class="text-gray-400 hover:text-red-400 transition duration-200 flex items-center remove-from-cart"
+                                                        data-computer-id="@item.ComputerId">
+                                                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                    Удалить
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
 
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Итого</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Товары (@Model.TotalItems шт.):</span>
-                        <span>@Model.TotalAmount.ToString("C")</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Доставка:</span>
-                        <span class="text-success">Бесплатно</span>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between mb-3">
-                        <strong>Общая сумма:</strong>
-                        <strong class="text-primary">@Model.TotalAmount.ToString("C")</strong>
-                    </div>
-
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <a href="@Url.Action("Checkout", "Cart")" class="btn btn-success w-100 btn-lg">
-                            <i class="bi bi-credit-card"></i> Оформить заказ
-                        </a>
-                    }
-                    else
-                    {
-                        <div class="alert alert-warning">
-                            <p class="mb-2">Для оформления заказа необходимо войти в систему</p>
-                            <a href="@Url.Action("Login", "Auth")" class="btn btn-primary w-100">Войти</a>
+                    <!-- Дополнительные услуги -->
+                    <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 mt-8">
+                        <h3 class="text-lg font-semibold text-white mb-4">Дополнительные услуги</h3>
+                        <div class="space-y-4">
+                            <label class="flex items-start">
+                                <input type="checkbox" class="mt-1 rounded bg-dark border-gray-700 text-primary focus:ring-primary service-checkbox" data-price="5000">
+                                <div class="ml-3">
+                                    <span class="text-white font-medium">Расширенная гарантия +1 год</span>
+                                    <p class="text-gray-400 text-sm mt-1">Дополнительный год гарантии на все компоненты</p>
+                                    <span class="text-primary font-semibold">+5 000₽</span>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start">
+                                <input type="checkbox" class="mt-1 rounded bg-dark border-gray-700 text-primary focus:ring-primary service-checkbox" data-price="3000">
+                                <div class="ml-3">
+                                    <span class="text-white font-medium">Установка ПО</span>
+                                    <p class="text-gray-400 text-sm mt-1">Установка Windows, драйверов и базового ПО</p>
+                                    <span class="text-primary font-semibold">+3 000₽</span>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start">
+                                <input type="checkbox" class="mt-1 rounded bg-dark border-gray-700 text-primary focus:ring-primary service-checkbox" data-price="2000">
+                                <div class="ml-3">
+                                    <span class="text-white font-medium">Срочная сборка</span>
+                                    <p class="text-gray-400 text-sm mt-1">Сборка в течение 24 часов</p>
+                                    <span class="text-primary font-semibold">+2 000₽</span>
+                                </div>
+                            </label>
                         </div>
-                    }
+                    </div>
+
+                    <!-- Кнопки управления корзиной -->
+                    <div class="flex flex-col sm:flex-row gap-4 mt-6">
+                        <button id="clear-cart" class="bg-dark border border-gray-700 text-gray-400 px-6 py-3 rounded-lg font-semibold hover:border-red-400 hover:text-red-400 transition duration-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Очистить корзину
+                        </button>
+                        <a href="@Url.Action("Catalog", "Home")" class="bg-dark border border-gray-700 text-white px-6 py-3 rounded-lg font-semibold hover:border-primary transition duration-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            Продолжить покупки
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Правая колонка - Итоги -->
+                <div class="lg:col-span-1">
+                    <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 sticky top-24">
+                        <h3 class="text-xl font-bold text-white mb-6">Итоги заказа</h3>
+                        
+                        <div class="space-y-4 mb-6">
+                            <div class="flex justify-between text-gray-400">
+                                <span>Товары (@Model.TotalItems шт.)</span>
+                                <span id="subtotal">@Model.TotalAmount.ToString("C")</span>
+                            </div>
+                            <div class="flex justify-between text-gray-400">
+                                <span>Доп. услуги</span>
+                                <span id="servicesTotal">0₽</span>
+                            </div>
+                            <div class="flex justify-between text-gray-400">
+                                <span>Доставка</span>
+                                <span class="text-green-400">Бесплатно</span>
+                            </div>
+                            
+                            <div class="border-t border-gray-700 pt-4">
+                                <div class="flex justify-between items-center text-lg">
+                                    <span class="text-white font-semibold">Итого</span>
+                                    <span id="total" class="text-2xl font-bold text-primary">@Model.TotalAmount.ToString("C")</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Промокод -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Промокод</label>
+                            <div class="flex space-x-2">
+                                <input type="text" placeholder="Введите промокод" 
+                                       class="flex-grow bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary">
+                                <button class="bg-primary text-dark px-4 py-2 rounded-lg font-semibold hover:bg-green-400 transition duration-200">
+                                    Применить
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Кнопки оформления -->
+                        <div class="space-y-3">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <a href="@Url.Action("Checkout", "Cart")" id="checkoutBtn" class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 text-center block">
+                                    Оформить заказ
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 mb-4">
+                                    <p class="text-yellow-400 text-sm mb-3">Для оформления заказа необходимо войти в систему</p>
+                                    <a href="@Url.Action("Login", "Auth")" class="w-full bg-primary text-dark py-3 rounded-lg font-bold text-center block hover:bg-green-400 transition duration-300">
+                                        Войти
+                                    </a>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Доверительные знаки -->
+                        <div class="mt-6 pt-6 border-t border-gray-700">
+                            <div class="grid grid-cols-2 gap-4 text-xs text-gray-400">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                    </svg>
+                                    Безопасная оплата
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                    </svg>
+                                    Гарантия 3 года
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    Защита данных
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Поддержка 24/7
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <!-- Рекомендации -->
+            <div class="mt-16">
+                <h2 class="text-2xl font-bold text-white mb-8">С этим также покупают</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Аксессуар 1 -->
+                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300">
+                        <div class="w-full h-32 bg-gradient-to-br from-secondary/20 to-blue-400/10 rounded-xl flex items-center justify-center mb-4">
+                            <span class="text-3xl">🖥️</span>
+                        </div>
+                        <h4 class="text-white font-semibold mb-2">Игровой монитор 27"</h4>
+                        <p class="text-gray-400 text-sm mb-3">144Hz, 1ms, 2K разрешение</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-primary font-bold">34 990₽</span>
+                            <button class="bg-primary text-dark px-3 py-1 rounded-lg text-sm font-semibold hover:bg-green-400 transition duration-200 add-accessory"
+                                    data-name="Игровой монитор 27" data-price="34990">
+                                + Добавить
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Аксессуар 2 -->
+                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300">
+                        <div class="w-full h-32 bg-gradient-to-br from-accent/20 to-pink-500/10 rounded-xl flex items-center justify-center mb-4">
+                            <span class="text-3xl">⌨️</span>
+                        </div>
+                        <h4 class="text-white font-semibold mb-2">Механическая клавиатура</h4>
+                        <p class="text-gray-400 text-sm mb-3">RGB подсветка, Cherry MX</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-primary font-bold">8 490₽</span>
+                            <button class="bg-primary text-dark px-3 py-1 rounded-lg text-sm font-semibold hover:bg-green-400 transition duration-200 add-accessory"
+                                    data-name="Механическая клавиатура" data-price="8490">
+                                + Добавить
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Аксессуар 3 -->
+                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300">
+                        <div class="w-full h-32 bg-gradient-to-br from-green-500/20 to-emerald-400/10 rounded-xl flex items-center justify-center mb-4">
+                            <span class="text-3xl">🎧</span>
+                        </div>
+                        <h4 class="text-white font-semibold mb-2">Игровая гарнитура</h4>
+                        <p class="text-gray-400 text-sm mb-3">7.1 Surround Sound, RGB</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-primary font-bold">12 990₽</span>
+                            <button class="bg-primary text-dark px-3 py-1 rounded-lg text-sm font-semibold hover:bg-green-400 transition duration-200 add-accessory"
+                                    data-name="Игровая гарнитура" data-price="12990">
+                                + Добавить
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Аксессуар 4 -->
+                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300">
+                        <div class="w-full h-32 bg-gradient-to-br from-purple-500/20 to-violet-500/10 rounded-xl flex items-center justify-center mb-4">
+                            <span class="text-3xl">🖱️</span>
+                        </div>
+                        <h4 class="text-white font-semibold mb-2">Игровая мышь</h4>
+                        <p class="text-gray-400 text-sm mb-3">16000 DPI, 8 кнопок, RGB</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-primary font-bold">5 990₽</span>
+                            <button class="bg-primary text-dark px-3 py-1 rounded-lg text-sm font-semibold hover:bg-green-400 transition duration-200 add-accessory"
+                                    data-name="Игровая мышь" data-price="5990">
+                                + Добавить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
-}
+</div>
 
 @section Scripts {
     <script>
         $(document).ready(function() {
             // Обновление количества
-            $('.quantity-input').on('change', function() {
+            $('.quantity-increase').on('click', function() {
                 const computerId = $(this).data('computer-id');
-                const quantity = $(this).val();
+                const quantityElement = $(this).siblings('.quantity');
+                let quantity = parseInt(quantityElement.text());
+                quantityElement.text(quantity + 1);
+                updateCartQuantity(computerId, quantity + 1);
+            });
 
-                updateCartQuantity(computerId, quantity);
+            $('.quantity-decrease').on('click', function() {
+                const computerId = $(this).data('computer-id');
+                const quantityElement = $(this).siblings('.quantity');
+                let quantity = parseInt(quantityElement.text());
+                if (quantity > 1) {
+                    quantityElement.text(quantity - 1);
+                    updateCartQuantity(computerId, quantity - 1);
+                }
             });
 
             // Удаление из корзины
@@ -144,46 +356,126 @@ else
                     clearCart();
                 }
             });
+
+            // Добавление аксессуаров
+            $('.add-accessory').on('click', function() {
+                const name = $(this).data('name');
+                const price = $(this).data('price');
+                showNotification(`Товар "${name}" добавлен в корзину!`);
+                // Здесь можно добавить логику добавления аксессуара в корзину
+            });
+
+            // Обновление дополнительных услуг
+            $('.service-checkbox').on('change', function() {
+                updateTotals();
+            });
+
+            function updateCartQuantity(computerId, quantity) {
+                $.post('@Url.Action("UpdateQuantity", "Cart")', { computerId, quantity })
+                    .done(function(response) {
+                        if (response.success) {
+                            updateTotals();
+                            showNotification('Количество обновлено');
+                        } else {
+                            showNotification(response.message, 'error');
+                        }
+                    })
+                    .fail(function() {
+                        showNotification('Ошибка при обновлении количества', 'error');
+                    });
+            }
+
+            function removeFromCart(computerId) {
+                $.post('@Url.Action("RemoveFromCart", "Cart")', { computerId })
+                    .done(function(response) {
+                        if (response.success) {
+                            $(`.cart-item[data-computer-id="${computerId}"]`).fadeOut(300, function() {
+                                $(this).remove();
+                                if ($('.cart-item').length === 0) {
+                                    location.reload();
+                                } else {
+                                    updateTotals();
+                                }
+                            });
+                            showNotification('Товар удален из корзины');
+                        } else {
+                            showNotification(response.message, 'error');
+                        }
+                    })
+                    .fail(function() {
+                        showNotification('Ошибка при удалении товара', 'error');
+                    });
+            }
+
+            function clearCart() {
+                $.post('@Url.Action("Clear", "Cart")')
+                    .done(function(response) {
+                        if (response.success) {
+                            location.reload();
+                        }
+                    })
+                    .fail(function() {
+                        showNotification('Ошибка при очистке корзины', 'error');
+                    });
+            }
+
+            function updateTotals() {
+                let subtotal = 0;
+                
+                // Сумма товаров
+                $('.cart-item').each(function() {
+                    const price = parseFloat($(this).data('price'));
+                    const quantity = parseInt($(this).find('.quantity').text());
+                    subtotal += price * quantity;
+                });
+                
+                // Сумма дополнительных услуг
+                let servicesTotal = 0;
+                $('.service-checkbox:checked').each(function() {
+                    servicesTotal += parseFloat($(this).data('price'));
+                });
+                
+                // Итоговая сумма
+                const total = subtotal + servicesTotal;
+                
+                // Обновление UI
+                $('#subtotal').text(formatPrice(subtotal));
+                $('#servicesTotal').text(formatPrice(servicesTotal));
+                $('#total').text(formatPrice(total));
+            }
+
+            function formatPrice(price) {
+                return new Intl.NumberFormat('ru-RU', {
+                    style: 'currency',
+                    currency: 'RUB'
+                }).format(price);
+            }
+
+            function showNotification(message, type = 'success') {
+                const alertClass = type === 'success' ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-red-500/20 border-red-500/30 text-red-400';
+                
+                const notification = $(`
+                    <div class="fixed top-4 right-4 z-50 p-4 rounded-lg border backdrop-blur-sm transition-transform duration-300 transform translate-x-full ${alertClass}">
+                        ${message}
+                    </div>
+                `);
+                
+                $('body').append(notification);
+                
+                setTimeout(() => {
+                    notification.removeClass('translate-x-full');
+                }, 100);
+                
+                setTimeout(() => {
+                    notification.addClass('translate-x-full');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+
+            // Инициализация
+            updateTotals();
         });
-
-        function updateCartQuantity(computerId, quantity) {
-            $.post('@Url.Action("UpdateQuantity", "Cart")', { computerId, quantity })
-                .done(function(response) {
-                    if (response.success) {
-                        location.reload(); // Просто перезагружаем страницу для обновления
-                    } else {
-                        alert(response.message);
-                    }
-                })
-                .fail(function() {
-                    alert('Ошибка при обновлении количества');
-                });
-        }
-
-        function removeFromCart(computerId) {
-            $.post('@Url.Action("RemoveFromCart", "Cart")', { computerId })
-                .done(function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert(response.message);
-                    }
-                })
-                .fail(function() {
-                    alert('Ошибка при удалении товара');
-                });
-        }
-
-        function clearCart() {
-            $.post('@Url.Action("Clear", "Cart")')
-                .done(function(response) {
-                    if (response.success) {
-                        location.reload();
-                    }
-                })
-                .fail(function() {
-                    alert('Ошибка при очистке корзины');
-                });
-        }
     </script>
 }

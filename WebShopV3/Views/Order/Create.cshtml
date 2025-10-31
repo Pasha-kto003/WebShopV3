@@ -3,77 +3,315 @@
     ViewData["Title"] = "Создать заказ";
 }
 
-<h1>Создать заказ</h1>
-
-<form asp-action="Create">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-                <label class="control-label">Пользователь</label>
-                <select name="UserId" class="form-control" required>
-                    <option value="">Выберите пользователя</option>
-                    @foreach (var user in ViewBag.Users)
-                    {
-                        <option value="@user.Id">@user.Username (@user.Email)</option>
-                    }
-                </select>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок -->
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
             </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Создать заказ
+            </h1>
+            <p class="text-xl text-gray-400">
+                Оформление нового заказа в системе GameTech
+            </p>
+        </div>
 
-            <div class="form-group">
-                <label class="control-label">Тип заказа</label>
-                <select asp-for="OrderTypeId" class="form-control" required>
-                    <option value="">Выберите тип заказа</option>
-                    @foreach (var type in ViewBag.OrderTypes)
-                    {
-                        <option value="@type.Id">@type.Name</option>
-                    }
-                </select>
-            </div>
+        <!-- Карточка формы -->
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl mb-8">
+            <form asp-action="Create" method="post" class="space-y-8">
+                <!-- Основная информация -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Пользователь -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-300 mb-2">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            Пользователь *
+                        </label>
+                        <select name="UserId" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200" required>
+                            <option value="">Выберите пользователя</option>
+                            @foreach (var user in ViewBag.Users)
+                            {
+                                <option value="@user.Id">@user.Username (@user.Email)</option>
+                            }
+                        </select>
+                    </div>
 
-            <div class="form-group">
-                <label class="control-label">Статус</label>
-                <select asp-for="StatusId" class="form-control" required>
-                    <option value="">Выберите статус</option>
-                    @foreach (var status in ViewBag.Statuses)
-                    {
-                        <option value="@status.Id">@status.Name</option>
-                    }
-                </select>
+                    <!-- Тип заказа -->
+                    <div>
+                        <label asp-for="OrderTypeId" class="block text-sm font-semibold text-gray-300 mb-2">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                            Тип заказа *
+                        </label>
+                        <select asp-for="OrderTypeId" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200" required>
+                            <option value="">Выберите тип заказа</option>
+                            @foreach (var type in ViewBag.OrderTypes)
+                            {
+                                <option value="@type.Id">@type.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Статус -->
+                    <div>
+                        <label asp-for="StatusId" class="block text-sm font-semibold text-gray-300 mb-2">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Статус *
+                        </label>
+                        <select asp-for="StatusId" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200" required>
+                            <option value="">Выберите статус</option>
+                            @foreach (var status in ViewBag.Statuses)
+                            {
+                                <option value="@status.Id">@status.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Компьютеры в заказе -->
+                <div class="mt-8">
+                    <div class="flex items-center mb-6">
+                        <svg class="w-6 h-6 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                        </svg>
+                        <h2 class="text-2xl font-bold text-white">Компьютеры в заказе</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @{
+                            var computers = ViewBag.Computers as List<WebShopV3.Models.Computer>;
+                            if (computers != null && computers.Any())
+                            {
+                                for (int i = 0; i < computers.Count; i++)
+                                {
+                                    <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-primary/50 transition duration-200">
+                                        <div class="flex items-start justify-between mb-4">
+                                            <h3 class="text-lg font-semibold text-white">@computers[i].Name</h3>
+                                            <span class="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
+                                                @computers[i].Price.ToString("C")
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="flex items-center text-gray-400 text-sm mb-4">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                                            </svg>
+                                            В наличии: @computers[i].Quantity шт.
+                                        </div>
+
+                                        <div class="space-y-3">
+                                            <label class="block text-sm font-medium text-gray-300">Количество:</label>
+                                            <input type="number" 
+                                                   name="quantities" 
+                                                   value="0" 
+                                                   min="0" 
+                                                   max="@computers[i].Quantity"
+                                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 quantity-input"
+                                                   data-computer-id="@computers[i].Id"
+                                                   onchange="updateComputerSelection(this)">
+                                            <input type="checkbox" 
+                                                   name="selectedComputers" 
+                                                   value="@computers[i].Id" 
+                                                   class="computer-checkbox hidden">
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="col-span-3 text-center py-8">
+                                    <svg class="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <p class="text-gray-400 text-lg">Нет доступных компьютеров</p>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700">
+                    <button type="submit" 
+                            class="bg-gradient-to-r from-primary to-green-400 text-dark py-4 px-8 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center flex-1">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Создать заказ
+                    </button>
+                    
+                    <a asp-action="Index" 
+                       class="bg-gray-700 text-white py-4 px-8 rounded-lg font-bold text-lg hover:bg-gray-600 transition duration-300 flex items-center justify-center border border-gray-600">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Дополнительная информация -->
+        <div class="mt-8 text-center">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400 mb-6">
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    Безопасные платежи
+                </div>
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    Быстрая доставка
+                </div>
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Поддержка 24/7
+                </div>
             </div>
+            
+            <p class="text-gray-500 text-sm">
+                © 2024 GameTech PCs. Все права защищены.
+            </p>
         </div>
     </div>
+</div>
 
-    <h4 class="mt-4">Компьютеры в заказе</h4>
-    <div class="row">
-        @{
-            var computers = ViewBag.Computers as List<WebShopV3.Models.Computer>;
-            if (computers != null && computers.Any())
-            {
-                for (int i = 0; i < computers.Count; i++)
-                {
-                    <div class="col-md-4 mb-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h6 class="card-title">@computers[i].Name</h6>
-                                <p class="card-text">@computers[i].Price.ToString("C")</p>
-                                <p class="card-text">В наличии: @computers[i].Quantity шт.</p>
-                                <div class="form-group">
-                                    <label>Количество:</label>
-                                    <input type="number" name="quantities" value="0" min="0" max="@computers[i].Quantity" 
-                                           class="form-control" onchange="document.getElementById('computer_@i').checked = this.value > 0">
-                                    <input type="checkbox" name="selectedComputers" value="@computers[i].Id" 
-                                           id="computer_@i" style="display: none;">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card, .bg-gray-800\\/50').forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Обновление выбора компьютеров
+            window.updateComputerSelection = function(input) {
+                const computerId = input.getAttribute('data-computer-id');
+                const checkbox = input.parentElement.querySelector('.computer-checkbox');
+                const quantity = parseInt(input.value);
+                
+                if (quantity > 0) {
+                    checkbox.checked = true;
+                    input.parentElement.parentElement.classList.add('ring-2', 'ring-primary/50');
+                } else {
+                    checkbox.checked = false;
+                    input.parentElement.parentElement.classList.remove('ring-2', 'ring-primary/50');
                 }
+            };
+
+            // Валидация формы
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const userId = document.querySelector('select[name="UserId"]').value;
+                const orderTypeId = document.querySelector('select[name="OrderTypeId"]').value;
+                const statusId = document.querySelector('select[name="StatusId"]').value;
+                const selectedComputers = document.querySelectorAll('.computer-checkbox:checked');
+                
+                let isValid = true;
+                
+                if (!userId) {
+                    highlightError(document.querySelector('select[name="UserId"]'));
+                    isValid = false;
+                }
+                
+                if (!orderTypeId) {
+                    highlightError(document.querySelector('select[name="OrderTypeId"]'));
+                    isValid = false;
+                }
+                
+                if (!statusId) {
+                    highlightError(document.querySelector('select[name="StatusId"]'));
+                    isValid = false;
+                }
+                
+                if (selectedComputers.length === 0) {
+                    alert('Выберите хотя бы один компьютер для заказа');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+
+            function highlightError(element) {
+                element.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+                setTimeout(() => {
+                    element.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                }, 3000);
+            }
+
+            // Убираем подсветку ошибок при изменении
+            const inputs = form.querySelectorAll('select, input');
+            inputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    this.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        select:focus, input:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        
+        .border-red-500 {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
             }
         }
-    </div>
-
-    <div class="form-group mt-3">
-        <input type="submit" value="Создать заказ" class="btn btn-primary" />
-        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
-    </div>
-</form>
+        
+        .quantity-input::-webkit-outer-spin-button,
+        .quantity-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .quantity-input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+}

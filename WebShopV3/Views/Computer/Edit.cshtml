@@ -3,76 +3,175 @@
     ViewData["Title"] = "Редактировать компьютер";
 }
 
-<h1>Редактировать компьютер</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Хлебные крошки -->
+        <nav class="flex mb-8" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li>
+                    <a asp-action="Index" class="text-gray-400 hover:text-white transition duration-200">Компьютеры</a>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-gray-600 mx-2">/</span>
+                    <span class="text-primary">Редактировать @Model.Name</span>
+                </li>
+            </ol>
+        </nav>
 
-<form asp-action="Edit">
-    <input type="hidden" asp-for="Id" />
-    
-    <div class="form-group">
-        <label asp-for="Name" class="control-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <label asp-for="Description" class="control-label"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-    
-    <!-- Убрано поле ввода цены -->
-    <!-- <div class="form-group">
-        <label asp-for="Price" class="control-label"></label>
-        <input asp-for="Price" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div> -->
-    
-    <div class="form-group">
-        <label asp-for="Quantity" class="control-label"></label>
-        <input asp-for="Quantity" class="form-control" />
-        <span asp-validation-for="Quantity" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <label asp-for="ImageUrl" class="control-label">Текущее изображение: @Model.ImageUrl</label>
-        @* <input asp-for="ImageUrl" class="form-control" /> *@
-        <input type="file"asp-for="ImageUrl" class="form-control"/>
-        <span asp-validation-for="ImageUrl" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label class="control-label">Комплектующие:</label>
-        <div class="alert alert-info">
-            <strong>Текущая цена:</strong> @Model.Price.ToString("C")<br>
-            <small>Цена пересчитается автоматически при сохранении</small>
+        <!-- Заголовок -->
+        <div class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Редактировать компьютер
+            </h1>
+            <p class="text-xl text-gray-400">
+                Внесите изменения в конфигурацию компьютера
+            </p>
         </div>
-        <div>
-            @if (ViewBag.Components != null)
-            {
-                foreach (var component in ViewBag.Components)
-                {
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="selectedComponents" value="@component.Id" 
-                               id="component_@component.Id" 
-                               @(Model.ComputerComponents.Any(cc => cc.ComponentId == component.Id) ? "checked" : "")>
-                        <label class="form-check-label" for="component_@component.Id">
-                            @component.Name - @component.Price.ToString("C") (@component.Type)
+
+        <form asp-action="Edit" class="space-y-8">
+            <input type="hidden" asp-for="Id" />
+            
+            <!-- Основная информация -->
+            <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Основная информация
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label asp-for="Name" class="block text-sm font-semibold text-gray-300 mb-2">
+                            Название компьютера *
                         </label>
+                        <input asp-for="Name" 
+                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                               placeholder="Например: GT-Storm Pro"/>
+                        <span asp-validation-for="Name" class="text-red-400 text-sm mt-1"></span>
                     </div>
-                }
-            }
-            else
-            {
-                <p class="text-muted">Нет доступных комплектующих</p>
-            }
-        </div>
-    </div>
 
-    <div class="form-group mt-3">
-        <input type="submit" value="Сохранить" class="btn btn-primary" />
-        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+                    <div>
+                        <label asp-for="Quantity" class="block text-sm font-semibold text-gray-300 mb-2">
+                            Количество в наличии *
+                        </label>
+                        <input asp-for="Quantity" type="number"
+                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                               placeholder="0"/>
+                        <span asp-validation-for="Quantity" class="text-red-400 text-sm mt-1"></span>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label asp-for="Description" class="block text-sm font-semibold text-gray-300 mb-2">
+                        Описание *
+                    </label>
+                    <textarea asp-for="Description" rows="4"
+                              class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none"
+                              placeholder="Опишите характеристики и особенности компьютера..."></textarea>
+                    <span asp-validation-for="Description" class="text-red-400 text-sm mt-1"></span>
+                </div>
+
+                <div class="mt-6">
+                    <label asp-for="ImageUrl" class="block text-sm font-semibold text-gray-300 mb-2">
+                        Изображение
+                    </label>
+                    <div class="mb-3">
+                        <span class="text-gray-400 text-sm">Текущее изображение: </span>
+                        <span class="text-primary font-medium">@Model.ImageUrl</span>
+                    </div>
+                    <input type="file" asp-for="ImageUrl" 
+                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-dark hover:file:bg-green-400 transition duration-200"/>
+                    <span asp-validation-for="ImageUrl" class="text-red-400 text-sm mt-1"></span>
+                </div>
+            </div>
+
+            <!-- Комплектующие -->
+            <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Комплектующие
+                </h3>
+
+                <!-- Информация о текущей цене -->
+                <div class="bg-blue-500/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-blue-400 text-sm">
+                            <strong>Текущая цена:</strong> @Model.Price.ToString("C")<br>
+                            <small>Цена пересчитается автоматически при сохранении</small>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Расчет новой цены -->
+                <div id="price-calculation" class="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-6">
+                    <div class="text-primary text-sm">
+                        <strong>Расчет новой цены:</strong><br>
+                        Измените комплектующие для пересчета стоимости
+                    </div>
+                </div>
+
+                <!-- Список комплектующих -->
+                <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                    @if (ViewBag.Components != null)
+                    {
+                        foreach (var component in ViewBag.Components)
+                        {
+                            var isChecked = Model.ComputerComponents.Any(cc => cc.ComponentId == component.Id);
+                            <label class="flex items-start p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition duration-200 cursor-pointer @(isChecked ? "bg-primary/10 border border-primary/20" : "")">
+                                <input class="mt-1 rounded bg-dark border-gray-700 text-primary focus:ring-primary component-checkbox" 
+                                       type="checkbox" name="selectedComponents" value="@component.Id" 
+                                       id="component_@component.Id" @(isChecked ? "checked" : "")>
+                                <div class="ml-3 flex-1">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-white font-medium">@component.Name</span>
+                                        <span class="text-primary font-semibold ml-2">@component.Price.ToString("C")</span>
+                                    </div>
+                                    <div class="flex items-center mt-1">
+                                        <span class="bg-gray-700 text-gray-300 px-2 py-1 rounded-full text-xs">@component.Type</span>
+                                        @if (!string.IsNullOrEmpty(component.Description))
+                                        {
+                                            <span class="text-gray-400 text-sm ml-2">@component.Description</span>
+                                        }
+                                        @if (isChecked)
+                                        {
+                                            <span class="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs ml-2">Выбрано</span>
+                                        }
+                                    </div>
+                                </div>
+                            </label>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-8">
+                            <svg class="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <p class="text-gray-400">Нет доступных комплектующих</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Кнопки действий -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                <a asp-action="Index" class="bg-dark border border-gray-700 text-white px-6 py-3 rounded-lg font-semibold hover:border-primary transition duration-200 text-center">
+                    Отмена
+                </a>
+                <button type="submit" class="bg-gradient-to-r from-primary to-green-400 text-dark px-8 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300">
+                    Сохранить изменения
+                </button>
+            </div>
+        </form>
     </div>
-</form>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
@@ -80,39 +179,143 @@
     <script>
         function calculatePrice() {
             let total = 0;
+            let selectedCount = 0;
+    
             // Суммируем цены выбранных комплектующих
-            document.querySelectorAll('input[name="selectedComponents"]:checked').forEach(checkbox => {
-                const label = document.querySelector('label[for="' + checkbox.id + '"]');
-                const priceText = label.textContent.match(/[\d.,]+\s*₽/); // Ищем цену в формате "1000 ₽"
-                if (priceText) {
-                    const price = parseFloat(priceText[0].replace(/[^\d.,]/g, '').replace(',', '.'));
-                    total += price;
+            document.querySelectorAll('.component-checkbox:checked').forEach(checkbox => {
+                const label = checkbox.closest('label');
+                const priceElement = label.querySelector('.text-primary');
+                if (priceElement) {
+                    const priceText = priceElement.textContent;
+                    console.log('Текст цены:', priceText); // Для отладки
+            
+                    // Улучшенный парсинг цены
+                    const priceMatch = priceText.match(/(\d+(?:[.,]\d+)?)/);
+                    if (priceMatch) {
+                        // Заменяем запятую на точку и убираем пробелы
+                        const priceString = priceMatch[1].replace(/\s/g, '').replace(',', '.');
+                        const price = parseFloat(priceString);
+                        console.log('Распарсенная цена:', price); // Для отладки
+                
+                        if (!isNaN(price)) {
+                            total += price;
+                            selectedCount++;
+                        }
+                    }
                 }
             });
-            
+    
             // Добавляем 10%
-            const finalPrice = total * 1.1;
-            
-            // Показываем расчет (можно добавить куда-нибудь на страницу)
+            const markup = total * 0.1;
+            const finalPrice = total + markup;
+    
+            // Обновляем отображение расчета
             const calculationElement = document.getElementById('price-calculation');
             if (calculationElement) {
-                calculationElement.innerHTML = `
-                    <strong>Расчет цены:</strong><br>
-                    Сумма комплектующих: ${total.toFixed(2)} ₽<br>
-                    Наценка 10%: ${(total * 0.1).toFixed(2)} ₽<br>
-                    <strong>Итоговая цена: ${finalPrice.toFixed(2)} ₽</strong>
-                `;
+                if (selectedCount > 0) {
+                    calculationElement.innerHTML = `
+                        <div class="text-primary text-sm">
+                            <strong>Расчет новой цены:</strong><br>
+                            Выбрано комплектующих: ${selectedCount} шт.<br>
+                            Сумма комплектующих: ${total.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₽<br>
+                            Наценка 10%: ${markup.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₽<br>
+                            <strong class="text-lg">Итоговая цена: ${finalPrice.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ₽</strong>
+                        </div>
+                    `;
+                } else {
+                    calculationElement.innerHTML = `
+                        <div class="text-primary text-sm">
+                            <strong>Расчет новой цены:</strong><br>
+                            Измените комплектующие для пересчета стоимости
+                        </div>
+                    `;
+                }
             }
         }
         
         // Слушаем изменения чекбоксов
         document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('input[name="selectedComponents"]');
+            const checkboxes = document.querySelectorAll('.component-checkbox');
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', calculatePrice);
+                
+                // Добавляем визуальную обратную связь при изменении состояния
+                checkbox.addEventListener('change', function() {
+                    const label = this.closest('label');
+                    if (this.checked) {
+                        label.classList.add('bg-primary/10', 'border', 'border-primary/20');
+                    } else {
+                        label.classList.remove('bg-primary/10', 'border', 'border-primary/20');
+                    }
+                });
             });
+            
             // Первоначальный расчет
             calculatePrice();
+
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach((el) => {
+                observer.observe(el);
+            });
         });
     </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        
+        .component-checkbox:checked {
+            background-color: #00ff88;
+            border-color: #00ff88;
+        }
+        
+        /* Стилизация скроллбара */
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background: #374151;
+            border-radius: 3px;
+        }
+        
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background: #00ff88;
+            border-radius: 3px;
+        }
+        
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+            background: #00cc6a;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
 }

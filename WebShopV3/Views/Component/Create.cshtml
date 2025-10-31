@@ -3,61 +3,351 @@
     ViewData["Title"] = "Добавить комплектующее";
 }
 
-<h1>Добавить комплектующее</h1>
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Заголовок -->
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Добавить комплектующее
+            </h1>
+            <p class="text-xl text-gray-400">
+                Добавление нового компонента в каталог GameTech
+            </p>
+        </div>
 
-<form asp-action="Create">
-    <div class="form-group">
-        <label asp-for="Name" class="control-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <label asp-for="Type" class="control-label"></label>
-        <select asp-for="Type" class="form-control">
-            <option value="">Выберите тип</option>
-            <option value="CPU">Процессор</option>
-            <option value="GPU">Видеокарта</option>
-            <option value="RAM">Оперативная память</option>
-            <option value="SSD">SSD накопитель</option>
-            <option value="HDD">Жесткий диск</option>
-            <option value="MB">Материнская плата</option>
-            <option value="PSU">Блок питания</option>
-            <option value="Case">Корпус</option>
-        </select>
-        <span asp-validation-for="Type" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <label asp-for="Description" class="control-label"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <label asp-for="Price" class="control-label"></label>
-        <input asp-for="Price" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <label asp-for="Quantity" class="control-label"></label>
-        <input asp-for="Quantity" class="form-control" />
-        <span asp-validation-for="Quantity" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <label asp-for="Specifications" class="control-label"></label>
-        <textarea asp-for="Specifications" class="form-control" rows="4"></textarea>
-        <span asp-validation-for="Specifications" class="text-danger"></span>
-    </div>
+        <!-- Карточка формы -->
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl">
+            <form asp-action="Create" method="post" class="space-y-8">
+                <!-- Основные поля -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Левая колонка -->
+                    <div class="space-y-6">
+                        <!-- Название -->
+                        <div>
+                            <label asp-for="Name" class="block text-sm font-semibold text-gray-300 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Название *
+                            </label>
+                            <input asp-for="Name" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   placeholder="Введите название комплектующего"/>
+                            <span asp-validation-for="Name" class="text-red-400 text-sm mt-1 block"></span>
+                        </div>
 
-    <div class="form-group mt-3">
-        <input type="submit" value="Создать" class="btn btn-primary" />
-        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+                        <!-- Тип -->
+                        <div>
+                            <label asp-for="Type" class="block text-sm font-semibold text-gray-300 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                </svg>
+                                Тип *
+                            </label>
+                            <select asp-for="Type" 
+                                    class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200">
+                                <option value="">Выберите тип</option>
+                                <option value="CPU">Процессор</option>
+                                <option value="GPU">Видеокарта</option>
+                                <option value="RAM">Оперативная память</option>
+                                <option value="SSD">SSD накопитель</option>
+                                <option value="HDD">Жесткий диск</option>
+                                <option value="MB">Материнская плата</option>
+                                <option value="PSU">Блок питания</option>
+                                <option value="Case">Корпус</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-red-400 text-sm mt-1 block"></span>
+                        </div>
+
+                        <!-- Цена -->
+                        <div>
+                            <label asp-for="Price" class="block text-sm font-semibold text-gray-300 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                                </svg>
+                                Цена *
+                            </label>
+                            <input asp-for="Price" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   placeholder="0.00"/>
+                            <span asp-validation-for="Price" class="text-red-400 text-sm mt-1 block"></span>
+                        </div>
+
+                        <!-- Количество -->
+                        <div>
+                            <label asp-for="Quantity" class="block text-sm font-semibold text-gray-300 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Количество *
+                            </label>
+                            <input asp-for="Quantity" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   placeholder="0"/>
+                            <span asp-validation-for="Quantity" class="text-red-400 text-sm mt-1 block"></span>
+                        </div>
+                    </div>
+
+                    <!-- Правая колонка -->
+                    <div class="space-y-6">
+                        <!-- Описание -->
+                        <div>
+                            <label asp-for="Description" class="block text-sm font-semibold text-gray-300 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Описание
+                            </label>
+                            <textarea asp-for="Description" 
+                                      class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none"
+                                      rows="4"
+                                      placeholder="Введите описание комплектующего"></textarea>
+                            <span asp-validation-for="Description" class="text-red-400 text-sm mt-1 block"></span>
+                        </div>
+
+                        <!-- Характеристики -->
+                        <div>
+                            <label asp-for="Specifications" class="block text-sm font-semibold text-gray-300 mb-2">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                                Характеристики
+                            </label>
+                            <textarea asp-for="Specifications" 
+                                      class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none"
+                                      rows="4"
+                                      placeholder="Введите технические характеристики"></textarea>
+                            <span asp-validation-for="Specifications" class="text-red-400 text-sm mt-1 block"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Сообщения об ошибках валидации модели -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-red-400 text-sm font-semibold">Ошибка создания комплектующего</span>
+                        </div>
+                        <div class="text-red-300 text-sm mt-2">
+                            @Html.ValidationSummary(true)
+                        </div>
+                    </div>
+                }
+
+                <!-- Кнопки действий -->
+                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700">
+                    <button type="submit" 
+                            class="bg-gradient-to-r from-primary to-green-400 text-dark py-4 px-8 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center flex-1">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Создать комплектующее
+                    </button>
+                    
+                    <a asp-action="Index" 
+                       class="bg-gray-700 text-white py-4 px-8 rounded-lg font-bold text-lg hover:bg-gray-600 transition duration-300 flex items-center justify-center border border-gray-600">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Дополнительная информация -->
+        <div class="mt-8 text-center">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400 mb-6">
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    Гарантия качества
+                </div>
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    Быстрая доставка
+                </div>
+                <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Поддержка 24/7
+                </div>
+            </div>
+            
+            <p class="text-gray-500 text-sm">
+                © 2024 GameTech PCs. Все права защищены.
+            </p>
+        </div>
     </div>
-</form>
+</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach(function(el) {
+                observer.observe(el);
+            });
+
+            // Валидация формы при отправке
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+                let hasEmptyFields = false;
+                
+                requiredFields.forEach(function(field) {
+                    if (!field.value.trim()) {
+                        field.classList.add('border-red-500');
+                        hasEmptyFields = true;
+                    }
+                });
+                
+                if (hasEmptyFields) {
+                    e.preventDefault();
+                    // Прокрутка к первой ошибке
+                    const firstError = form.querySelector('.border-red-500');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+
+            // Убираем красную обводку при вводе
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(function(input) {
+                input.addEventListener('input', function() {
+                    this.classList.remove('border-red-500');
+                });
+            });
+
+            // Форматирование цены
+            const priceInput = document.querySelector('input[asp-for="Price"]');
+            if (priceInput) {
+                priceInput.addEventListener('blur', function() {
+                    let value = this.value.replace(/[^\d.]/g, '');
+                    if (value) {
+                        value = parseFloat(value).toFixed(2);
+                        this.value = value;
+                    }
+                });
+            }
+
+            // Валидация количества
+            const quantityInput = document.querySelector('input[asp-for="Quantity"]');
+            if (quantityInput) {
+                quantityInput.addEventListener('blur', function() {
+                    const value = parseInt(this.value);
+                    if (value < 0) {
+                        this.classList.add('border-red-500');
+                        showFieldError(this, 'Количество не может быть отрицательным');
+                    }
+                });
+            }
+
+            // Подсветка выбранного типа
+            const typeSelect = document.querySelector('select[asp-for="Type"]');
+            if (typeSelect) {
+                typeSelect.addEventListener('change', function() {
+                    if (this.value) {
+                        this.classList.add('border-green-500');
+                    } else {
+                        this.classList.remove('border-green-500');
+                    }
+                });
+            }
+
+            function showFieldError(field, message) {
+                // Убираем предыдущее сообщение об ошибке
+                const existingError = field.parentNode.querySelector('.field-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                const errorElement = document.createElement('div');
+                errorElement.className = 'field-error text-red-400 text-sm mt-1';
+                errorElement.textContent = message;
+                field.parentNode.appendChild(errorElement);
+            }
+
+            // Счетчик символов для текстовых полей
+            const textareas = form.querySelectorAll('textarea');
+            textareas.forEach(function(textarea) {
+                const counter = document.createElement('div');
+                counter.className = 'text-gray-400 text-xs mt-1 text-right';
+                counter.textContent = '0 символов';
+                
+                textarea.parentNode.appendChild(counter);
+                
+                textarea.addEventListener('input', function() {
+                    counter.textContent = this.value.length + ' символов';
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        
+        .border-red-500 {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+        }
+        
+        .border-green-500 {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        textarea {
+            min-height: 100px;
+        }
+    </style>
 }
