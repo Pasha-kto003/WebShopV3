@@ -7,7 +7,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Заголовок -->
         <div class="text-center mb-12">
-            <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6 component-edit-icon">
                 <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>
@@ -21,8 +21,36 @@
         </div>
 
         <!-- Карточка формы -->
-        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl">
-            <form asp-action="Edit" method="post" class="space-y-8">
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl component-edit-form">
+            <!-- Блок текущих значений -->
+            <div class="bg-gray-800/50 rounded-lg p-4 mb-6 current-values">
+                <div class="flex items-center text-sm text-gray-400 mb-2">
+                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Текущие значения
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                    <div>
+                        <span class="text-gray-500">Тип:</span>
+                        <span class="text-white ml-1">@GetTypeDisplayName(Model.Type)</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Цена:</span>
+                        <span class="text-white ml-1">@Model.Price.ToString("C")</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">Количество:</span>
+                        <span class="text-white ml-1">@Model.Quantity шт.</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500">ID:</span>
+                        <span class="text-white ml-1">#@Model.Id</span>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="Edit" method="post" class="space-y-8" id="componentEditForm">
                 <input type="hidden" asp-for="Id" />
                 
                 <!-- Основные поля -->
@@ -38,7 +66,7 @@
                                 Название *
                             </label>
                             <input asp-for="Name" 
-                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 component-edit-input"
                                    placeholder="Введите название комплектующего"/>
                             <span asp-validation-for="Name" class="text-red-400 text-sm mt-1 block"></span>
                         </div>
@@ -52,7 +80,7 @@
                                 Тип *
                             </label>
                             <select asp-for="Type" 
-                                    class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200">
+                                    class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 component-edit-input">
                                 <option value="">Выберите тип</option>
                                 <option value="CPU" selected="@(Model.Type == "CPU")">Процессор</option>
                                 <option value="GPU" selected="@(Model.Type == "GPU")">Видеокарта</option>
@@ -75,7 +103,7 @@
                                 Цена *
                             </label>
                             <input asp-for="Price" 
-                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 component-edit-input"
                                    placeholder="0.00"/>
                             <span asp-validation-for="Price" class="text-red-400 text-sm mt-1 block"></span>
                         </div>
@@ -89,7 +117,7 @@
                                 Количество *
                             </label>
                             <input asp-for="Quantity" 
-                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 component-edit-input"
                                    placeholder="0"/>
                             <span asp-validation-for="Quantity" class="text-red-400 text-sm mt-1 block"></span>
                         </div>
@@ -106,10 +134,11 @@
                                 Описание
                             </label>
                             <textarea asp-for="Description" 
-                                      class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none"
+                                      class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none component-edit-input"
                                       rows="4"
                                       placeholder="Введите описание комплектующего"></textarea>
                             <span asp-validation-for="Description" class="text-red-400 text-sm mt-1 block"></span>
+                            <div class="text-gray-400 text-xs mt-1 text-right char-counter" data-for="Description">@(Model.Description?.Length ?? 0) символов</div>
                         </div>
 
                         <!-- Характеристики -->
@@ -121,10 +150,11 @@
                                 Характеристики
                             </label>
                             <textarea asp-for="Specifications" 
-                                      class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none"
+                                      class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none component-edit-input"
                                       rows="4"
                                       placeholder="Введите технические характеристики"></textarea>
                             <span asp-validation-for="Specifications" class="text-red-400 text-sm mt-1 block"></span>
+                            <div class="text-gray-400 text-xs mt-1 text-right char-counter" data-for="Specifications">@(Model.Specifications?.Length ?? 0) символов</div>
                         </div>
                     </div>
                 </div>
@@ -132,7 +162,7 @@
                 <!-- Сообщения об ошибках валидации модели -->
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
+                    <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4 validation-errors">
                         <div class="flex items-center">
                             <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -146,9 +176,9 @@
                 }
 
                 <!-- Кнопки действий -->
-                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700">
+                <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700 form-actions">
                     <button type="submit" 
-                            class="bg-gradient-to-r from-primary to-green-400 text-dark py-4 px-8 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center flex-1">
+                            class="bg-gradient-to-r from-primary to-green-400 text-dark py-4 px-8 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center flex-1 component-save-btn">
                         <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
@@ -156,7 +186,7 @@
                     </button>
                     
                     <a asp-action="Index" 
-                       class="bg-gray-700 text-white py-4 px-8 rounded-lg font-bold text-lg hover:bg-gray-600 transition duration-300 flex items-center justify-center border border-gray-600">
+                       class="bg-gray-700 text-white py-4 px-8 rounded-lg font-bold text-lg hover:bg-gray-600 transition duration-300 flex items-center justify-center border border-gray-600 cancel-btn">
                         <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -196,214 +226,22 @@
     </div>
 </div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+@functions {
+    public string GetTypeDisplayName(string type)
+    {
+        return type switch
+        {
+            "CPU" => "Процессор",
+            "GPU" => "Видеокарта",
+            "RAM" => "Оперативная память",
+            "SSD" => "SSD накопитель",
+            "HDD" => "Жесткий диск",
+            "MB" => "Материнская плата",
+            "PSU" => "Блок питания",
+            "Case" => "Корпус",
+            _ => type
+        };
     }
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Анимация появления элементов
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver(function(entries) {
-                entries.forEach(function(entry) {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.bg-dark-card').forEach(function(el) {
-                observer.observe(el);
-            });
-
-            // Валидация формы при отправке
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
-                const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
-                let hasEmptyFields = false;
-                
-                requiredFields.forEach(function(field) {
-                    if (!field.value.trim()) {
-                        field.classList.add('border-red-500');
-                        hasEmptyFields = true;
-                    }
-                });
-                
-                if (hasEmptyFields) {
-                    e.preventDefault();
-                    // Прокрутка к первой ошибке
-                    const firstError = form.querySelector('.border-red-500');
-                    if (firstError) {
-                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            });
-
-            // Убираем красную обводку при вводе
-            const inputs = form.querySelectorAll('input, select, textarea');
-            inputs.forEach(function(input) {
-                input.addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                });
-            });
-
-            // Форматирование цены
-            const priceInput = document.querySelector('input[asp-for="Price"]');
-            if (priceInput) {
-                priceInput.addEventListener('blur', function() {
-                    let value = this.value.replace(/[^\d.]/g, '');
-                    if (value) {
-                        value = parseFloat(value).toFixed(2);
-                        this.value = value;
-                    }
-                });
-            }
-
-            // Валидация количества
-            const quantityInput = document.querySelector('input[asp-for="Quantity"]');
-            if (quantityInput) {
-                quantityInput.addEventListener('blur', function() {
-                    const value = parseInt(this.value);
-                    if (value < 0) {
-                        this.classList.add('border-red-500');
-                        showFieldError(this, 'Количество не может быть отрицательным');
-                    }
-                });
-            }
-
-            // Подсветка выбранного типа
-            const typeSelect = document.querySelector('select[asp-for="Type"]');
-            if (typeSelect) {
-                // Устанавливаем выбранное значение при загрузке
-                setTimeout(function() {
-                    if (typeSelect.value) {
-                        typeSelect.classList.add('border-green-500');
-                    }
-                }, 100);
-
-                typeSelect.addEventListener('change', function() {
-                    if (this.value) {
-                        this.classList.add('border-green-500');
-                    } else {
-                        this.classList.remove('border-green-500');
-                    }
-                });
-            }
-
-            function showFieldError(field, message) {
-                // Убираем предыдущее сообщение об ошибке
-                const existingError = field.parentNode.querySelector('.field-error');
-                if (existingError) {
-                    existingError.remove();
-                }
-                
-                const errorElement = document.createElement('div');
-                errorElement.className = 'field-error text-red-400 text-sm mt-1';
-                errorElement.textContent = message;
-                field.parentNode.appendChild(errorElement);
-            }
-
-            // Счетчик символов для текстовых полей
-            const textareas = form.querySelectorAll('textarea');
-            textareas.forEach(function(textarea) {
-                const counter = document.createElement('div');
-                counter.className = 'text-gray-400 text-xs mt-1 text-right';
-                counter.textContent = textarea.value.length + ' символов';
-                
-                textarea.parentNode.appendChild(counter);
-                
-                textarea.addEventListener('input', function() {
-                    counter.textContent = this.value.length + ' символов';
-                });
-            });
-
-            // Показ текущих значений
-            const showCurrentValues = document.createElement('div');
-            showCurrentValues.className = 'bg-gray-800/50 rounded-lg p-4 mb-6';
-            showCurrentValues.innerHTML = `
-                <div class="flex items-center text-sm text-gray-400 mb-2">
-                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Текущие значения
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                    <div>
-                        <span class="text-gray-500">Тип:</span>
-                        <span class="text-white ml-1">${getTypeDisplayName('@Model.Type')}</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-500">Цена:</span>
-                        <span class="text-white ml-1">@Model.Price.ToString("C")</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-500">Количество:</span>
-                        <span class="text-white ml-1">@Model.Quantity шт.</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-500">ID:</span>
-                        <span class="text-white ml-1">#@Model.Id</span>
-                    </div>
-                </div>
-            `;
-
-            const formElement = form.parentNode;
-            formElement.insertBefore(showCurrentValues, form);
-
-            function getTypeDisplayName(type) {
-                const typeMap = {
-                    'CPU': 'Процессор',
-                    'GPU': 'Видеокарта',
-                    'RAM': 'Оперативная память',
-                    'SSD': 'SSD накопитель',
-                    'HDD': 'Жесткий диск',
-                    'MB': 'Материнская плата',
-                    'PSU': 'Блок питания',
-                    'Case': 'Корпус'
-                };
-                return typeMap[type] || type;
-            }
-        });
-    </script>
-
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-in-out;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            border-color: #00ff88;
-            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
-        }
-        
-        .border-red-500 {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
-        }
-        
-        .border-green-500 {
-            border-color: #10b981 !important;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
-        }
-        
-        @@keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-        
-        textarea {
-            min-height: 100px;
-        }
-    </style>
 }

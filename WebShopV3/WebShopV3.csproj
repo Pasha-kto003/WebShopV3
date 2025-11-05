@@ -7,9 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\Images\movie-thm01-ts-2103300411240000.jpeg">
+    <Content Remove="wwwroot\Images\image %2834%29.png" />
+    <Content Remove="wwwroot\Images\image %2839%29.png" />
+    <Content Remove="wwwroot\Images\photo_2025-03-06_17-50-02.jpg" />
+    <Content Remove="wwwroot\Images\Кобылка.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="wwwroot\Images\movie-thm01-ts-2103300411240000.jpeg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +27,21 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Stripe.net" Version="49.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="wwwroot\Images\image (34).png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\image (39).png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\photo_2025-03-06_17-50-02.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\Кобылка.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

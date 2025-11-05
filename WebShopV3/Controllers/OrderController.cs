@@ -105,56 +105,133 @@ namespace WebShopV3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Order order, int[] selectedComputers, int[] quantities)
         {
-            order.Status = _context.Statuses.FirstOrDefault(s => s.Id == order.StatusId);
-            order.User = _context.Users.FirstOrDefault(s => s.Id == order.UserId);
-            order.ComputerOrders = _context.ComputerOrders.Where(s => s.OrderId == order.Id).ToList();
-            order.OrderType = _context.OrderTypes.FirstOrDefault(s => s.Id == order.OrderTypeId);
+            // ОТЛАДКА: выводим входящие данные
+            Console.WriteLine("=== CREATE ORDER DEBUG ===");
+            Console.WriteLine($"OrderTypeId: {order.OrderTypeId}");
+            Console.WriteLine($"UserId: {order.UserId}");
+            Console.WriteLine($"StatusId: {order.StatusId}");
+
+            if (selectedComputers != null)
+            {
+                Console.WriteLine($"SelectedComputers count: {selectedComputers.Length}");
+                for (int i = 0; i < selectedComputers.Length; i++)
+                {
+                    Console.WriteLine($"  Computer {i}: {selectedComputers[i]}");
+                }
+            }
+
+            if (quantities != null)
+            {
+                Console.WriteLine($"Quantities count: {quantities.Length}");
+                for (int i = 0; i < quantities.Length; i++)
+                {
+                    Console.WriteLine($"  Quantity {i}: {quantities[i]}");
+                }
+            }
+
+            // Базовая настройка заказа
             order.OrderDate = DateTime.Now;
             order.TotalAmount = 0;
 
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            order.UserId = userId;
-            order.StatusId = 2; // Статус "В ожидании" по умолчанию
-
-            _context.Add(order);
+            // Сохраняем заказ чтобы получить ID
+            _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
+            Console.WriteLine($"Order created with ID: {order.Id}");
+
+            decimal totalAmount = 0;
+            bool hasItems = false;
+
+            // Обрабатываем компьютеры
             if (selectedComputers != null && quantities != null)
             {
                 for (int i = 0; i < selectedComputers.Length; i++)
                 {
-                    var computer = await _context.Computers.FindAsync(selectedComputers[i]);
-                    if (computer != null && computer.Quantity >= quantities[i])
+                    var computerId = selectedComputers[i];
+                    var quantity = quantities[i];
+
+                    Console.WriteLine($"Processing: ComputerId={computerId}, Quantity={quantity}");
+
+                    // Пропускаем если количество 0
+                    if (quantity <= 0)
+                    {
+                        Console.WriteLine($"Skipping computer {computerId} - quantity is 0");
+                        continue;
+                    }
+
+                    var computer = await _context.Computers.FindAsync(computerId);
+                    if (computer != null && computer.Quantity >= quantity)
                     {
                         var computerOrder = new ComputerOrder
                         {
                             OrderId = order.Id,
-                            ComputerId = selectedComputers[i],
-                            Quantity = quantities[i],
+                            ComputerId = computerId,
+                            Quantity = quantity,
                             UnitPrice = computer.Price
                         };
 
-                        order.TotalAmount += computer.Price * quantities[i];
+                        var itemTotal = computer.Price * quantity;
+                        totalAmount += itemTotal;
+                        hasItems = true;
 
-                        computer.Quantity -= quantities[i];
+                        Console.WriteLine($"Added: {computer.Name}, Qty: {quantity}, Price: {computer.Price}, Total: {itemTotal}");
+
+                        // Обновляем склад
+                        computer.Quantity -= quantity;
                         _context.Computers.Update(computer);
-
                         _context.ComputerOrders.Add(computerOrder);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Computer {computerId} not found or not enough quantity");
                     }
                 }
 
-                _context.Orders.Update(order);
-                await _context.SaveChangesAsync();
-            }
-            ViewBag.Users = _context.Users.ToList();
-            ViewBag.OrderTypes = _context.OrderTypes.ToList();
-            ViewBag.Statuses = _context.Statuses.ToList();
-            ViewBag.Computers = _context.Computers.Where(c => c.Quantity > 0).ToList();
+                // Обновляем сумму заказа
+                if (hasItems)
+                {
+                    order.TotalAmount = totalAmount;
+                    _context.Orders.Update(order);
+                    await _context.SaveChangesAsync();
 
-            ViewBag.CurrentUserId = userId;
-            TempData["SuccessMessage"] = "Заказ успешно создан!";
+                    Console.WriteLine($"Final order total: {order.TotalAmount}");
+                    TempData["SuccessMessage"] = $"Заказ #{order.Id} успешно создан! Сумма: {order.TotalAmount:C}";
+                }
+                else
+                {
+                    // Если нет товаров, удаляем заказ
+                    _context.Orders.Remove(order);
+                    await _context.SaveChangesAsync();
+                    TempData["ErrorMessage"] = "Не выбрано ни одного компьютера с количеством больше 0";
+                    return await LoadViewDataAndReturnView(new Order());
+                }
+            }
+            else
+            {
+                // Если массивы пустые или разной длины
+                _context.Orders.Remove(order);
+                await _context.SaveChangesAsync();
+                TempData["ErrorMessage"] = "Ошибка в данных заказа";
+                return await LoadViewDataAndReturnView(new Order());
+            }
+
             return RedirectToAction("MyOrders");
         }
+
+        private async Task<IActionResult> LoadViewDataAndReturnView(Order order)
+        {
+            ViewBag.Users = await _context.Users.ToListAsync();
+            ViewBag.OrderTypes = await _context.OrderTypes.ToListAsync();
+            ViewBag.Statuses = await _context.Statuses.ToListAsync();
+            ViewBag.Computers = await _context.Computers.Where(c => c.Quantity > 0).ToListAsync();
+
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            ViewBag.CurrentUserId = userId;
+
+            return View(order);
+        }
+
+
 
         // GET: Order/Edit/5
         [Authorize(Roles = "Админ,Менеджер")]

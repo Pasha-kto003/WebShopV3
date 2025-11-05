@@ -140,3 +140,1768 @@ body {
         width: 100% !important;
     }
 }
+
+/* Анимации для главной страницы */
+.animate-fade-in {
+    animation: fadeIn 1s ease-in-out;
+}
+
+.animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 15s ease infinite;
+}
+
+.animate-gradient-xy {
+    background-size: 400% 400%;
+    animation: gradient-xy 20s ease infinite;
+}
+
+.animate-gradient-slow {
+    background-size: 200% 200%;
+    animation: gradient-x 25s ease infinite;
+}
+
+.animate-text {
+    background-size: 200% auto;
+    animation: text-shine 3s ease-in-out infinite alternate;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gradient-x {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes gradient-xy {
+    0%, 100% {
+        background-position: 0% 0%;
+    }
+
+    25% {
+        background-position: 100% 0%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    75% {
+        background-position: 0% 100%;
+    }
+}
+
+@keyframes text-shine {
+    from {
+        background-position: 0% 50%;
+    }
+
+    to {
+        background-position: 100% 50%;
+    }
+}
+
+
+/* Стили для страницы каталога компьютеров */
+.computer-card {
+    transition: all 0.3s ease-in-out;
+}
+
+    .computer-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    }
+
+.component-badge {
+    font-size: 0.7em;
+    margin-right: 2px;
+}
+
+/* Анимации для каталога */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для переключения вида */
+.view-toggle-btn.active {
+    background-color: #00ff88;
+    color: #1f2937;
+}
+
+.view-toggle-btn:not(.active) {
+    color: #9ca3af;
+}
+
+    .view-toggle-btn:not(.active):hover {
+        color: #ffffff;
+    }
+
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Анимации для страницы ошибки 403 */
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Пульсирующая анимация для иконки ошибки */
+.error-icon {
+    transition: background-color 1s ease-in-out;
+}
+
+    .error-icon.bg-red-500\/20,
+    .error-icon.bg-red-500\/30 {
+        transition: background-color 1s ease-in-out;
+    }
+
+
+
+/* Стили для страницы входа */
+.login-form {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.login-input:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+.login-input.border-red-500 {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+}
+
+.login-submit:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+}
+
+.login-icon {
+    animation: bounceIn 0.8s ease-in-out;
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Анимации для страницы входа */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Стили для страницы личного кабинета */
+.user-profile-card,
+.quick-actions-card,
+.orders-card,
+.activity-card {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.quick-action-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+    .quick-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 255, 136, 0.15);
+    }
+
+.first-order-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+    .first-order-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 30px rgba(0, 255, 136, 0.25);
+    }
+
+.order-row {
+    opacity: 0;
+    animation: slideInRight 0.5s ease-in-out forwards;
+}
+
+.stats-card {
+    transition: transform 0.3s ease-in-out;
+}
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+
+.last-activity {
+    transition: background-color 1s ease-in-out;
+}
+
+.order-details-link {
+    position: relative;
+    transition: color 0.3s ease-in-out;
+}
+
+    .order-details-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background-color: #60a5fa;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .order-details-link:hover::after {
+        width: 100%;
+    }
+
+.no-orders-card {
+    animation: bounceIn 1s ease-in-out;
+}
+
+/* Анимации для личного кабинета */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-table-row {
+    animation: slideInRight 0.5s ease-in-out forwards;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Стили для страницы регистрации */
+.register-form {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.register-input:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+.register-input.border-red-500 {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+}
+
+.register-submit {
+    transition: all 0.3s ease-in-out;
+}
+
+    .register-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0, 255, 136, 0.25);
+    }
+
+.register-icon {
+    animation: bounceIn 1s ease-in-out;
+}
+
+.login-link {
+    position: relative;
+    transition: color 0.3s ease-in-out;
+}
+
+    .login-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background-color: #00ff88;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .login-link:hover::after {
+        width: 100%;
+    }
+
+.validation-errors {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Анимации для страницы регистрации */
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+/* Стили для страницы оформления заказа */
+.checkout-form-card,
+.checkout-summary {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.checkout-input:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+.checkout-input.border-red-500 {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+}
+
+.checkout-submit {
+    transition: all 0.3s ease-in-out;
+}
+
+    .checkout-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0, 255, 136, 0.25);
+    }
+
+    .checkout-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+.checkout-action-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+    .checkout-action-btn:hover {
+        transform: translateY(-2px);
+        border-color: #00ff88;
+    }
+
+.checkout-item {
+    animation: slideInLeft 0.5s ease-in-out forwards;
+    opacity: 0;
+}
+
+.checkout-notification {
+    animation: slideInDown 0.5s ease-in-out;
+}
+
+.checkout-security {
+    animation: fadeIn 1s ease-in-out;
+}
+
+.checkout-input-focused {
+    position: relative;
+}
+
+    .checkout-input-focused::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border: 2px solid #00ff88;
+        border-radius: 12px;
+        opacity: 0.3;
+        animation: pulse 2s infinite;
+    }
+
+/* Анимации для страницы оформления заказа */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.1;
+    }
+
+    100% {
+        opacity: 0.3;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для страницы корзины */
+.cart-item {
+    animation: slideInUp 0.6s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+    .cart-item:hover {
+        border-color: #00ff88;
+        transform: translateY(-2px);
+    }
+
+.cart-summary {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.empty-cart {
+    animation: bounceIn 1s ease-in-out;
+}
+
+.services-section {
+    animation: slideInUp 0.7s ease-in-out;
+}
+
+.accessory-item {
+    animation: fadeIn 0.6s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+    .accessory-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 255, 136, 0.1);
+    }
+
+.cart-actions button {
+    transition: all 0.3s ease-in-out;
+}
+
+    .cart-actions button:hover {
+        transform: translateY(-2px);
+    }
+
+.quantity-decrease,
+.quantity-increase {
+    transition: all 0.2s ease-in-out;
+}
+
+    .quantity-decrease:hover,
+    .quantity-increase:hover {
+        background-color: rgba(0, 255, 136, 0.1);
+    }
+
+.remove-from-cart:hover,
+.add-to-favorites:hover {
+    transform: scale(1.05);
+}
+
+.auth-notification {
+    animation: pulse 2s infinite;
+}
+
+.trust-badges {
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Анимации для корзины */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для страницы добавления комплектующего */
+.component-form {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.component-input:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+.component-input.border-red-500 {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+}
+
+.component-input.border-green-500 {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+}
+
+.component-submit {
+    transition: all 0.3s ease-in-out;
+}
+
+    .component-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0, 255, 136, 0.25);
+    }
+
+.cancel-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+    .cancel-btn:hover {
+        transform: translateX(-5px);
+        background-color: #4b5563 !important;
+    }
+
+.component-icon {
+    animation: bounceIn 1s ease-in-out;
+}
+
+.char-counter {
+    transition: color 0.3s ease-in-out;
+}
+
+    .char-counter.text-yellow-400 {
+        animation: pulse 2s infinite;
+    }
+
+.validation-errors {
+    animation: shake 0.5s ease-in-out;
+}
+
+.form-actions {
+    animation: slideInUp 0.8s ease-in-out;
+}
+
+/* Анимации для страницы компонента */
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для текстовых полей */
+textarea.component-input {
+    min-height: 100px;
+    transition: all 0.3s ease-in-out;
+}
+
+    textarea.component-input:focus {
+        min-height: 120px;
+    }
+
+.field-error {
+    animation: slideInDown 0.3s ease-in-out;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Стили для страницы удаления комплектующего */
+.component-info {
+    animation: slideInDown 0.6s ease-in-out;
+}
+
+.delete-form {
+    animation: slideInUp 0.6s ease-in-out;
+}
+
+.delete-warning {
+    animation: pulseWarning 2s ease-in-out infinite;
+}
+
+.delete-icon {
+    transition: background-color 1s ease-in-out;
+    animation: bounceIn 1s ease-in-out;
+}
+
+.delete-btn {
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+    .delete-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(239, 68, 68, 0.3);
+    }
+
+    .delete-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .delete-btn:hover::before {
+        left: 100%;
+    }
+
+.cancel-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+    .cancel-btn:hover {
+        transform: translateX(-5px);
+        background-color: #4b5563 !important;
+    }
+
+.component-stats {
+    transition: all 0.3s ease-in-out;
+}
+
+    .component-stats:hover {
+        transform: scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+.component-description {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Анимации для страницы удаления */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulseWarning {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.shadow-red-500\\/25 {
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.25);
+}
+
+.shadow-red-500\\/40 {
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.4);
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для бейджей статусов */
+.bg-red-500\\/20 {
+    background-color: rgba(239, 68, 68, 0.2);
+}
+
+.bg-yellow-500\\/20 {
+    background-color: rgba(245, 158, 11, 0.2);
+}
+
+.bg-green-500\\/20 {
+    background-color: rgba(16, 185, 129, 0.2);
+}
+
+.bg-blue-500\\/20 {
+    background-color: rgba(59, 130, 246, 0.2);
+}
+
+.bg-purple-500\\/20 {
+    background-color: rgba(139, 92, 246, 0.2);
+}
+
+.border-red-500\\/30 {
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.border-red-500\\/50 {
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+
+
+/* Стили для страницы подробностей о комплектующем */
+.component-main-info {
+    animation: slideInDown 0.6s ease-in-out;
+}
+
+.component-description {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.component-specifications {
+    animation: slideInUp 0.7s ease-in-out;
+}
+
+.component-actions {
+    animation: slideInRight 0.6s ease-in-out;
+}
+
+.component-stats {
+    animation: slideInRight 0.7s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+    .component-stats:hover {
+        transform: scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+.component-type-info {
+    animation: slideInRight 0.8s ease-in-out;
+}
+
+.component-quick-actions {
+    animation: slideInRight 0.9s ease-in-out;
+}
+
+.component-details-icon {
+    animation: bounceIn 1s ease-in-out;
+}
+
+.edit-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+    .edit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+    }
+
+.back-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+    .back-btn:hover {
+        transform: translateX(-5px);
+        background-color: #4b5563 !important;
+    }
+
+.quick-action-btn {
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+    .quick-action-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .quick-action-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        transition: left 0.5s;
+    }
+
+    .quick-action-btn:hover::before {
+        left: 100%;
+    }
+
+.component-value-highlight {
+    animation: pulse 1s ease-in-out;
+    background-color: rgba(0, 255, 136, 0.1);
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+/* Анимации для страницы подробностей */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        background-color: rgba(0, 255, 136, 0.1);
+    }
+
+    50% {
+        background-color: rgba(0, 255, 136, 0.2);
+    }
+
+    100% {
+        background-color: rgba(0, 255, 136, 0.1);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для бейджей статусов */
+.bg-red-500\\/20,
+.bg-yellow-500\\/20,
+.bg-green-500\\/20,
+.bg-blue-500\\/20,
+.bg-purple-500\\/20 {
+    transition: all 0.3s ease-in-out;
+}
+
+.whitespace-pre-line {
+    white-space: pre-line;
+}
+
+
+
+/* Стили для страницы редактирования комплектующего */
+.component-edit-form {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.current-values {
+    animation: slideInDown 0.6s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+    .current-values:hover {
+        transform: scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+.component-edit-input:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+.component-edit-input.border-red-500 {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+}
+
+.component-edit-input.border-green-500 {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+}
+
+.component-edit-input.border-yellow-500 {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1) !important;
+    animation: pulseYellow 2s infinite;
+}
+
+.component-save-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+    .component-save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0, 255, 136, 0.25);
+    }
+
+.cancel-btn {
+    transition: all 0.3s ease-in-out;
+}
+
+    .cancel-btn:hover {
+        transform: translateX(-5px);
+        background-color: #4b5563 !important;
+    }
+
+.component-edit-icon {
+    animation: bounceIn 1s ease-in-out;
+}
+
+.char-counter {
+    transition: color 0.3s ease-in-out;
+}
+
+    .char-counter.text-yellow-400 {
+        animation: pulse 2s infinite;
+    }
+
+.validation-errors {
+    animation: shake 0.5s ease-in-out;
+}
+
+.form-actions {
+    animation: slideInUp 0.8s ease-in-out;
+}
+
+/* Анимации для страницы редактирования */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes pulseYellow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для текстовых полей */
+textarea.component-edit-input {
+    min-height: 100px;
+    transition: all 0.3s ease-in-out;
+}
+
+    textarea.component-edit-input:focus {
+        min-height: 120px;
+    }
+
+.field-error {
+    animation: slideInDown 0.3s ease-in-out;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+
+/* Стили для страницы создания компьютера */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+input:focus, textarea:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+.component-checkbox:checked {
+    background-color: #00ff88;
+    border-color: #00ff88;
+}
+
+/* Стилизация скроллбара */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #374151;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #00ff88;
+    border-radius: 3px;
+}
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #00cc6a;
+    }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+/* Стили для страницы удаления компьютера */
+.delete-computer-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.25);
+}
+
+.delete-computer-btn:active {
+    transform: translateY(0);
+}
+
+/* Анимации для страницы удаления */
+.bg-red-500\/10 {
+    border-left: 4px solid #ef4444;
+}
+
+/* Улучшенные стили для состояний */
+.bg-dark-card {
+    transition: all 0.3s ease;
+}
+
+    .bg-dark-card:hover {
+        border-color: #4b5563;
+    }
+
+
+
+/* Стили для страницы деталей компьютера */
+.bg-dark-card {
+    transition: all 0.3s ease;
+}
+
+    .bg-dark-card:hover {
+        border-color: #4b5563;
+    }
+
+/* Анимации для таблицы */
+tbody tr {
+    transition: all 0.3s ease;
+}
+
+/* Стили для изображений */
+img {
+    transition: all 0.5s ease;
+}
+
+.image-loaded {
+    animation: imageFadeIn 0.8s ease-in-out;
+}
+
+@keyframes imageFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Стили для статусов */
+.bg-green-500\/20, .bg-red-500\/20 {
+    transition: all 0.3s ease;
+}
+
+    .bg-green-500\/20:hover {
+        background-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .bg-red-500\/20:hover {
+        background-color: rgba(239, 68, 68, 0.3);
+    }
+
+/* Стили для кнопок действий */
+.bg-yellow-500 {
+    transition: all 0.3s ease;
+}
+
+    .bg-yellow-500:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+    }
+
+/* Адаптивность для таблицы */
+@media (max-width: 768px) {
+    .overflow-x-auto {
+        border: 1px solid #374151;
+        border-radius: 0.5rem;
+    }
+
+    table {
+        min-width: 600px;
+    }
+}
+
+
+
+/* Стили для страницы редактирования компьютера */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+input:focus, textarea:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+.component-checkbox:checked {
+    background-color: #00ff88;
+    border-color: #00ff88;
+}
+
+/* Стили для выбранных комплектующих */
+.bg-primary\/10 {
+    transition: all 0.3s ease;
+}
+
+    .bg-primary\/10:hover {
+        background-color: rgba(0, 255, 136, 0.15) !important;
+    }
+
+/* Стилизация файлового инпута */
+input[type="file"] {
+    transition: all 0.3s ease;
+}
+
+    input[type="file"]:hover {
+        border-color: #00ff88;
+    }
+
+/* Стили для ошибок валидации */
+.border-red-500 {
+    border-color: #ef4444 !important;
+}
+
+    .border-red-500:focus {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+    }
+
+/* Анимации для кнопок */
+.bg-gradient-to-r {
+    transition: all 0.3s ease;
+}
+
+    .bg-gradient-to-r:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 255, 136, 0.25);
+    }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+
+/* Стили для страницы создания заказа */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+select:focus, input:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+.border-red-500 {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Стили для карточек компьютеров */
+.computer-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.computer-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.computer-card.ring-2 {
+    border-color: #00ff88;
+}
+
+/* Стили для полей ввода количества */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.quantity-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Стили для кнопок */
+.bg-gradient-to-r {
+    transition: all 0.3s ease;
+}
+
+.bg-gradient-to-r:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 255, 136, 0.25);
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Адаптивность для карточек компьютеров */
+@media (max-width: 768px) {
+    .computer-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Стили для выбранных элементов */
+.bg-primary\/20 {
+    transition: all 0.3s ease;
+}
+
+/* Улучшенные стили для состояний */
+select, input {
+    transition: all 0.3s ease;
+}
+
+select:invalid, input:invalid {
+    border-color: #ef4444;
+}
+
+select:valid, input:valid {
+    border-color: #00ff88;
+}

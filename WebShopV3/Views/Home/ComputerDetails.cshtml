@@ -39,7 +39,7 @@
                                 <span class="text-gray-500 text-6xl">🖥️</span>
                             </div>
                         }
-                        @if (Model.Price < 150000) // Пример условия для метки "ХИТ"
+                        @if (Model.Price < 150000)
                         {
                             <div class="absolute top-4 right-4 bg-gradient-to-r from-primary to-green-400 text-dark px-3 py-1 rounded-full text-sm font-bold">
                                 ХИТ
@@ -51,16 +51,15 @@
                     </div>
                 </div>
 
-                <!-- Миниатюры (можно добавить дополнительные изображения) -->
+                <!-- Миниатюры -->
                 @if (!string.IsNullOrEmpty(Model.ImageUrl))
                 {
                     <div class="grid grid-cols-4 gap-4">
-                        <button class="aspect-square rounded-xl bg-dark-card border border-gray-700 hover:border-primary transition duration-200 overflow-hidden"
-                                onclick="changeMainImage('/Images/@Model.ImageUrl')">
+                        <button class="aspect-square rounded-xl bg-dark-card border border-gray-700 hover:border-primary transition duration-200 overflow-hidden thumbnail-button"
+                                data-image-src="/Images/@Model.ImageUrl">
                             <img src="/Images/@Model.ImageUrl" 
                                  alt="@Model.Name" class="w-full h-full object-cover">
                         </button>
-                        <!-- Можно добавить больше миниатюр если есть дополнительные изображения -->
                         <div class="aspect-square rounded-xl bg-dark-card border border-gray-700 flex items-center justify-center">
                             <span class="text-gray-500 text-sm">🔄</span>
                         </div>
@@ -326,66 +325,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        // Функция смены главного изображения
-        function changeMainImage(src) {
-            const mainImage = document.getElementById('mainImage');
-            mainImage.style.opacity = '0';
-            
-            setTimeout(() => {
-                mainImage.src = src;
-                mainImage.style.opacity = '1';
-            }, 200);
-        }
-
-        // Обработчик добавления в корзину
-        $(document).ready(function() {
-            $('.add-to-cart-details').on('click', function() {
-                const computerId = $(this).data('computer-id');
-                const computerName = $(this).data('computer-name');
-                const quantity = $('#quantity').val();
-
-                addToCart(computerId, quantity, computerName);
-            });
-        });
-
-        // Анимация появления элементов
-        document.addEventListener('DOMContentLoaded', function() {
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.bg-dark-card').forEach((el) => {
-                observer.observe(el);
-            });
-        });
-    </script>
-
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-in-out;
-        }
-        
-        @@keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-    </style>
-}

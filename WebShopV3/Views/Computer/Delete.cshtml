@@ -138,7 +138,7 @@
                     Отмена
                 </a>
                 <button type="submit" 
-                        class="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-4 rounded-lg font-bold hover:shadow-lg hover:shadow-red-500/25 transition duration-300 flex items-center justify-center">
+                        class="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-4 rounded-lg font-bold hover:shadow-lg hover:shadow-red-500/25 transition duration-300 flex items-center justify-center delete-computer-btn">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
@@ -170,53 +170,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Анимация появления элементов
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.bg-dark-card').forEach((el) => {
-                observer.observe(el);
-            });
-
-            // Подтверждение при отправке формы
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
-                const isConfirmed = confirm('Вы уверены, что хотите удалить компьютер \"@Model.Name\"? Это действие нельзя отменить.');
-                if (!isConfirmed) {
-                    e.preventDefault();
-                }
-            });
-        });
-    </script>
-
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-in-out;
-        }
-        
-        @@keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-    </style>
-}

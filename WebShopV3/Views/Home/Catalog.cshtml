@@ -28,7 +28,8 @@
                 </div>
                 
                 <!-- Сортировка -->
-                <select id="sortSelect" class="bg-dark-card border border-gray-800 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary">
+                <select id="sortSelect" class="bg-dark-card border border-gray-800 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary"
+                    data-sort-by="@ViewBag.SortBy">
                     <option value="default">По умолчанию</option>
                     <option value="price_asc">Цена по возрастанию</option>
                     <option value="price_desc">Цена по убыванию</option>
@@ -57,7 +58,8 @@
                     <!-- Тип комплектующих -->
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Тип комплектующих</label>
-                        <select id="componentTypeFilter" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary">
+                        <select id="componentTypeFilter" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary"
+                        data-component-type="@ViewBag.ComponentType">
                             <option value="all">Все типы</option>
                             @foreach (var type in ViewBag.ComponentTypes)
                             {
@@ -105,149 +107,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        let searchTimeout;
-
-        // Функция переключения вида
-        function switchView(viewType) {
-            const cardsView = document.getElementById('cardsView');
-            const listViewContainer = document.getElementById('listViewContainer');
-            const cardViewBtn = document.getElementById('cardViewBtn');
-            const listViewBtn = document.getElementById('listViewBtn');
-
-            if (viewType === 'cards') {
-                cardsView.classList.remove('hidden');
-                listViewContainer.classList.add('hidden');
-                cardViewBtn.classList.add('bg-primary', 'text-dark');
-                cardViewBtn.classList.remove('text-gray-400');
-                listViewBtn.classList.remove('bg-primary', 'text-dark');
-                listViewBtn.classList.add('text-gray-400');
-            } else {
-                cardsView.classList.add('hidden');
-                listViewContainer.classList.remove('hidden');
-                listViewBtn.classList.add('bg-primary', 'text-dark');
-                listViewBtn.classList.remove('text-gray-400');
-                cardViewBtn.classList.remove('bg-primary', 'text-dark');
-                cardViewBtn.classList.add('text-gray-400');
-            }
-        }
-
-        function performSearch() {
-            // Показываем индикатор загрузки
-            $('#loadingIndicator').removeClass('hidden');
-            $('#computerList').addClass('hidden');
-
-            // Отменяем предыдущий таймаут
-            if (searchTimeout) {
-                clearTimeout(searchTimeout);
-            }
-
-            // Устанавливаем новый таймаут для поиска (задержка 500ms)
-            searchTimeout = setTimeout(() => {
-                const searchParams = {
-                    search: $('#searchInput').val(),
-                    sortBy: $('#sortSelect').val(),
-                    componentType: $('#componentTypeFilter').val(),
-                    minPrice: $('#minPrice').val(),
-                    maxPrice: $('#maxPrice').val()
-                };
-
-                $.post('@Url.Action("SearchComputers", "Home")', searchParams)
-                    .done(function(data) {
-                        $('#computerList').html(data);
-                        $('#computerList').removeClass('hidden');
-                        // Обновляем счетчик результатов
-                        const count = $(data).find('.computer-card').length;
-                        $('#resultsCount').text(`Найдено ${count} готовых сборок`);
-                    })
-                    .fail(function() {
-                        $('#computerList').html('<div class="bg-red-500/20 border border-red-500/30 text-red-500 px-4 py-3 rounded-lg">Ошибка при загрузке данных</div>');
-                        $('#computerList').removeClass('hidden');
-                    })
-                    .always(function() {
-                        $('#loadingIndicator').addClass('hidden');
-                    });
-            }, 500);
-        }
-
-        // События для элементов фильтрации
-        $('#searchInput').on('input', performSearch);
-        $('#sortSelect').on('change', performSearch);
-        $('#componentTypeFilter').on('change', performSearch);
-        $('#minPrice, #maxPrice').on('input', performSearch);
-
-        // Сброс фильтров
-        $('#resetFilters').on('click', function() {
-            $('#searchInput').val('');
-            $('#componentTypeFilter').val('all');
-            $('#minPrice').val('');
-            $('#maxPrice').val('');
-            $('#sortSelect').val('default');
-            performSearch();
-        });
-
-        // Обработчики переключения вида
-        document.getElementById('cardViewBtn').addEventListener('click', () => switchView('cards'));
-        document.getElementById('listViewBtn').addEventListener('click', () => switchView('list'));
-
-        // Инициализация при загрузке страницы
-        $(document).ready(function() {
-            // Устанавливаем выбранные значения из ViewBag
-            $('#sortSelect').val('@ViewBag.SortBy' || 'default');
-            $('#componentTypeFilter').val('@ViewBag.ComponentType' || 'all');
-            
-            // Инициализация вида по умолчанию
-            switchView('cards');
-
-            // Анимация появления элементов
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.computer-card').forEach((el) => {
-                observer.observe(el);
-            });
-        });
-    </script>
-
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-in-out;
-        }
-        
-        .computer-card {
-            transition: all 0.3s ease-in-out;
-        }
-        .computer-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-        }
-        
-        .component-badge {
-            font-size: 0.7em;
-            margin-right: 2px;
-        }
-        
-        @@keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-    </style>
-}

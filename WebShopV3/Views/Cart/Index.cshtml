@@ -18,7 +18,7 @@
         @if (!Model.Items.Any())
         {
             <!-- Пустая корзина -->
-            <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 text-center">
+            <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 text-center empty-cart">
                 <div class="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -87,7 +87,8 @@
                                             </div>
                                             
                                             <div class="flex items-center space-x-4">
-                                                <button class="text-gray-400 hover:text-primary transition duration-200 flex items-center">
+                                                <button class="text-gray-400 hover:text-primary transition duration-200 flex items-center add-to-favorites"
+                                                        data-computer-id="@item.ComputerId">
                                                     <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                                                     </svg>
@@ -109,7 +110,7 @@
                     </div>
 
                     <!-- Дополнительные услуги -->
-                    <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 mt-8">
+                    <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 mt-8 services-section">
                         <h3 class="text-lg font-semibold text-white mb-4">Дополнительные услуги</h3>
                         <div class="space-y-4">
                             <label class="flex items-start">
@@ -142,7 +143,7 @@
                     </div>
 
                     <!-- Кнопки управления корзиной -->
-                    <div class="flex flex-col sm:flex-row gap-4 mt-6">
+                    <div class="flex flex-col sm:flex-row gap-4 mt-6 cart-actions">
                         <button id="clear-cart" class="bg-dark border border-gray-700 text-gray-400 px-6 py-3 rounded-lg font-semibold hover:border-red-400 hover:text-red-400 transition duration-200 flex items-center justify-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -160,7 +161,7 @@
 
                 <!-- Правая колонка - Итоги -->
                 <div class="lg:col-span-1">
-                    <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 sticky top-24">
+                    <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 sticky top-24 cart-summary">
                         <h3 class="text-xl font-bold text-white mb-6">Итоги заказа</h3>
                         
                         <div class="space-y-4 mb-6">
@@ -186,19 +187,19 @@
                         </div>
 
                         <!-- Промокод -->
-                        <div class="mb-6">
+                        <div class="mb-6 promo-section">
                             <label class="block text-sm font-semibold text-gray-300 mb-2">Промокод</label>
                             <div class="flex space-x-2">
                                 <input type="text" placeholder="Введите промокод" 
                                        class="flex-grow bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary">
-                                <button class="bg-primary text-dark px-4 py-2 rounded-lg font-semibold hover:bg-green-400 transition duration-200">
+                                <button class="bg-primary text-dark px-4 py-2 rounded-lg font-semibold hover:bg-green-400 transition duration-200 apply-promo">
                                     Применить
                                 </button>
                             </div>
                         </div>
 
                         <!-- Кнопки оформления -->
-                        <div class="space-y-3">
+                        <div class="space-y-3 checkout-buttons">
                             @if (User.Identity.IsAuthenticated)
                             {
                                 <a href="@Url.Action("Checkout", "Cart")" id="checkoutBtn" class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 text-center block">
@@ -207,7 +208,7 @@
                             }
                             else
                             {
-                                <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 mb-4">
+                                <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 mb-4 auth-notification">
                                     <p class="text-yellow-400 text-sm mb-3">Для оформления заказа необходимо войти в систему</p>
                                     <a href="@Url.Action("Login", "Auth")" class="w-full bg-primary text-dark py-3 rounded-lg font-bold text-center block hover:bg-green-400 transition duration-300">
                                         Войти
@@ -217,7 +218,7 @@
                         </div>
 
                         <!-- Доверительные знаки -->
-                        <div class="mt-6 pt-6 border-t border-gray-700">
+                        <div class="mt-6 pt-6 border-t border-gray-700 trust-badges">
                             <div class="grid grid-cols-2 gap-4 text-xs text-gray-400">
                                 <div class="flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,11 +251,11 @@
             </div>
 
             <!-- Рекомендации -->
-            <div class="mt-16">
+            <div class="mt-16 recommendations">
                 <h2 class="text-2xl font-bold text-white mb-8">С этим также покупают</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Аксессуар 1 -->
-                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300">
+                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300 accessory-item">
                         <div class="w-full h-32 bg-gradient-to-br from-secondary/20 to-blue-400/10 rounded-xl flex items-center justify-center mb-4">
                             <span class="text-3xl">🖥️</span>
                         </div>
@@ -270,7 +271,7 @@
                     </div>
 
                     <!-- Аксессуар 2 -->
-                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300">
+                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300 accessory-item">
                         <div class="w-full h-32 bg-gradient-to-br from-accent/20 to-pink-500/10 rounded-xl flex items-center justify-center mb-4">
                             <span class="text-3xl">⌨️</span>
                         </div>
@@ -286,7 +287,7 @@
                     </div>
 
                     <!-- Аксессуар 3 -->
-                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300">
+                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300 accessory-item">
                         <div class="w-full h-32 bg-gradient-to-br from-green-500/20 to-emerald-400/10 rounded-xl flex items-center justify-center mb-4">
                             <span class="text-3xl">🎧</span>
                         </div>
@@ -302,7 +303,7 @@
                     </div>
 
                     <!-- Аксессуар 4 -->
-                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300">
+                    <div class="bg-dark-card rounded-2xl p-4 border border-gray-800 hover:border-primary/50 transition duration-300 accessory-item">
                         <div class="w-full h-32 bg-gradient-to-br from-purple-500/20 to-violet-500/10 rounded-xl flex items-center justify-center mb-4">
                             <span class="text-3xl">🖱️</span>
                         </div>
@@ -321,161 +322,3 @@
         }
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Обновление количества
-            $('.quantity-increase').on('click', function() {
-                const computerId = $(this).data('computer-id');
-                const quantityElement = $(this).siblings('.quantity');
-                let quantity = parseInt(quantityElement.text());
-                quantityElement.text(quantity + 1);
-                updateCartQuantity(computerId, quantity + 1);
-            });
-
-            $('.quantity-decrease').on('click', function() {
-                const computerId = $(this).data('computer-id');
-                const quantityElement = $(this).siblings('.quantity');
-                let quantity = parseInt(quantityElement.text());
-                if (quantity > 1) {
-                    quantityElement.text(quantity - 1);
-                    updateCartQuantity(computerId, quantity - 1);
-                }
-            });
-
-            // Удаление из корзины
-            $('.remove-from-cart').on('click', function() {
-                const computerId = $(this).data('computer-id');
-                removeFromCart(computerId);
-            });
-
-            // Очистка корзины
-            $('#clear-cart').on('click', function() {
-                if (confirm('Вы уверены, что хотите очистить корзину?')) {
-                    clearCart();
-                }
-            });
-
-            // Добавление аксессуаров
-            $('.add-accessory').on('click', function() {
-                const name = $(this).data('name');
-                const price = $(this).data('price');
-                showNotification(`Товар "${name}" добавлен в корзину!`);
-                // Здесь можно добавить логику добавления аксессуара в корзину
-            });
-
-            // Обновление дополнительных услуг
-            $('.service-checkbox').on('change', function() {
-                updateTotals();
-            });
-
-            function updateCartQuantity(computerId, quantity) {
-                $.post('@Url.Action("UpdateQuantity", "Cart")', { computerId, quantity })
-                    .done(function(response) {
-                        if (response.success) {
-                            updateTotals();
-                            showNotification('Количество обновлено');
-                        } else {
-                            showNotification(response.message, 'error');
-                        }
-                    })
-                    .fail(function() {
-                        showNotification('Ошибка при обновлении количества', 'error');
-                    });
-            }
-
-            function removeFromCart(computerId) {
-                $.post('@Url.Action("RemoveFromCart", "Cart")', { computerId })
-                    .done(function(response) {
-                        if (response.success) {
-                            $(`.cart-item[data-computer-id="${computerId}"]`).fadeOut(300, function() {
-                                $(this).remove();
-                                if ($('.cart-item').length === 0) {
-                                    location.reload();
-                                } else {
-                                    updateTotals();
-                                }
-                            });
-                            showNotification('Товар удален из корзины');
-                        } else {
-                            showNotification(response.message, 'error');
-                        }
-                    })
-                    .fail(function() {
-                        showNotification('Ошибка при удалении товара', 'error');
-                    });
-            }
-
-            function clearCart() {
-                $.post('@Url.Action("Clear", "Cart")')
-                    .done(function(response) {
-                        if (response.success) {
-                            location.reload();
-                        }
-                    })
-                    .fail(function() {
-                        showNotification('Ошибка при очистке корзины', 'error');
-                    });
-            }
-
-            function updateTotals() {
-                let subtotal = 0;
-                
-                // Сумма товаров
-                $('.cart-item').each(function() {
-                    const price = parseFloat($(this).data('price'));
-                    const quantity = parseInt($(this).find('.quantity').text());
-                    subtotal += price * quantity;
-                });
-                
-                // Сумма дополнительных услуг
-                let servicesTotal = 0;
-                $('.service-checkbox:checked').each(function() {
-                    servicesTotal += parseFloat($(this).data('price'));
-                });
-                
-                // Итоговая сумма
-                const total = subtotal + servicesTotal;
-                
-                // Обновление UI
-                $('#subtotal').text(formatPrice(subtotal));
-                $('#servicesTotal').text(formatPrice(servicesTotal));
-                $('#total').text(formatPrice(total));
-            }
-
-            function formatPrice(price) {
-                return new Intl.NumberFormat('ru-RU', {
-                    style: 'currency',
-                    currency: 'RUB'
-                }).format(price);
-            }
-
-            function showNotification(message, type = 'success') {
-                const alertClass = type === 'success' ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-red-500/20 border-red-500/30 text-red-400';
-                
-                const notification = $(`
-                    <div class="fixed top-4 right-4 z-50 p-4 rounded-lg border backdrop-blur-sm transition-transform duration-300 transform translate-x-full ${alertClass}">
-                        ${message}
-                    </div>
-                `);
-                
-                $('body').append(notification);
-                
-                setTimeout(() => {
-                    notification.removeClass('translate-x-full');
-                }, 100);
-                
-                setTimeout(() => {
-                    notification.addClass('translate-x-full');
-                    setTimeout(() => {
-                        notification.remove();
-                    }, 300);
-                }, 3000);
-            }
-
-            // Инициализация
-            updateTotals();
-        });
-    </script>
-}

@@ -7,7 +7,7 @@
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Заголовок -->
         <div class="text-center mb-12">
-            <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6 register-icon">
                 <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                 </svg>
@@ -21,8 +21,8 @@
         </div>
 
         <!-- Карточка формы -->
-        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl">
-            <form asp-action="Register" method="post" class="space-y-6">
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl register-form">
+            <form asp-action="Register" method="post" class="space-y-6" id="registerForm">
                 <!-- Строка с Username и Email -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Поле имени пользователя -->
@@ -34,7 +34,7 @@
                             Имя пользователя *
                         </label>
                         <input asp-for="Username" 
-                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 register-input"
                                placeholder="Введите имя пользователя"/>
                         <span asp-validation-for="Username" class="text-red-400 text-sm mt-1 block"></span>
                     </div>
@@ -48,7 +48,7 @@
                             Email *
                         </label>
                         <input asp-for="Email" 
-                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 register-input"
                                placeholder="Введите ваш email"/>
                         <span asp-validation-for="Email" class="text-red-400 text-sm mt-1 block"></span>
                     </div>
@@ -63,7 +63,7 @@
                         Пароль *
                     </label>
                     <input asp-for="PasswordHash" type="password" 
-                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 register-input"
                            placeholder="Введите пароль"/>
                     <span asp-validation-for="PasswordHash" class="text-red-400 text-sm mt-1 block"></span>
                 </div>
@@ -79,7 +79,7 @@
                             Имя
                         </label>
                         <input asp-for="FirstName" 
-                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 register-input"
                                placeholder="Введите ваше имя"/>
                         <span asp-validation-for="FirstName" class="text-red-400 text-sm mt-1 block"></span>
                     </div>
@@ -93,7 +93,7 @@
                             Фамилия
                         </label>
                         <input asp-for="LastName" 
-                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 register-input"
                                placeholder="Введите вашу фамилию"/>
                         <span asp-validation-for="LastName" class="text-red-400 text-sm mt-1 block"></span>
                     </div>
@@ -108,7 +108,7 @@
                         Телефон
                     </label>
                     <input asp-for="Phone" 
-                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 register-input"
                            placeholder="Введите номер телефона"/>
                     <span asp-validation-for="Phone" class="text-red-400 text-sm mt-1 block"></span>
                 </div>
@@ -116,7 +116,7 @@
                 <!-- Сообщения об ошибках валидации модели -->
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
+                    <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4 validation-errors">
                         <div class="flex items-center">
                             <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -131,7 +131,7 @@
 
                 <!-- Кнопка регистрации -->
                 <button type="submit" 
-                        class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center">
+                        class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center register-submit">
                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                     </svg>
@@ -142,7 +142,7 @@
                 <div class="text-center pt-4 border-t border-gray-700">
                     <p class="text-gray-400">
                         Уже есть аккаунт? 
-                        <a asp-action="Login" class="text-primary hover:text-green-400 transition duration-200 font-semibold ml-1">
+                        <a asp-action="Login" class="text-primary hover:text-green-400 transition duration-200 font-semibold ml-1 login-link">
                             Войдите
                         </a>
                     </p>
@@ -180,81 +180,4 @@
     </div>
 </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Анимация появления элементов
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.bg-dark-card').forEach((el) => {
-                observer.observe(el);
-            });
-
-            // Валидация формы при отправке
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
-                const requiredFields = form.querySelectorAll('input[required]');
-                let hasEmptyFields = false;
-                
-                requiredFields.forEach(field => {
-                    if (!field.value.trim()) {
-                        field.classList.add('border-red-500');
-                        hasEmptyFields = true;
-                    }
-                });
-                
-                if (hasEmptyFields) {
-                    e.preventDefault();
-                }
-            });
-
-            // Убираем красную обводку при вводе
-            const inputs = form.querySelectorAll('input');
-            inputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    this.classList.remove('border-red-500');
-                });
-            });
-        });
-    </script>
-
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-in-out;
-        }
-        
-        input:focus {
-            border-color: #00ff88;
-            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
-        }
-        
-        .border-red-500 {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
-        }
-        
-        @@keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-    </style>
-}
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

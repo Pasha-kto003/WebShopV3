@@ -86,21 +86,22 @@
                         <h2 class="text-2xl font-bold text-white">Компьютеры в заказе</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="computersContainer">
                         @{
                             var computers = ViewBag.Computers as List<WebShopV3.Models.Computer>;
                             if (computers != null && computers.Any())
                             {
                                 for (int i = 0; i < computers.Count; i++)
                                 {
-                                    <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-primary/50 transition duration-200">
+                                    <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-primary/50 transition duration-200 computer-card"
+                                         data-computer-id="@computers[i].Id">
                                         <div class="flex items-start justify-between mb-4">
                                             <h3 class="text-lg font-semibold text-white">@computers[i].Name</h3>
                                             <span class="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
                                                 @computers[i].Price.ToString("C")
                                             </span>
                                         </div>
-                                        
+                        
                                         <div class="flex items-center text-gray-400 text-sm mb-4">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
@@ -118,10 +119,20 @@
                                                    class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 quantity-input"
                                                    data-computer-id="@computers[i].Id"
                                                    onchange="updateComputerSelection(this)">
-                                            <input type="checkbox" 
+                            
+                                            <!-- Скрытые поля для каждого компьютера -->
+                                            <input type="hidden" 
                                                    name="selectedComputers" 
-                                                   value="@computers[i].Id" 
-                                                   class="computer-checkbox hidden">
+                                                   value="@computers[i].Id"
+                                                   class="computer-selected-input">
+                                        </div>
+
+                                        <!-- Отображение стоимости позиции -->
+                                        <div class="mt-3 text-sm">
+                                            <div class="flex justify-between text-gray-400">
+                                                <span>Стоимость позиции:</span>
+                                                <span class="text-primary font-semibold item-total" data-computer-id="@computers[i].Id">0 ₽</span>
+                                            </div>
                                         </div>
                                     </div>
                                 }
@@ -136,6 +147,14 @@
                                 </div>
                             }
                         }
+                    </div>
+
+                    <!-- Итоговая сумма -->
+                    <div class="mt-6 pt-6 border-t border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold text-white">Общая сумма заказа:</span>
+                            <span id="orderTotal" class="text-2xl font-bold text-primary">0 ₽</span>
+                        </div>
                     </div>
                 </div>
 
@@ -192,92 +211,152 @@
 
 @section Scripts {
     <script>
+        // Храним цены компьютеров
+        const computerPrices = {
+            @foreach (var computer in ViewBag.Computers as List<WebShopV3.Models.Computer> ?? new List<WebShopV3.Models.Computer>())
+            {
+                <text>@computer.Id: @computer.Price,</text>
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Анимация появления элементов
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+            // Инициализация при загрузке
+            updateAllSelections();
+        });
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                    }
-                });
-            }, observerOptions);
+        // Обновление выбора компьютера
+        function updateComputerSelection(input) {
+            const computerId = input.getAttribute('data-computer-id');
+            const quantity = parseInt(input.value);
+            const card = input.closest('.computer-card');
+            const hiddenInput = card.querySelector('.computer-selected-input');
+            const itemTotalElement = card.querySelector('.item-total');
+            
+            // Получаем цену компьютера
+            const price = computerPrices[computerId] || 0;
+            const itemTotal = quantity * price;
+            
+            if (quantity > 0) {
+                // Показываем что компьютер выбран
+                card.classList.add('ring-2', 'ring-primary/50', 'bg-primary/10');
+                hiddenInput.disabled = false;
+                
+                // Обновляем отображение стоимости
+                if (itemTotalElement) {
+                    itemTotalElement.textContent = itemTotal.toLocaleString('ru-RU') + ' ₽';
+                }
+            } else {
+                // Снимаем выделение
+                card.classList.remove('ring-2', 'ring-primary/50', 'bg-primary/10');
+                hiddenInput.disabled = true;
+                
+                // Сбрасываем стоимость
+                if (itemTotalElement) {
+                    itemTotalElement.textContent = '0 ₽';
+                }
+            }
+            
+            // Обновляем общую сумму
+            updateOrderTotal();
+        }
 
-            document.querySelectorAll('.bg-dark-card, .bg-gray-800\\/50').forEach((el) => {
-                observer.observe(el);
-            });
-
-            // Обновление выбора компьютеров
-            window.updateComputerSelection = function(input) {
+        // Обновление общей суммы заказа
+        function updateOrderTotal() {
+            let total = 0;
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            
+            quantityInputs.forEach(input => {
                 const computerId = input.getAttribute('data-computer-id');
-                const checkbox = input.parentElement.querySelector('.computer-checkbox');
-                const quantity = parseInt(input.value);
-                
-                if (quantity > 0) {
-                    checkbox.checked = true;
-                    input.parentElement.parentElement.classList.add('ring-2', 'ring-primary/50');
-                } else {
-                    checkbox.checked = false;
-                    input.parentElement.parentElement.classList.remove('ring-2', 'ring-primary/50');
-                }
-            };
+                const quantity = parseInt(input.value) || 0;
+                const price = computerPrices[computerId] || 0;
+                total += quantity * price;
+            });
+            
+            document.getElementById('orderTotal').textContent = total.toLocaleString('ru-RU') + ' ₽';
+        }
 
-            // Валидация формы
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
-                const userId = document.querySelector('select[name="UserId"]').value;
-                const orderTypeId = document.querySelector('select[name="OrderTypeId"]').value;
-                const statusId = document.querySelector('select[name="StatusId"]').value;
-                const selectedComputers = document.querySelectorAll('.computer-checkbox:checked');
-                
-                let isValid = true;
-                
-                if (!userId) {
-                    highlightError(document.querySelector('select[name="UserId"]'));
-                    isValid = false;
-                }
-                
-                if (!orderTypeId) {
-                    highlightError(document.querySelector('select[name="OrderTypeId"]'));
-                    isValid = false;
-                }
-                
-                if (!statusId) {
-                    highlightError(document.querySelector('select[name="StatusId"]'));
-                    isValid = false;
-                }
-                
-                if (selectedComputers.length === 0) {
-                    alert('Выберите хотя бы один компьютер для заказа');
-                    isValid = false;
-                }
-                
-                if (!isValid) {
-                    e.preventDefault();
+        // Обновление всех выборов при загрузке
+        function updateAllSelections() {
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            quantityInputs.forEach(input => {
+                updateComputerSelection(input);
+            });
+        }
+
+        // Валидация формы
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const userId = document.querySelector('select[name="UserId"]').value;
+            const orderTypeId = document.querySelector('select[name="OrderTypeId"]').value;
+            const statusId = document.querySelector('select[name="StatusId"]').value;
+            
+            // Проверяем есть ли компьютеры с количеством > 0
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            let hasSelectedComputers = false;
+            
+            quantityInputs.forEach(input => {
+                if (parseInt(input.value) > 0) {
+                    hasSelectedComputers = true;
                 }
             });
-
-            function highlightError(element) {
-                element.classList.add('border-red-500', 'ring-1', 'ring-red-500');
-                setTimeout(() => {
-                    element.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
-                }, 3000);
+            
+            let isValid = true;
+            
+            if (!userId) {
+                highlightError(document.querySelector('select[name="UserId"]'));
+                isValid = false;
+            }
+            
+            if (!orderTypeId) {
+                highlightError(document.querySelector('select[name="OrderTypeId"]'));
+                isValid = false;
+            }
+            
+            if (!statusId) {
+                highlightError(document.querySelector('select[name="StatusId"]'));
+                isValid = false;
+            }
+            
+            if (!hasSelectedComputers) {
+                alert('Выберите хотя бы один компьютер с количеством больше 0');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                return false;
             }
 
-            // Убираем подсветку ошибок при изменении
-            const inputs = form.querySelectorAll('select, input');
-            inputs.forEach(input => {
-                input.addEventListener('change', function() {
-                    this.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
-                });
+            // Отладочная информация
+            console.log('Отправка формы:');
+            console.log('UserId:', userId);
+            console.log('OrderTypeId:', orderTypeId);
+            console.log('StatusId:', statusId);
+            
+            const formData = new FormData(this);
+            for (let [key, value] of formData.entries()) {
+                console.log(key + ': ' + value);
+            }
+            
+            return true;
+        });
+
+        function highlightError(element) {
+            element.classList.add('border-red-500', 'ring-1', 'ring-red-500');
+            setTimeout(() => {
+                element.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
+            }, 3000);
+        }
+
+        // Убираем подсветку ошибок при изменении
+        const inputs = form.querySelectorAll('select, input');
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                this.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
             });
         });
     </script>
-
+}
     <style>
         .animate-fade-in {
             animation: fadeIn 0.6s ease-in-out;

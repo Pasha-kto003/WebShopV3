@@ -1,0 +1,398 @@
+﻿
+
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Хлебные крошки -->
+        <nav class="flex mb-8" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 text-sm">
+                <li>
+                    <a asp-action="Index" asp-controller="Cart" class="text-gray-400 hover:text-white transition duration-200">Корзина</a>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-gray-600 mx-2">/</span>
+                    <a asp-action="Checkout" asp-controller="Cart" class="text-gray-400 hover:text-white transition duration-200">Оформление</a>
+                </li>
+                <li class="flex items-center">
+                    <span class="text-gray-600 mx-2">/</span>
+                    <span class="text-primary">Оплата</span>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Заголовок -->
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                Оплата заказа
+            </h1>
+            <p class="text-xl text-gray-400">
+                Завершите оформление вашего заказа #@Model.Id
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Левая колонка - Форма оплаты -->
+            <div class="space-y-6">
+                <!-- Способ оплаты -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        Способ оплаты
+                    </h3>
+
+                    <div class="space-y-4">
+                        <label class="flex items-center p-4 bg-gray-800/50 rounded-lg border-2 border-transparent hover:border-primary transition duration-200 cursor-pointer">
+                            <input type="radio" name="paymentMethod" value="card" class="text-primary focus:ring-primary" checked>
+                            <div class="ml-4 flex items-center">
+                                <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mr-3">
+                                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Банковская карта</div>
+                                    <div class="text-gray-400 text-sm">Visa, Mastercard, Мир</div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center p-4 bg-gray-800/50 rounded-lg border-2 border-transparent hover:border-primary transition duration-200 cursor-pointer">
+                            <input type="radio" name="paymentMethod" value="yoomoney" class="text-primary focus:ring-primary">
+                            <div class="ml-4 flex items-center">
+                                <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
+                                    <span class="text-green-400 font-bold text-lg">Ю</span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">ЮMoney</div>
+                                    <div class="text-gray-400 text-sm">Кошелек ЮMoney</div>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center p-4 bg-gray-800/50 rounded-lg border-2 border-transparent hover:border-primary transition duration-200 cursor-pointer">
+                            <input type="radio" name="paymentMethod" value="sbp" class="text-primary focus:ring-primary">
+                            <div class="ml-4 flex items-center">
+                                <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center mr-3">
+                                    <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">СБП</div>
+                                    <div class="text-gray-400 text-sm">Система быстрых платежей</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Данные карты -->
+                <div id="cardData" class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-bold text-white mb-6">Данные карты</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Номер карты</label>
+                            <div class="relative">
+                                <input type="text" 
+                                       class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                       placeholder="0000 0000 0000 0000"
+                                       maxlength="19">
+                                <div class="absolute right-3 top-3 flex space-x-2">
+                                    <div class="w-8 h-5 bg-blue-500 rounded-sm"></div>
+                                    <div class="w-8 h-5 bg-red-500 rounded-sm"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-2">Срок действия</label>
+                                <input type="text" 
+                                       class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                       placeholder="ММ/ГГ"
+                                       maxlength="5">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-300 mb-2">CVV/CVC</label>
+                                <input type="text" 
+                                       class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                       placeholder="123"
+                                       maxlength="3">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Имя владельца</label>
+                            <input type="text" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   placeholder="IVAN IVANOV">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Контакты -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Контактные данные
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Email для чека</label>
+                            <input type="email" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   placeholder="your@email.com"
+                                   value="">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-300 mb-2">Телефон для уведомлений</label>
+                            <input type="tel" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   placeholder="+7 (999) 123-45-67"
+                                   value="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка - Информация о заказе -->
+            <div class="space-y-6">
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 sticky top-24">
+                    <h3 class="text-xl font-bold text-white mb-6">Детали заказа</h3>
+
+                    <!-- Товары -->
+                    <div class="space-y-4 mb-6">
+                        <h4 class="text-lg font-semibold text-white mb-3">Товары </h4>
+
+                            <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center mr-3">
+                                        <span class="text-lg">🎮</span>
+                                    </div>
+                                    <div>
+                                        <div class="text-white text-sm font-medium">Name</div>
+                                        <div class="text-gray-400 text-xs">54432</div>
+                                    </div>
+                                </div>
+                                <div class="text-primary font-semibold">123456</div>
+                            </div>
+
+                    </div>
+
+                    <!-- Итоги -->
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between text-gray-400">
+                            <span>Сумма товаров:</span>
+                            <span></span>
+                        </div>
+                        <div class="flex justify-between text-gray-400">
+                            <span>Доставка:</span>
+                            <span class="text-green-400">Бесплатно</span>
+                        </div>
+                        <div class="flex justify-between text-gray-400">
+                            <span>НДС (20%):</span>
+                            <span></span>
+                        </div>
+                        
+                        <div class="border-t border-gray-700 pt-4">
+                            <div class="flex justify-between items-center text-lg">
+                                <span class="text-white font-semibold">К оплате</span>
+                                <span id="totalAmount" class="text-2xl font-bold text-primary"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка оплаты -->
+                    <button id="payButton" 
+                            class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Оплатить
+                    </button>
+
+                    <!-- Безопасность -->
+                    <div class="text-center">
+                        <div class="flex items-center justify-center text-gray-400 text-sm mb-2">
+                            <svg class="w-4 h-4 mr-1 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            Безопасная оплата через SSL
+                        </div>
+                        <p class="text-gray-500 text-xs">Ваши данные защищены</p>
+                    </div>
+                </div>
+
+                <!-- Гарантии -->
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                    <h3 class="text-xl font-bold text-white mb-4">Гарантии</h3>
+                    <div class="space-y-3 text-sm text-gray-400">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            Гарантия на все товары 3 года
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            Возврат в течение 14 дней
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            Техническая поддержка 24/7
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Переключение способов оплаты
+            const paymentMethods = document.querySelectorAll('input[name="paymentMethod"]');
+            const cardDataSection = document.getElementById('cardData');
+
+            paymentMethods.forEach(method => {
+                method.addEventListener('change', function() {
+                    if (this.value === 'card') {
+                        cardDataSection.style.display = 'block';
+                    } else {
+                        cardDataSection.style.display = 'none';
+                    }
+                });
+            });
+
+            // Форматирование номера карты
+            const cardNumberInput = document.querySelector('input[placeholder="0000 0000 0000 0000"]');
+            cardNumberInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                let matches = value.match(/\d{4,16}/g);
+                let match = matches && matches[0] || '';
+                let parts = [];
+
+                for (let i = 0; i < match.length; i += 4) {
+                    parts.push(match.substring(i, i + 4));
+                }
+
+                if (parts.length) {
+                    e.target.value = parts.join(' ');
+                } else {
+                    e.target.value = value;
+                }
+            });
+
+            // Форматирование срока действия
+            const expiryInput = document.querySelector('input[placeholder="ММ/ГГ"]');
+            expiryInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    e.target.value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+            });
+
+            // Обработка оплаты
+            const payButton = document.getElementById('payButton');
+            payButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Показываем индикатор загрузки
+                payButton.disabled = true;
+                payButton.innerHTML = `
+                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-dark mr-2"></div>
+                    Обработка платежа...
+                `;
+
+                // Имитация процесса оплаты
+                setTimeout(() => {
+                    // В реальном приложении здесь будет запрос к платежному шлюзу
+                    showSuccessNotification();
+                }, 2000);
+            });
+
+            function showSuccessNotification() {
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 z-50 p-6 bg-green-500/20 border border-green-500/30 text-green-400 rounded-lg backdrop-blur-sm transition-transform duration-300 transform translate-x-full';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <div>
+                            <div class="font-bold">Оплата прошла успешно!</div>
+                            <div class="text-sm">Заказ #@Model.Id подтвержден</div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.classList.remove('translate-x-full');
+                }, 100);
+                
+                // Перенаправление на страницу успеха
+                setTimeout(() => {
+                    window.location.href = '@Url.Action("OrderSuccess", "Order", new { id = Model.Id })';
+                }, 3000);
+            }
+
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach((el) => {
+                observer.observe(el);
+            });
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        input:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
+}

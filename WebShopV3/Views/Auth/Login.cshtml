@@ -6,7 +6,7 @@
     <div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Заголовок -->
         <div class="text-center mb-12">
-            <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6 login-icon">
                 <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                 </svg>
@@ -20,8 +20,8 @@
         </div>
 
         <!-- Карточка формы -->
-        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl">
-            <form asp-action="Login" method="post" class="space-y-6">
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl login-form">
+            <form asp-action="Login" method="post" class="space-y-6" id="loginForm">
                 <!-- Поле имени пользователя -->
                 <div>
                     <label for="username" class="block text-sm font-semibold text-gray-300 mb-2">
@@ -31,7 +31,7 @@
                         Имя пользователя *
                     </label>
                     <input type="text" id="username" name="username" 
-                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 login-input"
                            placeholder="Введите ваше имя пользователя"
                            required>
                 </div>
@@ -45,7 +45,7 @@
                         Пароль *
                     </label>
                     <input type="password" id="password" name="password" 
-                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 login-input"
                            placeholder="Введите ваш пароль"
                            required>
                 </div>
@@ -68,7 +68,7 @@
 
                 <!-- Кнопка входа -->
                 <button type="submit" 
-                        class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center">
+                        class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center login-submit">
                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                     </svg>
@@ -116,81 +116,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Анимация появления элементов
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.bg-dark-card').forEach((el) => {
-                observer.observe(el);
-            });
-
-            // Валидация формы
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
-                const username = document.getElementById('username').value.trim();
-                const password = document.getElementById('password').value.trim();
-                
-                if (!username || !password) {
-                    e.preventDefault();
-                    // Добавляем визуальную обратную связь
-                    if (!username) {
-                        document.getElementById('username').classList.add('border-red-500');
-                    }
-                    if (!password) {
-                        document.getElementById('password').classList.add('border-red-500');
-                    }
-                }
-            });
-
-            // Убираем красную обводку при вводе
-            document.getElementById('username').addEventListener('input', function() {
-                this.classList.remove('border-red-500');
-            });
-            
-            document.getElementById('password').addEventListener('input', function() {
-                this.classList.remove('border-red-500');
-            });
-        });
-    </script>
-
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-in-out;
-        }
-        
-        input:focus {
-            border-color: #00ff88;
-            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
-        }
-        
-        .border-red-500 {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
-        }
-        
-        @@keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-    </style>
-}

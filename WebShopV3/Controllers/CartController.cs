@@ -29,6 +29,11 @@ namespace ComputerShop.Controllers
             return View(cart);
         }
 
+        public IActionResult Final()
+        {
+            return View();
+        }
+
         // POST: Cart/AddToCart
         [HttpPost]
         public async Task<IActionResult> AddToCart(int computerId, int quantity = 1)

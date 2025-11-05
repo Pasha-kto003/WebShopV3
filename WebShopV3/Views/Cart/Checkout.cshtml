@@ -25,9 +25,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Левая колонка - Форма заказа -->
             <div class="lg:col-span-2">
-                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800">
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 checkout-form-card">
                     <!-- Информационное уведомление -->
-                    <div class="bg-blue-500/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+                    <div class="bg-blue-500/20 border border-blue-500/30 rounded-lg p-4 mb-6 checkout-notification">
                         <div class="flex items-center">
                             <svg class="w-5 h-5 text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -58,7 +58,7 @@
                                     Имя *
                                 </label>
                                 <input type="text" name="firstName" value="@firstName" 
-                                       class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                       class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 checkout-input"
                                        placeholder="Введите ваше имя" required>
                                 <p class="text-gray-400 text-sm mt-1">Ваше имя</p>
                             </div>
@@ -70,7 +70,7 @@
                                     Фамилия *
                                 </label>
                                 <input type="text" name="lastName" value="@lastName" 
-                                       class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                       class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 checkout-input"
                                        placeholder="Введите вашу фамилию" required>
                                 <p class="text-gray-400 text-sm mt-1">Ваша фамилия</p>
                             </div>
@@ -84,7 +84,7 @@
                                 Email *
                             </label>
                             <input type="email" name="email" value="@email" 
-                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 checkout-input"
                                    placeholder="your@email.com" required>
                             <p class="text-gray-400 text-sm mt-1">На этот email придет подтверждение заказа</p>
                         </div>
@@ -97,7 +97,7 @@
                                 Телефон *
                             </label>
                             <input type="tel" name="phone" value="@phone" 
-                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 checkout-input"
                                    placeholder="+7 (999) 123-45-67" required>
                             <p class="text-gray-400 text-sm mt-1">Для связи по поводу доставки</p>
                         </div>
@@ -111,7 +111,7 @@
                                 Адрес доставки *
                             </label>
                             <textarea name="address" rows="3" 
-                                      class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none"
+                                      class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none checkout-input"
                                       placeholder="Введите полный адрес доставки..." required></textarea>
                             <p class="text-gray-400 text-sm mt-1">Укажите город, улицу, дом, квартиру</p>
                         </div>
@@ -124,7 +124,7 @@
                                 Комментарий к заказу
                             </label>
                             <textarea name="comment" rows="3" 
-                                      class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none"
+                                      class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 resize-none checkout-input"
                                       placeholder="Дополнительные пожелания..."></textarea>
                             <p class="text-gray-400 text-sm mt-1">Необязательное поле</p>
                         </div>
@@ -134,7 +134,7 @@
 
             <!-- Правая колонка - Информация о заказе -->
             <div class="lg:col-span-1">
-                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 sticky top-24">
+                <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 sticky top-24 checkout-summary">
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center">
                         <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
@@ -146,7 +146,7 @@
                     <div class="space-y-4 mb-6">
                         @foreach (var item in Model.Items)
                         {
-                            <div class="flex justify-between items-start pb-4 border-b border-gray-700">
+                            <div class="flex justify-between items-start pb-4 border-b border-gray-700 checkout-item">
                                 <div class="flex-1">
                                     <div class="text-white font-semibold text-sm">@item.ComputerName</div>
                                     <div class="text-gray-400 text-xs">@item.Quantity × @item.Price.ToString("C")</div>
@@ -178,15 +178,22 @@
                     <!-- Кнопки действий -->
                     <div class="space-y-3">
                         <button type="submit" form="checkout-form" 
-                                class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center">
+                                class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center checkout-submit">
                             <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
                             Подтвердить заказ
                         </button>
+                        <a asp-controller="Cart" asp-action="Final" 
+                           class="w-full bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 flex items-center justify-center checkout-action-btn">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            Страница оплаты
+                        </a>
 
                         <a href="@Url.Action("Index", "Cart")" 
-                           class="w-full bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 flex items-center justify-center">
+                           class="w-full bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 flex items-center justify-center checkout-action-btn">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                             </svg>
@@ -195,7 +202,7 @@
                     </div>
 
                     <!-- Информация о безопасности -->
-                    <div class="mt-6 pt-6 border-t border-gray-700">
+                    <div class="mt-6 pt-6 border-t border-gray-700 checkout-security">
                         <div class="flex items-center text-gray-400 text-sm">
                             <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -208,140 +215,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Автоподстановка адреса, если пользователь ранее его указывал
-            function loadSavedAddress() {
-                const savedAddress = localStorage.getItem('userAddress');
-                if (savedAddress) {
-                    $('textarea[name="address"]').val(savedAddress);
-                }
-            }
-
-            // Сохранение адреса при изменении
-            $('textarea[name="address"]').on('input', function() {
-                const address = $(this).val();
-                if (address.length > 5) {
-                    localStorage.setItem('userAddress', address);
-                }
-            });
-
-            // Валидация формы
-            $('#checkout-form').on('submit', function(e) {
-                const address = $('textarea[name="address"]').val().trim();
-                if (address.length < 10) {
-                    e.preventDefault();
-                    showNotification('Пожалуйста, укажите полный адрес доставки (не менее 10 символов)', 'error');
-                    $('textarea[name="address"]').focus();
-                    $('textarea[name="address"]').addClass('border-red-500');
-                    return false;
-                } else {
-                    $('textarea[name="address"]').removeClass('border-red-500');
-                }
-
-                const phone = $('input[name="phone"]').val().trim();
-                if (!isValidPhone(phone)) {
-                    e.preventDefault();
-                    showNotification('Пожалуйста, укажите корректный номер телефона', 'error');
-                    $('input[name="phone"]').focus();
-                    $('input[name="phone"]').addClass('border-red-500');
-                    return false;
-                } else {
-                    $('input[name="phone"]').removeClass('border-red-500');
-                }
-
-                // Показываем индикатор загрузки
-                $('button[type="submit"]').prop('disabled', true).html(`
-                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-dark mr-2"></div>
-                    Оформляем заказ...
-                `);
-            });
-
-            function isValidPhone(phone) {
-                // Простая валидация телефона
-                const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
-                return phoneRegex.test(phone);
-            }
-
-            function showNotification(message, type = 'success') {
-                const alertClass = type === 'success' ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-red-500/20 border-red-500/30 text-red-400';
-                
-                const notification = $(`
-                    <div class="fixed top-4 right-4 z-50 p-4 rounded-lg border backdrop-blur-sm transition-transform duration-300 transform translate-x-full ${alertClass}">
-                        ${message}
-                    </div>
-                `);
-                
-                $('body').append(notification);
-                
-                setTimeout(() => {
-                    notification.removeClass('translate-x-full');
-                }, 100);
-                
-                setTimeout(() => {
-                    notification.addClass('translate-x-full');
-                    setTimeout(() => {
-                        notification.remove();
-                    }, 300);
-                }, 4000);
-            }
-
-            // Загружаем сохраненный адрес при загрузке страницы
-            loadSavedAddress();
-
-            // Подсказка для адреса
-            $('textarea[name="address"]').on('focus', function() {
-                if (!$(this).val()) {
-                    $(this).attr('placeholder', 'Например: г. Москва, ул. Примерная, д. 123, кв. 45');
-                }
-            });
-
-            // Анимация появления элементов
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-fade-in');
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.bg-dark-card').forEach((el) => {
-                observer.observe(el);
-            });
-        });
-    </script>
-
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-in-out;
-        }
-        
-        input:focus, textarea:focus {
-            border-color: #00ff88;
-            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
-        }
-        
-        .border-red-500 {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
-        }
-        
-        @@keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-    </style>
-}
