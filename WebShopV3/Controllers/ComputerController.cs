@@ -31,9 +31,11 @@ namespace WebShopV3.Controllers
             }
 
             var computer = await _context.Computers
-                .Include(c => c.ComputerComponents)
+            .Include(c => c.ComputerComponents)
                 .ThenInclude(cc => cc.Component)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                    .ThenInclude(comp => comp.ComponentCharacteristics)
+                        .ThenInclude(cc => cc.Characteristic)
+            .FirstOrDefaultAsync(m => m.Id == id);
 
             if (computer == null)
             {

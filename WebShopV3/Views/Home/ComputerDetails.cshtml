@@ -129,10 +129,10 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                             @if (Model.ComputerComponents.Any())
                             {
-                                var cpu = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "Процессор");
-                                var gpu = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "Видеокарта");
-                                var ram = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "Оперативная память");
-                                var storage = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "Накопитель");
+                                var cpu = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "CPU");
+                                var gpu = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "GPU");
+                                var ram = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "RAM");
+                                var storage = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "SSD" || cc.Component.Type == "HDD");
                                 
                                 if (cpu != null)
                                 {
@@ -246,7 +246,7 @@
                                 <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition duration-200">
                                     <td class="py-4 px-4 text-white">@comp.Component.Name</td>
                                     <td class="py-4 px-4">
-                                        <span class="bg-gray-700 text-gray-300 px-2 py-1 rounded-full text-xs">@comp.Component.Type</span>
+                                        <span class="bg-gray-700 text-gray-300 px-2 py-1 rounded-full text-xs">@GetTypeDisplayName(comp.Component.Type)</span>
                                     </td>
                                     <td class="py-4 px-4 text-right text-white">@comp.Component.Price.ToString("C")</td>
                                 </tr>
@@ -276,46 +276,73 @@
         }
 
         <!-- Детальные характеристики -->
-        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 mb-16">
-            <h2 class="text-2xl font-bold text-white mb-6">Полные технические характеристики</h2>
+        @if (Model.ComputerComponents.Any(cc => cc.Component.ComponentCharacteristics.Any()))
+        {
+            <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 mb-16">
+                <h2 class="text-2xl font-bold text-white mb-6">Полные технические характеристики</h2>
+                
+                <div class="space-y-8">
+                    @foreach (var computerComponent in Model.ComputerComponents.Where(cc => cc.Component.ComponentCharacteristics.Any()))
+                    {
+                        <div class="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
+                            <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                                @GetComponentIcon(computerComponent.Component.Type)
+                                @computerComponent.Component.Name
+                                <span class="ml-3 text-sm font-normal text-gray-400 bg-gray-700 px-3 py-1 rounded-full">
+                                    @GetTypeDisplayName(computerComponent.Component.Type)
+                                </span>
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                @foreach (var charItem in computerComponent.Component.ComponentCharacteristics)
+                                {
+                                    <div class="bg-gray-700/50 rounded-lg p-4 border border-gray-600 hover:border-primary/50 transition duration-200">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <span class="text-white font-semibold text-sm">@charItem.Characteristic?.Name</span>
+                                            @if (!string.IsNullOrEmpty(charItem.Characteristic?.Unit))
+                                            {
+                                                <span class="text-gray-400 text-xs bg-gray-600 px-2 py-1 rounded-full">@charItem.Characteristic.Unit</span>
+                                            }
+                                        </div>
+                                        <div class="text-primary text-lg font-bold">@charItem.Value</div>
+                                        @if (!string.IsNullOrEmpty(charItem.Characteristic?.Description))
+                                        {
+                                            <div class="text-gray-400 text-xs mt-2">@charItem.Characteristic.Description</div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Группировка по типам компонентов -->
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800">
+            <h2 class="text-2xl font-bold text-white mb-6">Конфигурация компьютера</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @if (Model.ComputerComponents.Any())
                 {
                     foreach (var componentGroup in Model.ComputerComponents.GroupBy(cc => cc.Component.Type))
                     {
-                        <div>
+                        <div class="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
                             <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
-                                <span class="mr-2">
-                                    @(componentGroup.Key switch
-                                    {
-                                        "Процессор" => "⚙️",
-                                        "Видеокарта" => "🎮",
-                                        "Оперативная память" => "💾",
-                                        "Накопитель" => "💿",
-                                        "Материнская плата" => "🔌",
-                                        "Блок питания" => "⚡",
-                                        "Корпус" => "🏠",
-                                        "Охлаждение" => "❄️",
-                                        _ => "🔧"
-                                    })
-                                </span>
-                                @componentGroup.Key
+                                @GetComponentIcon(componentGroup.Key)
+                                @GetTypeDisplayName(componentGroup.Key)
                             </h3>
-                            <div class="space-y-2 text-sm">
+                            <div class="space-y-3">
                                 @foreach (var comp in componentGroup)
                                 {
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-400">Модель:</span>
-                                        <span class="text-white text-right">@comp.Component.Name</span>
+                                    <div>
+                                        <div class="text-white font-medium mb-1">@comp.Component.Name</div>
+                                        @if (!string.IsNullOrEmpty(comp.Component.Description))
+                                        {
+                                            <div class="text-gray-400 text-sm">@comp.Component.Description</div>
+                                        }
+                                        <div class="text-primary text-sm font-semibold mt-1">@comp.Component.Price.ToString("C")</div>
                                     </div>
-                                    @if (!string.IsNullOrEmpty(comp.Component.Description))
-                                    {
-                                        <div class="flex justify-between">
-                                            <span class="text-gray-400">Описание:</span>
-                                            <span class="text-white text-right">@comp.Component.Description</span>
-                                        </div>
-                                    }
                                 }
                             </div>
                         </div>
@@ -325,3 +352,58 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Обработка миниатюр
+        document.querySelectorAll('.thumbnail-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const mainImage = document.getElementById('mainImage');
+                const newSrc = this.getAttribute('data-image-src');
+                mainImage.src = newSrc;
+            });
+        });
+
+        // Обработка добавления в корзину
+        document.querySelectorAll('.add-to-cart-details').forEach(button => {
+            button.addEventListener('click', function() {
+                const computerId = this.getAttribute('data-computer-id');
+                const computerName = this.getAttribute('data-computer-name');
+                const quantity = document.getElementById('quantity').value;
+                
+                // Здесь будет логика добавления в корзину
+                alert(`Добавлено в корзину: ${computerName} (${quantity} шт.)`);
+            });
+        });
+    </script>
+}
+
+@functions {
+    public string GetTypeDisplayName(string type)
+    {
+        return type switch
+        {
+            "CPU" => "Процессор",
+            "GPU" => "Видеокарта",
+            "RAM" => "Оперативная память",
+            "SSD" => "SSD накопитель",
+            "HDD" => "Жесткий диск",
+            "PSU" => "Блок питания",
+            _ => type
+        };
+    }
+
+    public string GetComponentIcon(string type)
+    {
+        return type switch
+        {
+            "CPU" => "⚙️",
+            "GPU" => "🎮",
+            "RAM" => "💾",
+            "SSD" => "💿",
+            "HDD" => "📀",
+            "PSU" => "⚡",
+            _ => "🔧"
+        } + " ";
+    }
+}

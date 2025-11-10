@@ -29,10 +29,12 @@ namespace WebShopV3.Models
 
         // Навигационные свойства
         public virtual ICollection<ComputerComponent> ComputerComponents { get; set; }
+        public virtual ICollection<ComponentCharacteristic> ComponentCharacteristics { get; set; }
 
         public Component()
         {
             ComputerComponents = new HashSet<ComputerComponent>();
+            ComponentCharacteristics = new HashSet<ComponentCharacteristic>();
         }
     }
 }

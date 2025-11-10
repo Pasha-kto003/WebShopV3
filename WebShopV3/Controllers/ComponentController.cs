@@ -31,7 +31,9 @@ namespace WebShopV3.Controllers
             }
 
             var component = await _context.Components
-                .FirstOrDefaultAsync(m => m.Id == id);
+             .Include(c => c.ComponentCharacteristics)
+                 .ThenInclude(cc => cc.Characteristic)
+             .FirstOrDefaultAsync(m => m.Id == id);
 
             if (component == null)
             {
@@ -54,29 +56,35 @@ namespace WebShopV3.Controllers
         [Authorize(Roles = "Админ")]
         public async Task<IActionResult> Create(Component component)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(component);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(component);
+
+            _context.Add(component);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Component/Edit/5
         [Authorize(Roles = "Админ")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var component = await _context.Components.FindAsync(id);
-            if (component == null)
-            {
-                return NotFound();
-            }
+            var component = await _context.Components
+                .Include(c => c.ComponentCharacteristics)
+                    .ThenInclude(cc => cc.Characteristic)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (component == null) return NotFound();
+
+            // ЗАПРОС ИСПРАВЛЕН: Сначала получаем ID уже добавленных характеристик
+            var existingCharacteristicIds = component.ComponentCharacteristics
+                .Select(cc => cc.CharacteristicId)
+                .ToList();
+
+            // Затем получаем доступные характеристики
+            ViewBag.AvailableCharacteristics = await _context.Characteristics
+                .Where(c => !existingCharacteristicIds.Contains(c.Id))
+                .ToListAsync();
+
             return View(component);
         }
 
@@ -86,28 +94,132 @@ namespace WebShopV3.Controllers
         [Authorize(Roles = "Админ")]
         public async Task<IActionResult> Edit(int id, Component component)
         {
-            if (id != component.Id)
+            if (id != component.Id) return NotFound();
+
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                try
+                {
+                    _context.Update(component);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Комплектующее успешно обновлено";
+                    return RedirectToAction(nameof(Details), new { id = component.Id });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ComponentExists(component.Id))
+                        return NotFound();
+                    else
+                        throw;
+                }
             }
 
+            // Если валидация не прошла, перезагружаем доступные характеристики
+            var existingCharacteristicIds = await _context.ComponentCharacteristics
+                .Where(cc => cc.ComponentId == id)
+                .Select(cc => cc.CharacteristicId)
+                .ToListAsync();
+
+            ViewBag.AvailableCharacteristics = await _context.Characteristics
+                .Where(c => !existingCharacteristicIds.Contains(c.Id))
+                .ToListAsync();
+
+            return View(component);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Админ")]
+        public async Task<IActionResult> AddCharacteristic(int componentId, int characteristicId, string value)
+        {
             try
             {
-                _context.Update(component);
+                // Проверяем существование компонента и характеристики
+                var component = await _context.Components.FindAsync(componentId);
+                var characteristic = await _context.Characteristics.FindAsync(characteristicId);
+
+                if (component == null || characteristic == null)
+                {
+                    TempData["Error"] = "Комплектующее или характеристика не найдены";
+                    return RedirectToAction(nameof(Edit), new { id = componentId });
+                }
+
+                // Проверяем, не добавлена ли уже эта характеристика
+                var existing = await _context.ComponentCharacteristics
+                    .FirstOrDefaultAsync(cc => cc.ComponentId == componentId && cc.CharacteristicId == characteristicId);
+
+                if (existing != null)
+                {
+                    TempData["Error"] = "Эта характеристика уже добавлена к компоненту";
+                    return RedirectToAction(nameof(Edit), new { id = componentId });
+                }
+
+                // Добавляем новую характеристику
+                var componentCharacteristic = new ComponentCharacteristic
+                {
+                    ComponentId = componentId,
+                    CharacteristicId = characteristicId,
+                    Value = value?.Trim() ?? ""
+                };
+
+                _context.ComponentCharacteristics.Add(componentCharacteristic);
                 await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Характеристика успешно добавлена";
+                return RedirectToAction(nameof(Edit), new { id = componentId });
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!ComponentExists(component.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                TempData["Error"] = $"Ошибка при добавлении характеристики: {ex.Message}";
+                return RedirectToAction(nameof(Edit), new { id = componentId });
             }
-            return RedirectToAction(nameof(Index));    
+        }
+
+        public async Task<IActionResult> DeleteCharacteristic(int componentId, int characteristicId)
+        {
+            try
+            {
+                var componentCharacteristic = await _context.ComponentCharacteristics
+                    .FirstOrDefaultAsync(cc => cc.ComponentId == componentId && cc.CharacteristicId == characteristicId);
+
+                if (componentCharacteristic == null)
+                {
+                    TempData["Error"] = "Характеристика не найдена";
+                    return RedirectToAction(nameof(Edit), new { id = componentId });
+                }
+
+                _context.ComponentCharacteristics.Remove(componentCharacteristic);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Характеристика успешно удалена";
+                return RedirectToAction(nameof(Edit), new { id = componentId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ошибка при удалении характеристики: {ex.Message}";
+                return RedirectToAction(nameof(Edit), new { id = componentId });
+            }
+        }
+
+        private bool ComponentExists(int id)
+        {
+            return _context.Components.Any(e => e.Id == id);
+        }
+
+        public async Task<JsonResult> GetAvailableCharacteristics()
+        {
+            var characteristics = await _context.Characteristics
+                .Select(c => new
+                {
+                    id = c.Id,
+                    name = c.Name,
+                    unit = c.Unit,
+                    description = c.Description
+                })
+                .ToListAsync();
+
+            return Json(characteristics);
         }
 
         // GET: Component/Delete/5
@@ -140,11 +252,6 @@ namespace WebShopV3.Controllers
             _context.Components.Remove(component);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ComponentExists(int id)
-        {
-            return _context.Components.Any(e => e.Id == id);
         }
     }
 }

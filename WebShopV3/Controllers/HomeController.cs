@@ -105,17 +105,18 @@ namespace WebShopV3.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> ComputerDetails(int id)
+        public async Task<IActionResult> ComputerDetails(int? id)
         {
+            if (id == null) return NotFound();
+
             var computer = await _context.Computers
                 .Include(c => c.ComputerComponents)
-                .ThenInclude(cc => cc.Component)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                    .ThenInclude(cc => cc.Component)
+                        .ThenInclude(comp => comp.ComponentCharacteristics)
+                            .ThenInclude(cc => cc.Characteristic)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (computer == null)
-            {
-                return NotFound();
-            }
+            if (computer == null) return NotFound();
 
             return View(computer);
         }

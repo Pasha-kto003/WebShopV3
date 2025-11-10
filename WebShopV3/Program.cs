@@ -66,6 +66,7 @@ else
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
             context.Database.EnsureCreated(); // Creates database if it doesn't exist
+            DbInitializer.Initialize(context);
             Console.WriteLine("Database created successfully!");
         }
         catch (Exception ex)
