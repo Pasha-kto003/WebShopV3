@@ -287,8 +287,38 @@
             <!-- Правая колонка - Конфигурация -->
             <div class="lg:col-span-1">
                 <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 sticky top-24">
-                    <h2 class="text-2xl font-bold text-white mb-6">Ваша конфигурация</h2>
-                    
+                    <h2 class="text-2xl font-bold text-white mb-6">
+                        @(ViewBag.ComputerId != null ? "Редактирование конфигурации" : "Ваша конфигурация")
+                    </h2>
+        
+                    <!-- Поля для названия и описания -->
+                    <div class="mb-6 space-y-4">
+                        <div>
+                            <label for="computerName" class="block text-sm font-medium text-gray-300 mb-2">
+                                Название компьютера *
+                            </label>
+                            <input type="text" 
+                                   id="computerName" 
+                                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                                   placeholder="Введите название конфигурации"
+                                   value="@ViewBag.ComputerName"
+                                   maxlength="100">
+                            <div class="text-xs text-gray-400 mt-1" id="nameCounter">0/100</div>
+                        </div>
+            
+                        <div>
+                            <label for="computerDescription" class="block text-sm font-medium text-gray-300 mb-2">
+                                Описание
+                            </label>
+                            <textarea id="computerDescription" 
+                                      rows="3"
+                                      class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                                      placeholder="Описание конфигурации (необязательно)"
+                                      maxlength="500">@ViewBag.ComputerDescription</textarea>
+                            <div class="text-xs text-gray-400 mt-1" id="descriptionCounter">0/500</div>
+                        </div>
+                    </div>
+        
                     <div id="configurationList" class="space-y-4 mb-6">
                         <div class="text-center text-gray-400 py-8">
                             <div class="text-4xl mb-2">🖥️</div>
@@ -307,10 +337,18 @@
                         </div>
 
                         <button id="saveConfiguration" 
-                                class="w-full bg-primary text-dark py-3 rounded-lg font-bold hover:bg-green-400 transition duration-200 disabled:bg-gray-600 disabled:cursor-not-allowed"
+                                class="w-full bg-primary text-dark py-3 rounded-lg font-bold hover:bg-green-400 transition duration-200 disabled:bg-gray-600 disabled:cursor-not-allowed mb-2"
                                 disabled>
-                            Сохранить конфигурацию
+                            @(ViewBag.ComputerId != null ? "Обновить конфигурацию" : "Сохранить конфигурацию")
                         </button>
+            
+                        @if (ViewBag.ComputerId != null)
+                        {
+                            <a href="@Url.Action("Details", "Computer", new { id = ViewBag.ComputerId })" 
+                               class="w-full bg-gray-600 text-white py-3 rounded-lg font-bold hover:bg-gray-500 transition duration-200 text-center block">
+                                Отмена
+                            </a>
+                        }
                     </div>
                 </div>
             </div>
@@ -512,7 +550,8 @@
                 name: configurationName,
                 description: `Собранный ПК: ${selectedComponents.map(c => c.name).join(', ')}`,
                 totalPrice: totalPrice,
-                componentIds: selectedComponents.map(c => c.id)
+                componentIds: selectedComponents.map(c => c.id),
+                computerId: @(ViewBag.ComputerId ?? "null") // Для редактирования
             };
 
             try {
@@ -566,6 +605,29 @@
         // Настройка обработчиков событий
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('saveConfiguration').addEventListener('click', saveConfiguration);
+        });
+        // Добавьте инициализацию выбранных компонентов при редактировании
+        document.addEventListener('DOMContentLoaded', function() {
+            // Если это режим редактирования, выбираем компоненты
+            const selectedComponentIds = @Html.Raw(Json.Serialize(ViewBag.SelectedComponentIds ?? new List<int>()));
+    
+            if (selectedComponentIds && selectedComponentIds.length > 0) {
+                // Автоматически выбираем компоненты из редактируемого компьютера
+                selectedComponentIds.forEach(componentId => {
+                    const componentCard = document.querySelector(`[data-component-id="${componentId}"]`);
+                    if (componentCard) {
+                        componentCard.click(); // Имитируем клик для выбора
+                    }
+                });
+            }
+
+            // Обновляем поля названия и описания если это редактирование
+            const computerName = '@Html.Raw(ViewBag.ComputerName ?? "")';
+            const computerDescription = '@Html.Raw(ViewBag.ComputerDescription ?? "")';
+    
+            if (computerName) {
+                // Можно добавить поля для редактирования названия и описания
+            }
         });
     </script>
 

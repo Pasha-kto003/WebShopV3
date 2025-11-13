@@ -104,7 +104,7 @@ namespace WebShopV3.Controllers
                 return View(user);
             }
 
-            user.UserTypeId = 2; // ID для типа "Пользователь"
+            user.UserTypeId = 6; // ID для типа "Пользователь"
 
             _context.Add(user);
             await _context.SaveChangesAsync();

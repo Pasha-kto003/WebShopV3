@@ -1,0 +1,535 @@
+-- Сначала узнаем ID добавленных компонентов
+SELECT Id, Name, Type FROM Components ORDER BY Type, Id;
+
+-- Теперь добавляем характеристики для каждого компонента
+-- Замените ID в скобках на реальные ID из запроса выше
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ МАТЕРИНСКИХ ПЛАТ (MB)
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value) VALUES
+-- ASUS ROG Strix B550-F Gaming (замените 6 на реальный ID)
+(6, 16, 'B550'),          -- Чипсет
+(6, 17, 'AM4'),           -- Сокет
+(6, 18, 'ATX'),           -- Форм-фактор
+(6, 19, '4'),             -- Количество слотов памяти
+(6, 20, '128'),           -- Макс. объем памяти
+(6, 21, '3'),             -- Слоты расширения
+(6, 22, '6'),             -- Порты SATA
+(6, 23, '2'),             -- Порты M.2
+(6, 38, '36'),            -- Гарантия
+(6, 39, '305x244'),       -- Габариты
+
+-- Gigabyte B760 Gaming X (замените 7 на реальный ID)
+(7, 16, 'B760'),
+(7, 17, 'LGA1700'),
+(7, 18, 'ATX'),
+(7, 19, '4'),
+(7, 20, '128'),
+(7, 21, '3'),
+(7, 22, '4'),
+(7, 23, '2'),
+(7, 38, '36'),
+(7, 39, '305x244'),
+
+-- MSI B450 Tomahawk Max (замените 8 на реальный ID)
+(8, 16, 'B450'),
+(8, 17, 'AM4'),
+(8, 18, 'ATX'),
+(8, 19, '4'),
+(8, 20, '64'),
+(8, 21, '2'),
+(8, 22, '6'),
+(8, 23, '1'),
+(8, 38, '36'),
+(8, 39, '304x244'),
+
+-- ASRock Z790 Phantom Gaming (замените 9 на реальный ID)
+(9, 16, 'Z790'),
+(9, 17, 'LGA1700'),
+(9, 18, 'ATX'),
+(9, 19, '4'),
+(9, 20, '192'),
+(9, 21, '4'),
+(9, 22, '8'),
+(9, 23, '4'),
+(9, 38, '36'),
+(9, 39, '305x244'),
+
+-- ASUS Prime A520M-K (замените 10 на реальный ID)
+(10, 16, 'A520'),
+(10, 17, 'AM4'),
+(10, 18, 'mATX'),
+(10, 19, '2'),
+(10, 20, '64'),
+(10, 21, '2'),
+(10, 22, '4'),
+(10, 23, '1'),
+(10, 38, '36'),
+(10, 39, '244x244');
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ ПРОЦЕССОРОВ (CPU)
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value) VALUES
+-- AMD Ryzen 7 5800X (замените 11 на реальный ID)
+(11, 1, '3.8'),           -- Тактовая частота
+(11, 2, '8'),             -- Количество ядер
+(11, 3, '16'),            -- Количество потоков
+(11, 17, 'AM4'),          -- Сокет
+(11, 38, '36'),           -- Гарантия
+(11, 39, '40x40'),        -- Габариты
+(11, 40, '450'),          -- Вес
+
+-- Intel Core i7-13700K (замените 12 на реальный ID)
+(12, 1, '3.4'),
+(12, 2, '16'),
+(12, 3, '24'),
+(12, 17, 'LGA1700'),
+(12, 38, '36'),
+(12, 39, '45x45'),
+(12, 40, '500'),
+
+-- AMD Ryzen 5 5600X (замените 13 на реальный ID)
+(13, 1, '3.7'),
+(13, 2, '6'),
+(13, 3, '12'),
+(13, 17, 'AM4'),
+(13, 38, '36'),
+(13, 39, '40x40'),
+(13, 40, '450'),
+
+-- Intel Core i5-13400 (замените 14 на реальный ID)
+(14, 1, '2.5'),
+(14, 2, '10'),
+(14, 3, '16'),
+(14, 17, 'LGA1700'),
+(14, 38, '36'),
+(14, 39, '45x45'),
+(14, 40, '500'),
+
+-- AMD Ryzen 9 7900X (замените 15 на реальный ID)
+(15, 1, '4.7'),
+(15, 2, '12'),
+(15, 3, '24'),
+(15, 17, 'AM5'),
+(15, 38, '36'),
+(15, 39, '40x40'),
+(15, 40, '450');
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ ОПЕРАТИВНОЙ ПАМЯТИ (RAM)
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value) VALUES
+-- Kingston Fury Beast 32GB DDR4 3200MHz (замените 16 на реальный ID)
+(16, 4, '32'),            -- Объем памяти
+(16, 5, '3200'),          -- Частота памяти
+(16, 6, 'DDR4'),          -- Тип памяти
+(16, 7, 'CL16'),          -- Тайминги
+(16, 38, '60'),           -- Гарантия
+(16, 39, '133x35'),       -- Габариты
+(16, 40, '60'),           -- Вес
+
+-- Corsair Vengeance RGB 32GB DDR5 5600MHz (замените 17 на реальный ID)
+(17, 4, '32'),
+(17, 5, '5600'),
+(17, 6, 'DDR5'),
+(17, 7, 'CL36'),
+(17, 38, '60'),
+(17, 39, '137x51'),
+(17, 40, '70'),
+
+-- G.Skill Trident Z 16GB DDR4 3600MHz (замените 18 на реальный ID)
+(18, 4, '16'),
+(18, 5, '3600'),
+(18, 6, 'DDR4'),
+(18, 7, 'CL18'),
+(18, 38, '60'),
+(18, 39, '144x44'),
+(18, 40, '65'),
+
+-- Team Group Delta RGB 64GB DDR5 6000MHz (замените 19 на реальный ID)
+(19, 4, '64'),
+(19, 5, '6000'),
+(19, 6, 'DDR5'),
+(19, 7, 'CL38'),
+(19, 38, '60'),
+(19, 39, '140x47'),
+(19, 40, '75');
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ ВИДЕОКАРТ (GPU)
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value) VALUES
+-- NVIDIA GeForce RTX 4070 (замените 20 на реальный ID)
+(20, 12, '12'),           -- Объем видеопамяти
+(20, 13, '1920'),         -- Частота GPU
+(20, 14, '8-pin'),        -- Разъемы питания
+(20, 15, '650'),          -- Рекомендуемый БП
+(20, 38, '36'),           -- Гарантия
+(20, 39, '336x140'),      -- Габариты
+(20, 40, '2000'),         -- Вес
+
+-- AMD Radeon RX 7800 XT (замените 21 на реальный ID)
+(21, 12, '16'),
+(21, 13, '2124'),
+(21, 14, '8-pin'),
+(21, 15, '700'),
+(21, 38, '36'),
+(21, 39, '320x130'),
+(21, 40, '1800'),
+
+-- NVIDIA GeForce RTX 4060 Ti (замените 22 на реальный ID)
+(22, 12, '8'),
+(22, 13, '2310'),
+(22, 14, '8-pin'),
+(22, 15, '550'),
+(22, 38, '36'),
+(22, 39, '310x120'),
+(22, 40, '1500'),
+
+-- AMD Radeon RX 7700 XT (замените 23 на реальный ID)
+(23, 12, '12'),
+(23, 13, '2171'),
+(23, 14, '8-pin'),
+(23, 15, '600'),
+(23, 38, '36'),
+(23, 39, '305x125'),
+(23, 40, '1600');
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ БЛОКОВ ПИТАНИЯ (PSU)
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value) VALUES
+-- Seasonic Focus GX-750 (замените 24 на реальный ID)
+(24, 24, '750'),          -- Мощность
+(24, 25, '80+ Gold'),     -- Сертификат
+(24, 26, '4'),            -- Разъемы PCI-E
+(24, 27, '8'),            -- Разъемы SATA
+(24, 38, '120'),          -- Гарантия
+(24, 39, '160x150'),      -- Габариты
+(24, 40, '1800'),         -- Вес
+
+-- Corsair RM850x (замените 25 на реальный ID)
+(25, 24, '850'),
+(25, 25, '80+ Gold'),
+(25, 26, '4'),
+(25, 27, '12'),
+(25, 38, '120'),
+(25, 39, '160x150'),
+(25, 40, '1900'),
+
+-- be quiet! Straight Power 11 650W (замените 26 на реальный ID)
+(26, 24, '650'),
+(26, 25, '80+ Platinum'),
+(26, 26, '3'),
+(26, 27, '10'),
+(26, 38, '60'),
+(26, 39, '170x150'),
+(26, 40, '2200'),
+
+-- Cooler Master MWE Gold 550W (замените 27 на реальный ID)
+(27, 24, '550'),
+(27, 25, '80+ Gold'),
+(27, 26, '2'),
+(27, 27, '6'),
+(27, 38, '60'),
+(27, 39, '140x150'),
+(27, 40, '1600');
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ КОРПУСОВ (Case)
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value) VALUES
+-- NZXT H510 Flow (замените 28 на реальный ID)
+(28, 28, 'Mid-Tower'),    -- Тип корпуса
+(28, 29, 'ATX, mATX'),    -- Поддерживаемые платы
+(28, 30, '7'),            -- Слоты расширения
+(28, 31, '2'),            -- Отсеки для HDD
+(28, 32, '3'),            -- Отсеки для SSD
+(28, 33, '2'),            -- Вентиляторы
+(28, 38, '24'),           -- Гарантия
+(28, 39, '428x210'),      -- Габариты
+(28, 40, '6800'),         -- Вес
+
+-- Fractal Design Meshify C (замените 29 на реальный ID)
+(29, 28, 'Mid-Tower'),
+(29, 29, 'ATX, mATX'),
+(29, 30, '7'),
+(29, 31, '2'),
+(29, 32, '3'),
+(29, 33, '2'),
+(29, 38, '24'),
+(29, 39, '413x217'),
+(29, 40, '7200'),
+
+-- Cooler Master MasterBox Q300L (замените 30 на реальный ID)
+(30, 28, 'Micro-Tower'),
+(30, 29, 'mATX, ITX'),
+(30, 30, '4'),
+(30, 31, '2'),
+(30, 32, '2'),
+(30, 33, '1'),
+(30, 38, '24'),
+(30, 39, '387x230'),
+(30, 40, '3800'),
+
+-- Lian Li O11 Dynamic (замените 31 на реальный ID)
+(31, 28, 'Full-Tower'),
+(31, 29, 'ATX, mATX, ITX'),
+(31, 30, '8'),
+(31, 31, '3'),
+(31, 32, '6'),
+(31, 33, '0'),
+(31, 38, '24'),
+(31, 39, '445x272'),
+(31, 40, '11500');
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ SSD НАКОПИТЕЛЕЙ
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value) VALUES
+-- Samsung 980 Pro 1TB (замените 32 на реальный ID)
+(32, 8, '1000'),          -- Емкость накопителя
+(32, 9, '7000'),          -- Скорость чтения
+(32, 10, '5000'),         -- Скорость записи
+(32, 11, 'NVMe'),         -- Тип накопителя
+(32, 38, '60'),           -- Гарантия
+(32, 39, '80x22'),        -- Габариты
+(32, 40, '10'),           -- Вес
+
+-- WD Black SN850X 2TB (замените 33 на реальный ID)
+(33, 8, '2000'),
+(33, 9, '7300'),
+(33, 10, '6600'),
+(33, 11, 'NVMe'),
+(33, 38, '60'),
+(33, 39, '80x22'),
+(33, 40, '10'),
+
+-- Crucial P5 Plus 1TB (замените 34 на реальный ID)
+(34, 8, '1000'),
+(34, 9, '6600'),
+(34, 10, '5000'),
+(34, 11, 'NVMe'),
+(34, 38, '60'),
+(34, 39, '80x22'),
+(34, 40, '10'),
+
+-- Kingston NV2 2TB (замените 35 на реальный ID)
+(35, 8, '2000'),
+(35, 9, '3500'),
+(35, 10, '2800'),
+(35, 11, 'NVMe'),
+(35, 38, '60'),
+(35, 39, '80x22'),
+(35, 40, '10');
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ СИСТЕМ ОХЛАЖДЕНИЯ
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value) VALUES
+-- Noctua NH-D15 (замените 36 на реальный ID)
+(36, 34, 'Air'),          -- Тип охлаждения
+(36, 35, '250'),          -- Рассеиваемая мощность
+(36, 36, '24.6'),         -- Уровень шума
+(36, 37, 'Intel, AMD'),   -- Совместимые сокеты
+(36, 38, '72'),           -- Гарантия
+(36, 39, '160x150'),      -- Габариты
+(36, 40, '1320'),         -- Вес
+
+-- Arctic Liquid Freezer II 360 (замените 37 на реальный ID)
+(37, 34, 'Liquid'),
+(37, 35, '300'),
+(37, 36, '22.5'),
+(37, 37, 'Intel, AMD'),
+(37, 38, '60'),
+(37, 39, '397x120'),
+(37, 40, '1800'),
+
+-- Cooler Master Hyper 212 (замените 38 на реальный ID)
+(38, 34, 'Air'),
+(38, 35, '150'),
+(38, 36, '26'),
+(38, 37, 'Intel, AMD'),
+(38, 38, '24'),
+(38, 39, '120x80'),
+(38, 40, '625'),
+
+-- NZXT Kraken X63 (замените 39 на реальный ID)
+(39, 34, 'Liquid'),
+(39, 35, '280'),
+(39, 36, '21'),
+(39, 37, 'Intel, AMD'),
+(39, 38, '72'),
+(39, 39, '315x143'),
+(39, 40, '1450');
+
+-- Проверяем добавленные характеристики
+SELECT 
+    c.Name as ComponentName,
+    c.Type as ComponentType,
+    ch.Name as CharacteristicName,
+    cc.Value
+FROM ComponentCharacteristics cc
+JOIN Components c ON cc.ComponentId = c.Id
+JOIN Characteristics ch ON cc.CharacteristicId = ch.Id
+ORDER BY c.Type, c.Name, ch.Name;
+
+-- Очищаем старые характеристики для новых компонентов (осторожно!)
+DELETE FROM ComponentCharacteristics 
+WHERE ComponentId IN (
+    SELECT RealId FROM #ComponentMapping
+);
+
+-- Теперь добавляем характеристики используя реальные ID
+-- ХАРАКТЕРИСТИКИ ДЛЯ МАТЕРИНСКИХ ПЛАТ (MB)
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value)
+SELECT 
+    cm.RealId,
+    chars.CharacteristicId,
+    chars.Value
+FROM (VALUES
+    ('ASUS ROG Strix B550-F Gaming', 16, 'B550'),
+    ('ASUS ROG Strix B550-F Gaming', 17, 'AM4'),
+    ('ASUS ROG Strix B550-F Gaming', 18, 'ATX'),
+    ('ASUS ROG Strix B550-F Gaming', 19, '4'),
+    ('ASUS ROG Strix B550-F Gaming', 20, '128'),
+    ('ASUS ROG Strix B550-F Gaming', 21, '3'),
+    ('ASUS ROG Strix B550-F Gaming', 22, '6'),
+    ('ASUS ROG Strix B550-F Gaming', 23, '2'),
+    ('ASUS ROG Strix B550-F Gaming', 38, '36'),
+    
+    ('Gigabyte B760 Gaming X', 16, 'B760'),
+    ('Gigabyte B760 Gaming X', 17, 'LGA1700'),
+    ('Gigabyte B760 Gaming X', 18, 'ATX'),
+    ('Gigabyte B760 Gaming X', 19, '4'),
+    ('Gigabyte B760 Gaming X', 20, '128'),
+    ('Gigabyte B760 Gaming X', 21, '3'),
+    ('Gigabyte B760 Gaming X', 22, '4'),
+    ('Gigabyte B760 Gaming X', 23, '2'),
+    ('Gigabyte B760 Gaming X', 38, '36'),
+    
+    ('MSI B450 Tomahawk Max', 16, 'B450'),
+    ('MSI B450 Tomahawk Max', 17, 'AM4'),
+    ('MSI B450 Tomahawk Max', 18, 'ATX'),
+    ('MSI B450 Tomahawk Max', 19, '4'),
+    ('MSI B450 Tomahawk Max', 20, '64'),
+    ('MSI B450 Tomahawk Max', 21, '2'),
+    ('MSI B450 Tomahawk Max', 22, '6'),
+    ('MSI B450 Tomahawk Max', 23, '1'),
+    ('MSI B450 Tomahawk Max', 38, '36'),
+    
+    ('ASRock Z790 Phantom Gaming', 16, 'Z790'),
+    ('ASRock Z790 Phantom Gaming', 17, 'LGA1700'),
+    ('ASRock Z790 Phantom Gaming', 18, 'ATX'),
+    ('ASRock Z790 Phantom Gaming', 19, '4'),
+    ('ASRock Z790 Phantom Gaming', 20, '192'),
+    ('ASRock Z790 Phantom Gaming', 21, '4'),
+    ('ASRock Z790 Phantom Gaming', 22, '8'),
+    ('ASRock Z790 Phantom Gaming', 23, '4'),
+    ('ASRock Z790 Phantom Gaming', 38, '36'),
+    
+    ('ASUS Prime A520M-K', 16, 'A520'),
+    ('ASUS Prime A520M-K', 17, 'AM4'),
+    ('ASUS Prime A520M-K', 18, 'mATX'),
+    ('ASUS Prime A520M-K', 19, '2'),
+    ('ASUS Prime A520M-K', 20, '64'),
+    ('ASUS Prime A520M-K', 21, '2'),
+    ('ASUS Prime A520M-K', 22, '4'),
+    ('ASUS Prime A520M-K', 23, '1'),
+    ('ASUS Prime A520M-K', 38, '36')
+) AS chars(ComponentName, CharacteristicId, Value)
+JOIN #ComponentMapping cm ON chars.ComponentName = cm.ComponentName AND cm.ComponentType = 'MB';
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ ПРОЦЕССОРОВ (CPU)
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value)
+SELECT 
+    cm.RealId,
+    chars.CharacteristicId,
+    chars.Value
+FROM (VALUES
+    ('AMD Ryzen 7 5800X', 1, '3.8'),
+    ('AMD Ryzen 7 5800X', 2, '8'),
+    ('AMD Ryzen 7 5800X', 3, '16'),
+    ('AMD Ryzen 7 5800X', 17, 'AM4'),
+    ('AMD Ryzen 7 5800X', 38, '36'),
+    
+    ('Intel Core i7-13700K', 1, '3.4'),
+    ('Intel Core i7-13700K', 2, '16'),
+    ('Intel Core i7-13700K', 3, '24'),
+    ('Intel Core i7-13700K', 17, 'LGA1700'),
+    ('Intel Core i7-13700K', 38, '36'),
+    
+    ('AMD Ryzen 5 5600X', 1, '3.7'),
+    ('AMD Ryzen 5 5600X', 2, '6'),
+    ('AMD Ryzen 5 5600X', 3, '12'),
+    ('AMD Ryzen 5 5600X', 17, 'AM4'),
+    ('AMD Ryzen 5 5600X', 38, '36'),
+    
+    ('Intel Core i5-13400', 1, '2.5'),
+    ('Intel Core i5-13400', 2, '10'),
+    ('Intel Core i5-13400', 3, '16'),
+    ('Intel Core i5-13400', 17, 'LGA1700'),
+    ('Intel Core i5-13400', 38, '36'),
+    
+    ('AMD Ryzen 9 7900X', 1, '4.7'),
+    ('AMD Ryzen 9 7900X', 2, '12'),
+    ('AMD Ryzen 9 7900X', 3, '24'),
+    ('AMD Ryzen 9 7900X', 17, 'AM5'),
+    ('AMD Ryzen 9 7900X', 38, '36')
+) AS chars(ComponentName, CharacteristicId, Value)
+JOIN #ComponentMapping cm ON chars.ComponentName = cm.ComponentName AND cm.ComponentType = 'CPU';
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ ОПЕРАТИВНОЙ ПАМЯТИ (RAM)
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value)
+SELECT 
+    cm.RealId,
+    chars.CharacteristicId,
+    chars.Value
+FROM (VALUES
+    ('Kingston Fury Beast 32GB DDR4 3200MHz', 4, '32'),
+    ('Kingston Fury Beast 32GB DDR4 3200MHz', 5, '3200'),
+    ('Kingston Fury Beast 32GB DDR4 3200MHz', 6, 'DDR4'),
+    ('Kingston Fury Beast 32GB DDR4 3200MHz', 7, 'CL16'),
+    ('Kingston Fury Beast 32GB DDR4 3200MHz', 38, '60'),
+    
+    ('Corsair Vengeance RGB 32GB DDR5 5600MHz', 4, '32'),
+    ('Corsair Vengeance RGB 32GB DDR5 5600MHz', 5, '5600'),
+    ('Corsair Vengeance RGB 32GB DDR5 5600MHz', 6, 'DDR5'),
+    ('Corsair Vengeance RGB 32GB DDR5 5600MHz', 7, 'CL36'),
+    ('Corsair Vengeance RGB 32GB DDR5 5600MHz', 38, '60'),
+    
+    ('G.Skill Trident Z 16GB DDR4 3600MHz', 4, '16'),
+    ('G.Skill Trident Z 16GB DDR4 3600MHz', 5, '3600'),
+    ('G.Skill Trident Z 16GB DDR4 3600MHz', 6, 'DDR4'),
+    ('G.Skill Trident Z 16GB DDR4 3600MHz', 7, 'CL18'),
+    ('G.Skill Trident Z 16GB DDR4 3600MHz', 38, '60'),
+    
+    ('Team Group Delta RGB 64GB DDR5 6000MHz', 4, '64'),
+    ('Team Group Delta RGB 64GB DDR5 6000MHz', 5, '6000'),
+    ('Team Group Delta RGB 64GB DDR5 6000MHz', 6, 'DDR5'),
+    ('Team Group Delta RGB 64GB DDR5 6000MHz', 7, 'CL38'),
+    ('Team Group Delta RGB 64GB DDR5 6000MHz', 38, '60')
+) AS chars(ComponentName, CharacteristicId, Value)
+JOIN #ComponentMapping cm ON chars.ComponentName = cm.ComponentName AND cm.ComponentType = 'RAM';
+
+-- ХАРАКТЕРИСТИКИ ДЛЯ БЛОКОВ ПИТАНИЯ (PSU)
+INSERT INTO ComponentCharacteristics (ComponentId, CharacteristicId, Value)
+SELECT 
+    cm.RealId,
+    chars.CharacteristicId,
+    chars.Value
+FROM (VALUES
+    ('Seasonic Focus GX-750', 24, '750'),
+    ('Seasonic Focus GX-750', 25, '80+ Gold'),
+    ('Seasonic Focus GX-750', 26, '4'),
+    ('Seasonic Focus GX-750', 27, '8'),
+    ('Seasonic Focus GX-750', 38, '120'),
+    
+    ('Corsair RM850x', 24, '850'),
+    ('Corsair RM850x', 25, '80+ Gold'),
+    ('Corsair RM850x', 26, '4'),
+    ('Corsair RM850x', 27, '12'),
+    ('Corsair RM850x', 38, '120'),
+    
+    ('be quiet! Straight Power 11 650W', 24, '650'),
+    ('be quiet! Straight Power 11 650W', 25, '80+ Platinum'),
+    ('be quiet! Straight Power 11 650W', 26, '3'),
+    ('be quiet! Straight Power 11 650W', 27, '10'),
+    ('be quiet! Straight Power 11 650W', 38, '60'),
+    
+    ('Cooler Master MWE Gold 550W', 24, '550'),
+    ('Cooler Master MWE Gold 550W', 25, '80+ Gold'),
+    ('Cooler Master MWE Gold 550W', 26, '2'),
+    ('Cooler Master MWE Gold 550W', 27, '6'),
+    ('Cooler Master MWE Gold 550W', 38, '60')
+) AS chars(ComponentName, CharacteristicId, Value)
+JOIN #ComponentMapping cm ON chars.ComponentName = cm.ComponentName AND cm.ComponentType = 'PSU';
+
+-- Очищаем временную таблицу
+DROP TABLE #ComponentMapping;

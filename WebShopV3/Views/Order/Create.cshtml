@@ -22,7 +22,7 @@
 
         <!-- Карточка формы -->
         <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl mb-8">
-            <form asp-action="Create" method="post" class="space-y-8">
+            <form asp-action="Create" method="post" class="space-y-8" id="orderForm">
                 <!-- Основная информация -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Пользователь -->
@@ -97,7 +97,7 @@
                                          data-computer-id="@computers[i].Id">
                                         <div class="flex items-start justify-between mb-4">
                                             <h3 class="text-lg font-semibold text-white">@computers[i].Name</h3>
-                                            <span class="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
+                                            <span class="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full computer-price" data-computer-id="@computers[i].Id">
                                                 @computers[i].Price.ToString("C")
                                             </span>
                                         </div>
@@ -112,19 +112,19 @@
                                         <div class="space-y-3">
                                             <label class="block text-sm font-medium text-gray-300">Количество:</label>
                                             <input type="number" 
-                                                   name="quantities" 
+                                                   name="quantities[@i]" 
                                                    value="0" 
                                                    min="0" 
                                                    max="@computers[i].Quantity"
                                                    class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 quantity-input"
                                                    data-computer-id="@computers[i].Id"
-                                                   onchange="updateComputerSelection(this)">
+                                                   data-index="@i">
                             
-                                            <!-- Скрытые поля для каждого компьютера -->
+                                            <!-- Скрытое поле для ID компьютера -->
                                             <input type="hidden" 
-                                                   name="selectedComputers" 
+                                                   name="selectedComputers[@i]" 
                                                    value="@computers[i].Id"
-                                                   class="computer-selected-input">
+                                                   class="computer-id-input">
                                         </div>
 
                                         <!-- Отображение стоимости позиции -->
@@ -219,47 +219,6 @@
             }
         };
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Инициализация при загрузке
-            updateAllSelections();
-        });
-
-        // Обновление выбора компьютера
-        function updateComputerSelection(input) {
-            const computerId = input.getAttribute('data-computer-id');
-            const quantity = parseInt(input.value);
-            const card = input.closest('.computer-card');
-            const hiddenInput = card.querySelector('.computer-selected-input');
-            const itemTotalElement = card.querySelector('.item-total');
-            
-            // Получаем цену компьютера
-            const price = computerPrices[computerId] || 0;
-            const itemTotal = quantity * price;
-            
-            if (quantity > 0) {
-                // Показываем что компьютер выбран
-                card.classList.add('ring-2', 'ring-primary/50', 'bg-primary/10');
-                hiddenInput.disabled = false;
-                
-                // Обновляем отображение стоимости
-                if (itemTotalElement) {
-                    itemTotalElement.textContent = itemTotal.toLocaleString('ru-RU') + ' ₽';
-                }
-            } else {
-                // Снимаем выделение
-                card.classList.remove('ring-2', 'ring-primary/50', 'bg-primary/10');
-                hiddenInput.disabled = true;
-                
-                // Сбрасываем стоимость
-                if (itemTotalElement) {
-                    itemTotalElement.textContent = '0 ₽';
-                }
-            }
-            
-            // Обновляем общую сумму
-            updateOrderTotal();
-        }
-
         // Обновление общей суммы заказа
         function updateOrderTotal() {
             let total = 0;
@@ -272,7 +231,45 @@
                 total += quantity * price;
             });
             
-            document.getElementById('orderTotal').textContent = total.toLocaleString('ru-RU') + ' ₽';
+            const orderTotalElement = document.getElementById('orderTotal');
+            if (orderTotalElement) {
+                orderTotalElement.textContent = total.toLocaleString('ru-RU') + ' ₽';
+            }
+            
+            console.log('Order total updated:', total);
+        }
+
+        // Обновление выбора компьютера
+        function updateComputerSelection(input) {
+            const computerId = input.getAttribute('data-computer-id');
+            const quantity = parseInt(input.value);
+            const card = input.closest('.computer-card');
+            const itemTotalElement = card.querySelector('.item-total');
+            
+            // Получаем цену компьютера
+            const price = computerPrices[computerId] || 0;
+            const itemTotal = quantity * price;
+            
+            if (quantity > 0) {
+                // Показываем что компьютер выбран
+                card.classList.add('ring-2', 'ring-primary/50', 'bg-primary/10');
+                
+                // Обновляем отображение стоимости
+                if (itemTotalElement) {
+                    itemTotalElement.textContent = itemTotal.toLocaleString('ru-RU') + ' ₽';
+                }
+            } else {
+                // Снимаем выделение
+                card.classList.remove('ring-2', 'ring-primary/50', 'bg-primary/10');
+                
+                // Сбрасываем стоимость
+                if (itemTotalElement) {
+                    itemTotalElement.textContent = '0 ₽';
+                }
+            }
+            
+            // Обновляем общую сумму
+            updateOrderTotal();
         }
 
         // Обновление всех выборов при загрузке
@@ -283,8 +280,25 @@
             });
         }
 
-        // Валидация формы
-        const form = document.querySelector('form');
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAllSelections();
+            
+            // Добавляем обработчики изменения количества
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            quantityInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    updateComputerSelection(this);
+                });
+                
+                input.addEventListener('change', function() {
+                    updateComputerSelection(this);
+                });
+            });
+        });
+
+        // Обработчик отправки формы
+        const form = document.getElementById('orderForm');
         form.addEventListener('submit', function(e) {
             const userId = document.querySelector('select[name="UserId"]').value;
             const orderTypeId = document.querySelector('select[name="OrderTypeId"]').value;
@@ -356,7 +370,7 @@
             });
         });
     </script>
-}
+
     <style>
         .animate-fade-in {
             animation: fadeIn 0.6s ease-in-out;

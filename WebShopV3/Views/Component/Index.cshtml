@@ -54,7 +54,7 @@
                         @foreach (var item in Model)
                         {
                             <tr class="border-b border-gray-800 hover:bg-gray-800/50 transition duration-200 group">
-                                <td class="py-4 px-4">
+                                <td class="py-4">
                                     <div class="flex items-center">
                                         <div class="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center mr-3">
                                             <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,25 +64,25 @@
                                         <span class="text-white font-medium">@item.Name</span>
                                     </div>
                                 </td>
-                                <td class="py-4 px-4">
+                                <td class="py-4">
                                     <span class="@GetTypeBadgeClass(item.Type) px-3 py-1 rounded-full text-xs font-bold">
                                         @GetTypeDisplayName(item.Type)
                                     </span>
                                 </td>
-                                <td class="py-4 px-4 text-gray-300 max-w-xs">
+                                <td class="py-4 text-gray-300 max-w-xs">
                                     <div class="truncate" title="@item.Description">
                                         @(string.IsNullOrEmpty(item.Description) ? "—" : item.Description)
                                     </div>
                                 </td>
-                                <td class="py-4 px-4 text-right text-primary font-semibold">
+                                <td class="py-4 text-right text-primary font-semibold">
                                     @item.Price.ToString("C")
                                 </td>
-                                <td class="py-4 px-4 text-center">
+                                <td class="py-4 text-center">
                                     <span class="@GetQuantityBadgeClass(item.Quantity) px-3 py-1 rounded-full text-xs font-bold">
                                         @item.Quantity шт.
                                     </span>
                                 </td>
-                                <td class="py-4 px-4">
+                                <td class="py-4">
                                     <div class="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition duration-200">
                                         <a asp-action="Details" asp-route-id="@item.Id" 
                                            class="bg-blue-500/20 text-blue-400 p-2 rounded-lg hover:bg-blue-500/30 transition duration-200"

@@ -16,6 +16,7 @@ namespace WebShopV3.Models
         public int UserId { get; set; }
         public int OrderTypeId { get; set; }
         public int StatusId { get; set; }
+        public string? Description { get; set; }
 
         // Навигационные свойства
         public virtual User User { get; set; }

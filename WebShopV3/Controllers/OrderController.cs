@@ -26,6 +26,7 @@ namespace WebShopV3.Controllers
                 .Include(o => o.Status)
                 .Include(o => o.ComputerOrders)
                 .ThenInclude(co => co.Computer)
+                .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
             return View(orders);
@@ -83,26 +84,17 @@ namespace WebShopV3.Controllers
 
         // GET: Order/Create
         [Authorize(Roles = "Админ,Менеджер")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewBag.Users = _context.Users.ToList();
-            ViewBag.OrderTypes = _context.OrderTypes.ToList();
-            ViewBag.Statuses = _context.Statuses.ToList();
-            ViewBag.Computers = _context.Computers.Where(c => c.Quantity > 0).ToList();
-
-            // Пользователь может создавать только заказы для себя
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-
-            ViewBag.OrderTypes = _context.OrderTypes.ToList();
-            ViewBag.Computers = _context.Computers.Where(c => c.Quantity > 0).ToList();
-            // Устанавливаем текущего пользователя
-            ViewBag.CurrentUserId = userId;
+            await LoadViewData();
             return View();
         }
 
         // POST: Order/Create
+        // POST: Order/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Админ,Менеджер")]
         public async Task<IActionResult> Create(Order order, int[] selectedComputers, int[] quantities)
         {
             // ОТЛАДКА: выводим входящие данные
@@ -129,38 +121,83 @@ namespace WebShopV3.Controllers
                 }
             }
 
-            // Базовая настройка заказа
-            order.OrderDate = DateTime.Now;
-            order.TotalAmount = 0;
-
-            // Сохраняем заказ чтобы получить ID
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            Console.WriteLine($"Order created with ID: {order.Id}");
-
-            decimal totalAmount = 0;
-            bool hasItems = false;
-
-            // Обрабатываем компьютеры
-            if (selectedComputers != null && quantities != null)
+            // Проверяем наличие данных
+            if (selectedComputers == null || quantities == null)
             {
-                for (int i = 0; i < selectedComputers.Length; i++)
+                TempData["ErrorMessage"] = "Ошибка в данных заказа: несоответствие выбранных компьютеров и количеств";
+                await LoadViewData();
+                return View(order);
+            }
+
+            // Фильтруем компьютеры с количеством > 0
+            var validComputers = new List<(int ComputerId, int Quantity)>();
+            for (int i = 0; i < selectedComputers.Length; i++)
+            {
+                if (quantities[i] > 0)
                 {
-                    var computerId = selectedComputers[i];
-                    var quantity = quantities[i];
+                    validComputers.Add((selectedComputers[i], quantities[i]));
+                    Console.WriteLine($"Valid computer: ID={selectedComputers[i]}, Qty={quantities[i]}");
+                }
+            }
 
-                    Console.WriteLine($"Processing: ComputerId={computerId}, Quantity={quantity}");
+            // Проверяем, есть ли валидные компьютеры
+            if (!validComputers.Any())
+            {
+                TempData["ErrorMessage"] = "Не выбрано ни одного компьютера с количеством больше 0";
+                await LoadViewData();
+                return View(order);
+            }
 
-                    // Пропускаем если количество 0
-                    if (quantity <= 0)
-                    {
-                        Console.WriteLine($"Skipping computer {computerId} - quantity is 0");
-                        continue;
-                    }
+            // Получаем тип заказа
+            var orderType = await _context.OrderTypes.FindAsync(order.OrderTypeId);
+            bool isIncomeOrder = orderType?.Name?.ToLower() == "приход";
 
+            Console.WriteLine($"Order type: {orderType?.Name}, Is income: {isIncomeOrder}");
+
+            // Для заказов типа "Продажа" проверяем наличие товаров на складе
+            if (!isIncomeOrder)
+            {
+                var stockErrors = new List<string>();
+                foreach (var (computerId, quantity) in validComputers)
+                {
                     var computer = await _context.Computers.FindAsync(computerId);
-                    if (computer != null && computer.Quantity >= quantity)
+                    if (computer == null)
+                    {
+                        stockErrors.Add($"Компьютер с ID {computerId} не найден");
+                    }
+                    else if (computer.Quantity < quantity)
+                    {
+                        stockErrors.Add($"Недостаточно товара '{computer.Name}' в наличии. Доступно: {computer.Quantity}, Заказано: {quantity}");
+                    }
+                }
+
+                if (stockErrors.Any())
+                {
+                    TempData["ErrorMessage"] = string.Join("<br>", stockErrors);
+                    await LoadViewData();
+                    return View(order);
+                }
+            }
+
+            try
+            {
+                // Базовая настройка заказа
+                order.OrderDate = DateTime.Now;
+                order.TotalAmount = 0;
+
+                // Сохраняем заказ чтобы получить ID
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                Console.WriteLine($"Order created with ID: {order.Id}");
+
+                decimal totalAmount = 0;
+
+                // Обрабатываем компьютеры
+                foreach (var (computerId, quantity) in validComputers)
+                {
+                    var computer = await _context.Computers.FindAsync(computerId);
+                    if (computer != null)
                     {
                         var computerOrder = new ComputerOrder
                         {
@@ -172,65 +209,48 @@ namespace WebShopV3.Controllers
 
                         var itemTotal = computer.Price * quantity;
                         totalAmount += itemTotal;
-                        hasItems = true;
 
                         Console.WriteLine($"Added: {computer.Name}, Qty: {quantity}, Price: {computer.Price}, Total: {itemTotal}");
 
-                        // Обновляем склад
-                        computer.Quantity -= quantity;
+                        // Обновляем склад в зависимости от типа заказа
+                        if (isIncomeOrder)
+                        {
+                            // приход - увеличиваем количество
+                            computer.Quantity += quantity;
+                            Console.WriteLine($"Income order: increasing stock for {computer.Name} by {quantity}");
+                        }
+                        else
+                        {
+                            // Продажа - уменьшаем количество
+                            computer.Quantity -= quantity;
+                            Console.WriteLine($"Sale order: decreasing stock for {computer.Name} by {quantity}");
+                        }
+
                         _context.Computers.Update(computer);
                         _context.ComputerOrders.Add(computerOrder);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Computer {computerId} not found or not enough quantity");
                     }
                 }
 
                 // Обновляем сумму заказа
-                if (hasItems)
-                {
-                    order.TotalAmount = totalAmount;
-                    _context.Orders.Update(order);
-                    await _context.SaveChangesAsync();
-
-                    Console.WriteLine($"Final order total: {order.TotalAmount}");
-                    TempData["SuccessMessage"] = $"Заказ #{order.Id} успешно создан! Сумма: {order.TotalAmount:C}";
-                }
-                else
-                {
-                    // Если нет товаров, удаляем заказ
-                    _context.Orders.Remove(order);
-                    await _context.SaveChangesAsync();
-                    TempData["ErrorMessage"] = "Не выбрано ни одного компьютера с количеством больше 0";
-                    return await LoadViewDataAndReturnView(new Order());
-                }
-            }
-            else
-            {
-                // Если массивы пустые или разной длины
-                _context.Orders.Remove(order);
+                order.TotalAmount = totalAmount;
+                _context.Orders.Update(order);
                 await _context.SaveChangesAsync();
-                TempData["ErrorMessage"] = "Ошибка в данных заказа";
-                return await LoadViewDataAndReturnView(new Order());
+
+                Console.WriteLine($"Final order total: {order.TotalAmount}");
+
+                var orderTypeName = isIncomeOrder ? "приход" : "продажа";
+                TempData["SuccessMessage"] = $"Заказ #{order.Id} ({orderTypeName}) успешно создан! Сумма: {order.TotalAmount:C}";
+
+                return RedirectToAction("Details", new { id = order.Id });
             }
-
-            return RedirectToAction("MyOrders");
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating order: {ex.Message}");
+                TempData["ErrorMessage"] = $"Ошибка при создании заказа: {ex.Message}";
+                await LoadViewData();
+                return View(order);
+            }
         }
-
-        private async Task<IActionResult> LoadViewDataAndReturnView(Order order)
-        {
-            ViewBag.Users = await _context.Users.ToListAsync();
-            ViewBag.OrderTypes = await _context.OrderTypes.ToListAsync();
-            ViewBag.Statuses = await _context.Statuses.ToListAsync();
-            ViewBag.Computers = await _context.Computers.Where(c => c.Quantity > 0).ToListAsync();
-
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-            ViewBag.CurrentUserId = userId;
-
-            return View(order);
-        }
-
 
 
         // GET: Order/Edit/5
@@ -244,6 +264,7 @@ namespace WebShopV3.Controllers
 
             var order = await _context.Orders
                 .Include(o => o.ComputerOrders)
+                .ThenInclude(co => co.Computer)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (order == null)
@@ -251,10 +272,7 @@ namespace WebShopV3.Controllers
                 return NotFound();
             }
 
-            ViewBag.Users = _context.Users.ToList();
-            ViewBag.OrderTypes = _context.OrderTypes.ToList();
-            ViewBag.Statuses = _context.Statuses.ToList();
-
+            await LoadViewData();
             return View(order);
         }
 
@@ -273,6 +291,7 @@ namespace WebShopV3.Controllers
             {
                 var existingOrder = await _context.Orders
                     .Include(o => o.ComputerOrders)
+                    .ThenInclude(co => co.Computer)
                     .FirstOrDefaultAsync(o => o.Id == id);
 
                 if (existingOrder == null)
@@ -280,17 +299,51 @@ namespace WebShopV3.Controllers
                     return NotFound();
                 }
 
+                // Получаем старый и новый тип заказа
+                var oldOrderType = await _context.OrderTypes.FindAsync(existingOrder.OrderTypeId);
+                var newOrderType = await _context.OrderTypes.FindAsync(order.OrderTypeId);
+
+                bool wasIncomeOrder = oldOrderType?.Name?.ToLower() == "приход";
+                bool isIncomeOrder = newOrderType?.Name?.ToLower() == "приход";
+
+                // Если тип заказа изменился, нужно скорректировать склад
+                if (wasIncomeOrder != isIncomeOrder)
+                {
+                    foreach (var computerOrder in existingOrder.ComputerOrders)
+                    {
+                        var computer = await _context.Computers.FindAsync(computerOrder.ComputerId);
+                        if (computer != null)
+                        {
+                            if (wasIncomeOrder && !isIncomeOrder)
+                            {
+                                // Было "приход", стало "Продажа" - убираем двойное количество
+                                computer.Quantity -= computerOrder.Quantity * 2;
+                                Console.WriteLine($"Changing from income to sale: removing double quantity for {computer.Name}");
+                            }
+                            else if (!wasIncomeOrder && isIncomeOrder)
+                            {
+                                // Было "Продажа", стало "приход" - добавляем двойное количество
+                                computer.Quantity += computerOrder.Quantity * 2;
+                                Console.WriteLine($"Changing from sale to income: adding double quantity for {computer.Name}");
+                            }
+                            _context.Computers.Update(computer);
+                        }
+                    }
+                }
+
+                // Обновляем основные данные заказа
                 existingOrder.StatusId = order.StatusId;
                 existingOrder.OrderTypeId = order.OrderTypeId;
                 existingOrder.UserId = order.UserId;
 
+                // Пересчитываем общую сумму на основе существующих ComputerOrders
                 existingOrder.TotalAmount = existingOrder.ComputerOrders.Sum(co => co.Quantity * co.UnitPrice);
 
                 _context.Update(existingOrder);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Заказ успешно обновлен!";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = existingOrder.Id });
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -303,7 +356,12 @@ namespace WebShopV3.Controllers
                     throw;
                 }
             }
-
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Ошибка при обновлении заказа: {ex.Message}";
+                await LoadViewData();
+                return View(order);
+            }
         }
 
         // GET: Order/Delete/5
@@ -319,6 +377,8 @@ namespace WebShopV3.Controllers
                 .Include(o => o.User)
                 .Include(o => o.OrderType)
                 .Include(o => o.Status)
+                .Include(o => o.ComputerOrders)
+                .ThenInclude(co => co.Computer)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (order == null)
@@ -330,16 +390,60 @@ namespace WebShopV3.Controllers
         }
 
         // POST: Order/Delete/5
+        // POST: Order/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Админ")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Заказ успешно удален!";
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                var order = await _context.Orders
+                    .Include(o => o.ComputerOrders)
+                    .Include(o => o.OrderType)
+                    .FirstOrDefaultAsync(o => o.Id == id);
+
+                if (order == null)
+                {
+                    return NotFound();
+                }
+
+                var orderType = await _context.OrderTypes.FindAsync(order.OrderTypeId);
+                bool isIncomeOrder = orderType?.Name?.ToLower() == "приход";
+
+                // Корректируем склад в зависимости от типа заказа
+                foreach (var computerOrder in order.ComputerOrders)
+                {
+                    var computer = await _context.Computers.FindAsync(computerOrder.ComputerId);
+                    if (computer != null)
+                    {
+                        if (isIncomeOrder)
+                        {
+                            // Удаление прихода - уменьшаем количество
+                            computer.Quantity -= computerOrder.Quantity;
+                            Console.WriteLine($"Deleting income order: decreasing stock for {computer.Name} by {computerOrder.Quantity}");
+                        }
+                        else
+                        {
+                            // Удаление продажи - увеличиваем количество
+                            computer.Quantity += computerOrder.Quantity;
+                            Console.WriteLine($"Deleting sale order: increasing stock for {computer.Name} by {computerOrder.Quantity}");
+                        }
+                        _context.Computers.Update(computer);
+                    }
+                }
+
+                _context.Orders.Remove(order);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Заказ успешно удален! Склад скорректирован.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Ошибка при удалении заказа: {ex.Message}";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
         }
 
         // POST: Order/Complete/5 - Завершить заказ (для менеджера)
@@ -348,20 +452,101 @@ namespace WebShopV3.Controllers
         [Authorize(Roles = "Менеджер")]
         public async Task<IActionResult> Complete(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
-            if (order != null)
+            try
             {
-                order.StatusId = 1;
+                var order = await _context.Orders.FindAsync(id);
+                if (order != null)
+                {
+                    order.StatusId = 1; // Завершен
+                    _context.Update(order);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Заказ отмечен как выполненный!";
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Ошибка при завершении заказа: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // POST: Order/Cancel/5 - Отменить заказ
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            try
+            {
+                var order = await _context.Orders
+                    .Include(o => o.ComputerOrders)
+                    .Include(o => o.OrderType)
+                    .FirstOrDefaultAsync(o => o.Id == id);
+
+                if (order == null)
+                {
+                    return NotFound();
+                }
+
+                // Проверяем права доступа
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                var userRole = User.FindFirst(ClaimTypes.Role).Value;
+
+                if (userRole != "Админ" && userRole != "Менеджер" && order.UserId != userId)
+                {
+                    return RedirectToAction("AccessDenied", "Auth");
+                }
+
+                var orderType = await _context.OrderTypes.FindAsync(order.OrderTypeId);
+                bool isIncomeOrder = orderType?.Name?.ToLower() == "приход";
+
+                // Корректируем склад при отмене заказа
+                foreach (var computerOrder in order.ComputerOrders)
+                {
+                    var computer = await _context.Computers.FindAsync(computerOrder.ComputerId);
+                    if (computer != null)
+                    {
+                        if (isIncomeOrder)
+                        {
+                            // Отмена прихода - уменьшаем количество
+                            computer.Quantity -= computerOrder.Quantity;
+                            Console.WriteLine($"Canceling income order: decreasing stock for {computer.Name} by {computerOrder.Quantity}");
+                        }
+                        else
+                        {
+                            // Отмена продажи - увеличиваем количество
+                            computer.Quantity += computerOrder.Quantity;
+                            Console.WriteLine($"Canceling sale order: increasing stock for {computer.Name} by {computerOrder.Quantity}");
+                        }
+                        _context.Computers.Update(computer);
+                    }
+                }
+
+                order.StatusId = 5; // Отменен
                 _context.Update(order);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Заказ отмечен как выполненный!";
+
+                TempData["SuccessMessage"] = "Заказ успешно отменен! Склад скорректирован.";
+                return RedirectToAction(nameof(Details), new { id = order.Id });
             }
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Ошибка при отмене заказа: {ex.Message}";
+                return RedirectToAction(nameof(Details), new { id });
+            }
         }
 
         private bool OrderExists(int id)
         {
             return _context.Orders.Any(e => e.Id == id);
+        }
+
+        private async Task LoadViewData()
+        {
+            ViewBag.Users = await _context.Users.ToListAsync();
+            ViewBag.OrderTypes = await _context.OrderTypes.ToListAsync();
+            ViewBag.Statuses = await _context.Statuses.ToListAsync();
+            ViewBag.Computers = await _context.Computers.Where(c => c.Quantity > 0).ToListAsync();
         }
     }
 }

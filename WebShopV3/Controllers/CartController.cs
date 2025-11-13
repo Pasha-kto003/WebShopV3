@@ -250,18 +250,34 @@ namespace ComputerShop.Controllers
                 // Получаем ID текущего пользователя
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
-                // Создаем заказ
+                // Получаем пользователя для обновления данных
+                var user = await _context.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    // Обновляем данные пользователя, если они изменились
+                    if (!string.IsNullOrEmpty(firstName)) user.FirstName = firstName;
+                    if (!string.IsNullOrEmpty(lastName)) user.LastName = lastName;
+                    if (!string.IsNullOrEmpty(email)) user.Email = email;
+                    if (!string.IsNullOrEmpty(phone)) user.Phone = phone;
+                    _context.Users.Update(user);
+                }
+
+                // Создаем заказ с ВСЕМИ обязательными полями
                 var order = new Order
                 {
                     UserId = userId,
                     OrderDate = DateTime.Now,
-                    OrderTypeId = 1, // Продажа
-                    StatusId = 2, // В ожидании
-                    TotalAmount = cart.TotalAmount
+                    OrderTypeId = 4, // Продажа
+                    StatusId = 5, // В ожидании
+                    TotalAmount = cart.TotalAmount,
+                    // Добавляем адрес и комментарий в описание заказа
+                    Description = $"Адрес доставки: {address}. {(string.IsNullOrEmpty(comment) ? "" : $"Комментарий: {comment}")}"
                 };
 
                 _context.Orders.Add(order);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(); // Сохраняем заказ чтобы получить ID
+
+                Console.WriteLine($"Order created with ID: {order.Id}");
 
                 // Добавляем товары в заказ
                 foreach (var item in cart.Items)
@@ -272,7 +288,7 @@ namespace ComputerShop.Controllers
                         // Проверяем наличие
                         if (computer.Quantity < item.Quantity)
                         {
-                            throw new Exception($"Недостаточно товара '{computer.Name}' в наличии");
+                            throw new Exception($"Недостаточно товара '{computer.Name}' в наличии. Доступно: {computer.Quantity}, Заказано: {item.Quantity}");
                         }
 
                         // Уменьшаем количество на складе
@@ -289,10 +305,16 @@ namespace ComputerShop.Controllers
                         };
 
                         _context.ComputerOrders.Add(computerOrder);
+
+                        Console.WriteLine($"Added to order: {computer.Name}, Qty: {item.Quantity}, Price: {item.Price}");
+                    }
+                    else
+                    {
+                        throw new Exception($"Компьютер с ID {item.ComputerId} не найден");
                     }
                 }
 
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(); // Сохраняем все изменения
 
                 // Очищаем корзину
                 HttpContext.Session.Remove(CartSessionKey);
@@ -300,10 +322,23 @@ namespace ComputerShop.Controllers
                 TempData["SuccessMessage"] = $"Заказ #{order.Id} успешно оформлен! Сумма: {order.TotalAmount:C}";
                 return RedirectToAction("MyOrders", "Order");
             }
+            catch (DbUpdateException dbEx)
+            {
+                // Логируем детали ошибки базы данных
+                Console.WriteLine($"Database update error: {dbEx.Message}");
+                Console.WriteLine($"Inner exception: {dbEx.InnerException?.Message}");
+
+                TempData["ErrorMessage"] = $"Ошибка базы данных при оформлении заказа: {dbEx.InnerException?.Message ?? dbEx.Message}";
+                return RedirectToAction("Checkout");
+            }
             catch (Exception ex)
             {
+                // Логируем общую ошибку
+                Console.WriteLine($"Order completion error: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+
                 TempData["ErrorMessage"] = $"Ошибка при оформлении заказа: {ex.Message}";
-                return RedirectToAction("Index");
+                return RedirectToAction("Checkout");
             }
         }
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebShopV3.Models;
+using WebShopV3.Services;
 
 namespace WebShopV3.Controllers
 {
@@ -9,10 +10,12 @@ namespace WebShopV3.Controllers
     public class ComputerController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly CompatibilityService _compatibilityService;
 
-        public ComputerController(ApplicationDbContext context)
+        public ComputerController(ApplicationDbContext context, CompatibilityService compatibilityService)
         {
             _context = context;
+            _compatibilityService = compatibilityService;
         }
 
         // GET: Computer
@@ -45,12 +48,32 @@ namespace WebShopV3.Controllers
             return View(computer);
         }
 
-        // GET: Computer/Create
         [Authorize(Roles = "Админ")]
         public IActionResult Create()
         {
-            ViewBag.Components = _context.Components.ToList();
-            return View();
+            return RedirectToAction("Index", "PcBuilder");
+        }
+
+        // GET: Computer/Edit/5 - Новый метод для редактирования через конфигуратор
+        [Authorize(Roles = "Админ")]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var computer = await _context.Computers
+                .Include(c => c.ComputerComponents)
+                    .ThenInclude(cc => cc.Component)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (computer == null) return NotFound();
+
+            // Получаем ID выбранных компонентов
+            var selectedComponentIds = computer.ComputerComponents
+                .Select(cc => cc.ComponentId)
+                .ToList();
+
+            // Перенаправляем в конфигуратор с выбранными компонентами
+            return RedirectToAction("EditConfiguration", "PcBuilder", new { computerId = id });
         }
 
         // POST: Computer/Create
@@ -102,26 +125,26 @@ namespace WebShopV3.Controllers
         }
 
         // GET: Computer/Edit/5
-        [Authorize(Roles = "Админ")]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //[Authorize(Roles = "Админ")]
+        //public async Task<IActionResult> Edit(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var computer = await _context.Computers
-                .Include(c => c.ComputerComponents)
-                .FirstOrDefaultAsync(m => m.Id == id);
+        //    var computer = await _context.Computers
+        //        .Include(c => c.ComputerComponents)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (computer == null)
-            {
-                return NotFound();
-            }
+        //    if (computer == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            ViewBag.Components = _context.Components.ToList();
-            return View(computer);
-        }
+        //    ViewBag.Components = _context.Components.ToList();
+        //    return View(computer);
+        //}
 
         // POST: Computer/Edit/5
         [HttpPost]

@@ -21,6 +21,19 @@
                 Завершите оформление вашего заказа
             </p>
         </div>
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+                <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-red-400">@TempData["ErrorMessage"]</span>
+                    </div>
+                </div>
+            </div>
+        }
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Левая колонка - Форма заказа -->
@@ -215,3 +228,140 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Автоподстановка адреса, если пользователь ранее его указывал
+            function loadSavedAddress() {
+                const savedAddress = localStorage.getItem('userAddress');
+                if (savedAddress) {
+                    $('textarea[name="address"]').val(savedAddress);
+                }
+            }
+
+            // Сохранение адреса при изменении
+            $('textarea[name="address"]').on('input', function() {
+                const address = $(this).val();
+                if (address.length > 5) {
+                    localStorage.setItem('userAddress', address);
+                }
+            });
+
+            // Валидация формы
+            $('#checkout-form').on('submit', function(e) {
+                const address = $('textarea[name="address"]').val().trim();
+                if (address.length < 10) {
+                    e.preventDefault();
+                    showNotification('Пожалуйста, укажите полный адрес доставки (не менее 10 символов)', 'error');
+                    $('textarea[name="address"]').focus();
+                    $('textarea[name="address"]').addClass('border-red-500');
+                    return false;
+                } else {
+                    $('textarea[name="address"]').removeClass('border-red-500');
+                }
+
+                const phone = $('input[name="phone"]').val().trim();
+                if (!isValidPhone(phone)) {
+                    e.preventDefault();
+                    showNotification('Пожалуйста, укажите корректный номер телефона', 'error');
+                    $('input[name="phone"]').focus();
+                    $('input[name="phone"]').addClass('border-red-500');
+                    return false;
+                } else {
+                    $('input[name="phone"]').removeClass('border-red-500');
+                }
+
+                // Показываем индикатор загрузки
+                $('button[type="submit"]').prop('disabled', true).html(`
+                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-dark mr-2"></div>
+                    Оформляем заказ...
+                `);
+            });
+
+            function isValidPhone(phone) {
+                // Простая валидация телефона
+                const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
+                return phoneRegex.test(phone);
+            }
+
+            function showNotification(message, type = 'success') {
+                const alertClass = type === 'success' ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-red-500/20 border-red-500/30 text-red-400';
+                
+                const notification = $(`
+                    <div class="fixed top-4 right-4 z-50 p-4 rounded-lg border backdrop-blur-sm transition-transform duration-300 transform translate-x-full ${alertClass}">
+                        ${message}
+                    </div>
+                `);
+                
+                $('body').append(notification);
+                
+                setTimeout(() => {
+                    notification.removeClass('translate-x-full');
+                }, 100);
+                
+                setTimeout(() => {
+                    notification.addClass('translate-x-full');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 4000);
+            }
+
+            // Загружаем сохраненный адрес при загрузке страницы
+            loadSavedAddress();
+
+            // Подсказка для адреса
+            $('textarea[name="address"]').on('focus', function() {
+                if (!$(this).val()) {
+                    $(this).attr('placeholder', 'Например: г. Москва, ул. Примерная, д. 123, кв. 45');
+                }
+            });
+
+            // Анимация появления элементов
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.bg-dark-card').forEach((el) => {
+                observer.observe(el);
+            });
+        });
+    </script>
+
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        
+        .border-red-500 {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+        }
+        
+        @@keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
+}
