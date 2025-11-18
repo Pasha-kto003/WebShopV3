@@ -1,15 +1,16 @@
-﻿@model List<WebShopV3.Models.Computer>
+﻿@model WebShopV3.Models.CatalogViewModel
 
 <!-- Вид карточками -->
 <div id="cardsView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-    @foreach (var computer in Model)
+    <!-- Компьютеры -->
+    @foreach (var computer in Model.Computers)
     {
         <div class="computer-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-primary/50 transition duration-300 group">
             <div class="relative overflow-hidden rounded-xl mb-4">
                 @if (!string.IsNullOrEmpty(computer.ImageUrl))
                 {
                     <div class="w-full h-48 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
-                        <img src="/Images/@computer.ImageUrl" alt="@computer.Name" 
+                        <img src="/Images/computers/@computer.ImageUrl" alt="@computer.Name" 
                              class="w-full max-h-48 object-contain rounded-xl transition-transform duration-500 group-hover:scale-105"/>
                     </div>
                 }
@@ -19,7 +20,7 @@
                         <span class="text-gray-500 text-lg">🖥️</span>
                     </div>
                 }
-                @if (computer.Price < 150000) // Пример условия для метки "ХИТ"
+                @if (computer.Price < 150000)
                 {
                     <div class="absolute top-4 right-4 bg-gradient-to-r from-primary to-green-400 text-dark px-3 py-1 rounded-full text-sm font-bold">
                         ХИТ
@@ -52,72 +53,217 @@
             </button>
         </div>
     }
+
+    <!-- Комплектующие -->
+    @foreach (var component in Model.Components)
+    {
+        <div class="component-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-blue-400/50 transition duration-300 group">
+            <div class="relative overflow-hidden rounded-xl mb-4">
+                <div class="w-full h-48 bg-gradient-to-br from-blue-400/20 to-blue-400/10 rounded-xl flex items-center justify-center">
+                    @if (!string.IsNullOrEmpty(component.Type))
+                    {
+                        <span class="text-4xl text-blue-400">
+                            @GetComponentIcon(component.Type)
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-gray-500 text-2xl">⚙️</span>
+                    }
+                </div>
+                @if (component.Price < 50000)
+                {
+                    <div class="absolute top-4 right-4 bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-3 py-1 rounded-full text-sm font-bold">
+                        ХИТ
+                    </div>
+                }
+            </div>
+            
+            <div class="mb-2">
+                <span class="inline-block bg-blue-400/20 text-blue-400 px-2 py-1 rounded text-xs font-semibold mb-2">
+                    @component.Type
+                </span>
+            </div>
+            
+            <h3 class="text-xl font-bold text-white mb-2">
+                <a href="@Url.Action("Details", "Component", new { id = component.Id })" class="hover:text-blue-400 transition duration-200">
+                    @component.Name
+                </a>
+            </h3>
+            <p class="text-gray-400 text-sm mb-4 line-clamp-2">@component.Description</p>
+            
+            <div class="space-y-2 mb-4">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400">В наличии:</span>
+                    <span class="text-white">@component.Quantity шт.</span>
+                </div>
+                @if (!string.IsNullOrEmpty(component.Specifications))
+                {
+                    <div class="text-xs text-gray-500 line-clamp-1">@component.Specifications</div>
+                }
+            </div>
+            
+            <div class="flex items-center justify-between mb-4">
+                <div class="text-2xl font-bold text-blue-400">@component.Price.ToString("C")</div>
+            </div>
+            
+            <a href="@Url.Action("AddToCart", "Cart", new { componentId = component.Id, quantity = 1 })" 
+                class="w-full bg-gradient-to-r from-blue-400 to-cyan-400 text-dark py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-blue-400/25 transition duration-300 group-hover:scale-105 add-to-cart-component text-center block"
+                data-component-id="@component.Id">
+                В корзину
+            </a>
+        </div>
+    }
 </div>
 
 <!-- Вид списком -->
 <div id="listViewContainer" class="hidden space-y-6">
-    @foreach (var computer in Model)
+    <!-- Компьютеры в списке -->
+    @foreach (var computer in Model.Computers)
     {
-        <div class="computer-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-primary/50 transition duration-300">
-            <div class="flex flex-col lg:flex-row lg:items-center gap-6">
+        <div class="flex flex-col lg:flex-row lg:items-center gap-6">
                 <div class="flex-shrink-0">
-                    @if (!string.IsNullOrEmpty(computer.ImageUrl))
-                    {
-                        <div class="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
-                            <img src="/Images/@computer.ImageUrl" alt="@computer.Name" 
-                                 class="w-full h-full object-contain rounded-xl"/>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="w-32 h-32 bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl flex items-center justify-center">
-                            <span class="text-gray-500 text-2xl">🖥️</span>
-                        </div>
-                    }
+                    <div class="w-32 h-32 bg-gradient-to-br from-blue-400/20 to-blue-400/10 rounded-xl flex items-center justify-center">
+                        <span class="text-3xl text-blue-400">
+                            @computer.ImageUrl;
+                        </span>
+                    </div>
                 </div>
                 <div class="flex-grow">
                     <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-3">
                         <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="inline-block bg-blue-400/20 text-blue-400 px-2 py-1 rounded text-xs font-semibold">
+                                    @computer.Name
+                                </span>
+                            </div>
                             <h3 class="text-xl font-bold text-white mb-1">
-                                <a href="@Url.Action("ComputerDetails", "Home", new { id = computer.Id })" class="hover:text-primary transition duration-200">
+                                <a href="@Url.Action("Details", "Computer", new { id = computer.Id })" class="hover:text-blue-400 transition duration-200">
                                     @computer.Name
                                 </a>
                             </h3>
                             <p class="text-gray-400 text-sm line-clamp-1">@computer.Description</p>
                         </div>
                         <div class="flex items-center gap-2 mt-2 lg:mt-0">
-                            @if (computer.Price < 150000)
+                            @if (computer.Price < 120000)
                             {
-                                <span class="bg-gradient-to-r from-primary to-green-400 text-dark px-3 py-1 rounded-full text-sm font-bold">ХИТ</span>
+                                <span class="bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-3 py-1 rounded-full text-sm font-bold">ХИТ</span>
                             }
-                            <div class="text-2xl font-bold text-primary">@computer.Price.ToString("C")</div>
+                            <div class="text-2xl font-bold text-blue-400">@computer.Price.ToString("C")</div>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div class="flex items-center text-gray-300">
-                            <span class="w-2 h-2 bg-primary rounded-full mr-3"></span>
+                            <span class="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
                             <span class="text-gray-400">В наличии:</span>
                             <span class="text-white ml-2">@computer.Quantity шт.</span>
                         </div>
+                        @if (!string.IsNullOrEmpty(computer.Description))
+                        {
+                            <div class="flex items-center text-gray-300">
+                                <span class="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
+                                <span class="text-gray-400">Характеристики:</span>
+                                <span class="text-white ml-2 line-clamp-1">@computer.Description</span>
+                            </div>
+                        }
                     </div>
                 </div>
                 <div class="flex-shrink-0">
-                    <button class="w-full lg:w-auto bg-gradient-to-r from-primary to-green-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300 add-to-cart"
+                    <button class="w-full lg:w-auto bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-blue-400/25 transition duration-300 add-to-cart"
                             data-computer-id="@computer.Id" 
                             data-computer-name="@computer.Name">
                         В корзину
                     </button>
                 </div>
             </div>
+    }
+
+    <!-- Комплектующие в списке -->
+    @foreach (var component in Model.Components)
+    {
+        <div class="component-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-blue-400/50 transition duration-300">
+            <div class="flex flex-col lg:flex-row lg:items-center gap-6">
+                <div class="flex-shrink-0">
+                    <div class="w-32 h-32 bg-gradient-to-br from-blue-400/20 to-blue-400/10 rounded-xl flex items-center justify-center">
+                        <span class="text-3xl text-blue-400">
+                            @GetComponentIcon(component.Type)
+                        </span>
+                    </div>
+                </div>
+                <div class="flex-grow">
+                    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-3">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="inline-block bg-blue-400/20 text-blue-400 px-2 py-1 rounded text-xs font-semibold">
+                                    @component.Type
+                                </span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-1">
+                                <a href="@Url.Action("Details", "Component", new { id = component.Id })" class="hover:text-blue-400 transition duration-200">
+                                    @component.Name
+                                </a>
+                            </h3>
+                            <p class="text-gray-400 text-sm line-clamp-1">@component.Description</p>
+                        </div>
+                        <div class="flex items-center gap-2 mt-2 lg:mt-0">
+                            @if (component.Price < 50000)
+                            {
+                                <span class="bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-3 py-1 rounded-full text-sm font-bold">ХИТ</span>
+                            }
+                            <div class="text-2xl font-bold text-blue-400">@component.Price.ToString("C")</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="flex items-center text-gray-300">
+                            <span class="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
+                            <span class="text-gray-400">В наличии:</span>
+                            <span class="text-white ml-2">@component.Quantity шт.</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(component.Specifications))
+                        {
+                            <div class="flex items-center text-gray-300">
+                                <span class="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
+                                <span class="text-gray-400">Характеристики:</span>
+                                <span class="text-white ml-2 line-clamp-1">@component.Specifications</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="flex-shrink-0">
+                    <a href="@Url.Action("AddToCart", "Cart", new { componentId = component.Id, quantity = 1 })" 
+                       class="w-full lg:w-auto bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-blue-400/25 transition duration-300 add-to-cart-component text-center block"
+                       data-component-id="@component.Id">
+                        В корзину
+                    </a>
+                </div>
+            </div>
         </div>
     }
 </div>
 
-@if (!Model.Any())
+@if (!Model.Computers.Any() && !Model.Components.Any())
 {
     <div class="text-center py-12">
         <div class="text-6xl mb-4">🔍</div>
-        <h3 class="text-xl font-bold text-white mb-2">Компьютеры не найдены</h3>
+        <h3 class="text-xl font-bold text-white mb-2">Товары не найдены</h3>
         <p class="text-gray-400">Попробуйте изменить параметры поиска</p>
     </div>
+}
+
+@functions {
+    public string GetComponentIcon(string type)
+    {
+        return type?.ToLower() switch
+        {
+            "cpu" => "CPU",
+            "gpu" => "GPU", 
+            "ram" => "RAM",
+            "mb" => "MB",
+            "psu" => "PSU",
+            "ssd" => "SSD",
+            "hdd" => "HDD",
+            "case" => "CASE",
+            _ => "⚙️"
+        };
+    }
 }

@@ -30,7 +30,7 @@
                     <div class="relative aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
                         @if (!string.IsNullOrEmpty(Model.ImageUrl))
                         {
-                            <img id="mainImage" src="/Images/@Model.ImageUrl" 
+                            <img id="mainImage" src="/Images/computers/@Model.ImageUrl" 
                                  alt="@Model.Name" class="w-full h-full object-cover transition duration-500">
                         }
                         else
@@ -56,8 +56,8 @@
                 {
                     <div class="grid grid-cols-4 gap-4">
                         <button class="aspect-square rounded-xl bg-dark-card border border-gray-700 hover:border-primary transition duration-200 overflow-hidden thumbnail-button"
-                                data-image-src="/Images/@Model.ImageUrl">
-                            <img src="/Images/@Model.ImageUrl" 
+                                data-image-src="/Images/computers/@Model.ImageUrl">
+                            <img src="/Images/computers/@Model.ImageUrl" 
                                  alt="@Model.Name" class="w-full h-full object-cover">
                         </button>
                         <div class="aspect-square rounded-xl bg-dark-card border border-gray-700 flex items-center justify-center">

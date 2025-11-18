@@ -51,6 +51,9 @@ namespace WebShopV3.Controllers
             ViewBag.SelectedComponentIds = computer.ComputerComponents.Select(cc => cc.ComponentId).ToList();
             ViewBag.ComputerName = computer.Name;
             ViewBag.ComputerDescription = computer.Description;
+            
+            var filePath = Path.Combine("/Images/computers/", computer.ImageUrl);
+            ViewBag.ComputerImageUrl = filePath;
 
             return View("Index");
         }
@@ -69,7 +72,8 @@ namespace WebShopV3.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveConfiguration([FromBody] ComputerConfiguration config)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveConfiguration(string Name, string Description, decimal Price, int Quantity, List<int> ComponentIds, int? ComputerId, IFormFile ImageFile = null)
         {
             try
             {
@@ -77,7 +81,7 @@ namespace WebShopV3.Controllers
                 var selectedComponents = await _context.Components
                     .Include(c => c.ComponentCharacteristics)
                         .ThenInclude(cc => cc.Characteristic)
-                    .Where(c => config.ComponentIds.Contains(c.Id))
+                    .Where(c => ComponentIds.Contains(c.Id))
                     .ToListAsync();
 
                 var compatibilityResult = _compatibilityService.CheckCompatibility(selectedComponents);
@@ -92,14 +96,46 @@ namespace WebShopV3.Controllers
                     });
                 }
 
-                Computer computer;
+                decimal componentsTotalPrice = selectedComponents.Sum(c => c.Price);
 
-                if (config.ComputerId.HasValue)
+                // Добавляем наценку 10%
+                decimal finalPrice = componentsTotalPrice * 1.1m;
+
+                Console.WriteLine($"Price calculation: Components total = {componentsTotalPrice:C}, Final price with 10% markup = {finalPrice:C}");
+
+                Computer computer;
+                string imageUrl = "1.jpg"; // изображение по умолчанию
+
+                // Обработка загрузки изображения
+                if (ImageFile != null && ImageFile.Length > 0)
+                {
+                    // Создаем уникальное имя файла
+                    var filePath = Path.Combine("wwwroot/Images/computers", ImageFile.FileName);
+
+                    ViewBag.ComputerImageUrl = filePath;
+
+                    // Создаем директорию если не существует
+                    var directory = Path.GetDirectoryName(filePath);
+                    if (!Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+
+                    // Сохраняем файл
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ImageFile.CopyToAsync(stream);
+                    }
+
+                    imageUrl = ImageFile.FileName;
+                }
+
+                if (ComputerId.HasValue)
                 {
                     // Редактирование существующего компьютера
                     computer = await _context.Computers
                         .Include(c => c.ComputerComponents)
-                        .FirstOrDefaultAsync(c => c.Id == config.ComputerId.Value);
+                        .FirstOrDefaultAsync(c => c.Id == ComputerId.Value);
 
                     if (computer == null)
                     {
@@ -107,9 +143,15 @@ namespace WebShopV3.Controllers
                     }
 
                     // Обновляем данные компьютера
-                    computer.Name = config.Name;
-                    computer.Description = config.Description;
-                    computer.Price = config.TotalPrice;
+                    computer.Name = Name;
+                    computer.Description = Description;
+                    computer.Price = finalPrice;
+
+                    // Обновляем изображение только если загружено новое
+                    if (ImageFile != null)
+                    {
+                        computer.ImageUrl = imageUrl;
+                    }
 
                     // Удаляем старые компоненты
                     _context.ComputerComponents.RemoveRange(computer.ComputerComponents);
@@ -119,11 +161,11 @@ namespace WebShopV3.Controllers
                     // Создание нового компьютера
                     computer = new Computer
                     {
-                        Name = config.Name,
-                        Description = config.Description,
-                        Price = config.TotalPrice,
-                        Quantity = 1,
-                        ImageUrl = "default-pc.jpg"
+                        Name = Name,
+                        Description = Description,
+                        Price = finalPrice,
+                        Quantity = Quantity,
+                        ImageUrl = imageUrl
                     };
 
                     _context.Computers.Add(computer);
@@ -132,7 +174,7 @@ namespace WebShopV3.Controllers
                 await _context.SaveChangesAsync();
 
                 // Добавляем новые компоненты
-                foreach (var componentId in config.ComponentIds)
+                foreach (var componentId in ComponentIds)
                 {
                     var computerComponent = new ComputerComponent
                     {
@@ -148,7 +190,8 @@ namespace WebShopV3.Controllers
                 {
                     success = true,
                     computerId = computer.Id,
-                    message = config.ComputerId.HasValue ? "Конфигурация обновлена" : "Конфигурация сохранена"
+                    message = ComputerId.HasValue ? "Конфигурация обновлена" : "Конфигурация сохранена",
+                    calculatesPrice = finalPrice
                 });
             }
             catch (Exception ex)

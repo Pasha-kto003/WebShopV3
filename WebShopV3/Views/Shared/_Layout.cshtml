@@ -58,7 +58,9 @@
                         </a>
                         <a asp-controller="Cart" asp-action="Index" class="text-gray-300 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center">
                             <i class="bi bi-cart3 mr-1"></i> Корзина
-                            <span id="cart-counter" class="ml-1 bg-primary text-dark rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold" style="display: none;">0</span>
+                            <span id="cart-counter" class="cart-counter ml-1 bg-primary text-dark rounded-full w-5 h-5 flex items-center justify-center text-xs text-center font-bold @(ViewBag.CartItemsCount > 0 ? "" : "hidden")">
+                                @(ViewBag.CartItemsCount > 0 ? ViewBag.CartItemsCount.ToString() : "0")
+                            </span>
                         </a>
                         <a asp-controller="Home" asp-action="About" class="text-gray-300 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center">
                             <i class="bi bi-question-circle mr-1"></i> О сайте

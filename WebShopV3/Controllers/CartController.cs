@@ -35,76 +35,150 @@ namespace ComputerShop.Controllers
         }
 
         // POST: Cart/AddToCart
+        // POST: Cart/AddToCart - универсальный метод для компьютеров и компонентов
+        // GET и POST для добавления в корзину
+        [HttpGet]
         [HttpPost]
-        public async Task<IActionResult> AddToCart(int computerId, int quantity = 1)
+        public async Task<IActionResult> AddToCart(int? computerId, int? componentId, int quantity = 1)
         {
-            var computer = await _context.Computers.FindAsync(computerId);
-            if (computer == null)
+            Console.WriteLine($"=== AddToCart called ===");
+            Console.WriteLine($"ComputerId: {computerId}, ComponentId: {componentId}, Quantity: {quantity}");
+
+            if (!computerId.HasValue && !componentId.HasValue)
             {
-                return Json(new { success = false, message = "Компьютер не найден" });
+                TempData["ErrorMessage"] = "Не указан товар для добавления";
+                return RedirectToAction("Index", "Home");
             }
 
-            if (computer.Quantity < quantity)
-            {
-                return Json(new { success = false, message = "Недостаточно товара в наличии" });
-            }
-
+            // Получаем корзину
             var cartJson = HttpContext.Session.GetString(CartSessionKey);
             var cart = string.IsNullOrEmpty(cartJson)
                 ? new Cart()
                 : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
 
-            var existingItem = cart.Items.FirstOrDefault(x => x.ComputerId == computerId);
+            string productName = "";
+            bool success = false;
 
-            if (existingItem != null)
+            if (computerId.HasValue)
             {
-                if (computer.Quantity < existingItem.Quantity + quantity)
+                // Добавление компьютера
+                var computer = await _context.Computers.FindAsync(computerId.Value);
+                if (computer == null)
                 {
-                    return Json(new { success = false, message = "Недостаточно товара в наличии" });
+                    TempData["ErrorMessage"] = "Компьютер не найден";
+                    return RedirectToAction("Catalog", "Home");
                 }
-                existingItem.Quantity += quantity;
-            }
-            else
-            {
-                cart.Items.Add(new CartItem
+
+                if (computer.Quantity < quantity)
                 {
-                    ComputerId = computerId,
-                    ComputerName = computer.Name,
-                    Price = computer.Price,
-                    Quantity = quantity,
-                    ImageUrl = computer.ImageUrl
-                });
+                    TempData["ErrorMessage"] = "Недостаточно компьютеров в наличии";
+                    return RedirectToAction("Catalog", "Home");
+                }
+
+                var existingItem = cart.Items.FirstOrDefault(x => x.ComputerId == computerId && x.IsComputer);
+
+                if (existingItem != null)
+                {
+                    if (computer.Quantity < existingItem.Quantity + quantity)
+                    {
+                        TempData["ErrorMessage"] = "Недостаточно компьютеров в наличии";
+                        return RedirectToAction("Catalog", "Home");
+                    }
+                    existingItem.Quantity += quantity;
+                }
+                else
+                {
+                    cart.Items.Add(new CartItem
+                    {
+                        ComputerId = computerId.Value,
+                        Name = computer.Name,
+                        Price = computer.Price,
+                        Quantity = quantity,
+                        ImageUrl = computer.ImageUrl
+                    });
+                }
+                productName = computer.Name;
+                success = true;
+            }
+            else if (componentId.HasValue)
+            {
+                // Добавление компонента
+                var component = await _context.Components.FindAsync(componentId.Value);
+                if (component == null)
+                {
+                    TempData["ErrorMessage"] = "Комплектующее не найдено";
+                    return RedirectToAction("Catalog", "Home");
+                }
+
+                if (component.Quantity < quantity)
+                {
+                    TempData["ErrorMessage"] = "Недостаточно комплектующих в наличии";
+                    return RedirectToAction("Catalog", "Home");
+                }
+
+                var existingItem = cart.Items.FirstOrDefault(x => x.ComponentId == componentId && x.IsComponent);
+
+                if (existingItem != null)
+                {
+                    if (component.Quantity < existingItem.Quantity + quantity)
+                    {
+                        TempData["ErrorMessage"] = "Недостаточно комплектующих в наличии";
+                        return RedirectToAction("Catalog", "Home");
+                    }
+                    existingItem.Quantity += quantity;
+                }
+                else
+                {
+                    cart.Items.Add(new CartItem
+                    {
+                        ComponentId = componentId.Value,
+                        Name = component.Name,
+                        Price = component.Price,
+                        Quantity = quantity,
+                        ImageUrl = "default-component.jpg"
+                    });
+                }
+                productName = component.Name;
+                success = true;
             }
 
-            var updatedCartJson = JsonSerializer.Serialize(cart);
-            HttpContext.Session.SetString(CartSessionKey, updatedCartJson);
-
-            return Json(new
+            if (success)
             {
-                success = true,
-                message = "Товар добавлен в корзину",
-                totalItems = cart.TotalItems
-            });
+                // Сохраняем корзину
+                var updatedCartJson = JsonSerializer.Serialize(cart);
+                HttpContext.Session.SetString(CartSessionKey, updatedCartJson);
+
+                TempData["SuccessMessage"] = $"\"{productName}\" добавлен в корзину!";
+            }
+
+            // Возвращаем обратно на страницу, откуда пришли
+            return RedirectToAction("Catalog", "Home");
         }
 
+
         // POST: Cart/UpdateQuantity
+        // POST: Cart/UpdateQuantity - универсальный метод
         [HttpPost]
-        public async Task<IActionResult> UpdateQuantity(int computerId, int quantity)
+        public async Task<IActionResult> UpdateQuantity(int? computerId, int? componentId, int quantity)
         {
             if (quantity <= 0)
             {
-                return RemoveFromCart(computerId);
+                return RemoveFromCart(computerId, componentId);
             }
 
-            var computer = await _context.Computers.FindAsync(computerId);
-            if (computer == null)
+            object itemToCheck = null;
+            if (computerId.HasValue)
             {
-                return Json(new { success = false, message = "Компьютер не найден" });
+                itemToCheck = await _context.Computers.FindAsync(computerId.Value);
+            }
+            else if (componentId.HasValue)
+            {
+                itemToCheck = await _context.Components.FindAsync(componentId.Value);
             }
 
-            if (computer.Quantity < quantity)
+            if (itemToCheck == null)
             {
-                return Json(new { success = false, message = "Недостаточно товара в наличии" });
+                return Json(new { success = false, message = "Товар не найден" });
             }
 
             var cartJson = HttpContext.Session.GetString(CartSessionKey);
@@ -112,10 +186,36 @@ namespace ComputerShop.Controllers
                 ? new Cart()
                 : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
 
-            var item = cart.Items.FirstOrDefault(x => x.ComputerId == computerId);
+            CartItem item = null;
+            if (computerId.HasValue)
+            {
+                item = cart.Items.FirstOrDefault(x => x.ComputerId == computerId && x.IsComputer);
+            }
+            else if (componentId.HasValue)
+            {
+                item = cart.Items.FirstOrDefault(x => x.ComponentId == componentId && x.IsComponent);
+            }
 
             if (item != null)
             {
+                // Проверяем наличие
+                if (computerId.HasValue)
+                {
+                    var computer = await _context.Computers.FindAsync(computerId.Value);
+                    if (computer.Quantity < quantity)
+                    {
+                        return Json(new { success = false, message = "Недостаточно товара в наличии" });
+                    }
+                }
+                else if (componentId.HasValue)
+                {
+                    var component = await _context.Components.FindAsync(componentId.Value);
+                    if (component.Quantity < quantity)
+                    {
+                        return Json(new { success = false, message = "Недостаточно товара в наличии" });
+                    }
+                }
+
                 item.Quantity = quantity;
 
                 var updatedCartJson = JsonSerializer.Serialize(cart);
@@ -133,16 +233,24 @@ namespace ComputerShop.Controllers
             return Json(new { success = false, message = "Товар не найден в корзине" });
         }
 
-        // POST: Cart/RemoveFromCart
+        // POST: Cart/RemoveFromCart - универсальный метод
         [HttpPost]
-        public IActionResult RemoveFromCart(int computerId)
+        public IActionResult RemoveFromCart(int? computerId, int? componentId)
         {
             var cartJson = HttpContext.Session.GetString(CartSessionKey);
             var cart = string.IsNullOrEmpty(cartJson)
                 ? new Cart()
                 : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
 
-            var item = cart.Items.FirstOrDefault(x => x.ComputerId == computerId);
+            CartItem item = null;
+            if (computerId.HasValue)
+            {
+                item = cart.Items.FirstOrDefault(x => x.ComputerId == computerId && x.IsComputer);
+            }
+            else if (componentId.HasValue)
+            {
+                item = cart.Items.FirstOrDefault(x => x.ComponentId == componentId && x.IsComponent);
+            }
 
             if (item != null)
             {
@@ -171,7 +279,6 @@ namespace ComputerShop.Controllers
             return Json(new { success = true, message = "Корзина очищена" });
         }
 
-        // GET: Cart/Checkout
         public async Task<IActionResult> Checkout()
         {
             if (!User.Identity.IsAuthenticated)
@@ -191,13 +298,38 @@ namespace ComputerShop.Controllers
                 return RedirectToAction("Index");
             }
 
+            // Проверяем наличие всех товаров в корзине
             foreach (var item in cart.Items)
             {
-                var computer = _context.Computers.Find(item.ComputerId);
-                if (computer == null || computer.Quantity < item.Quantity)
+                if (item.IsComputer)
                 {
-                    TempData["ErrorMessage"] = $"Товар '{item.ComputerName}' больше не доступен в нужном количестве";
-                    return RedirectToAction("Index");
+                    // Проверяем компьютер
+                    var computer = await _context.Computers.FindAsync(item.ComputerId);
+                    if (computer == null)
+                    {
+                        TempData["ErrorMessage"] = $"Компьютер '{item.Name}' не найден";
+                        return RedirectToAction("Index");
+                    }
+                    if (computer.Quantity < item.Quantity)
+                    {
+                        TempData["ErrorMessage"] = $"Недостаточно компьютеров '{item.Name}' в наличии. Доступно: {computer.Quantity}, Заказано: {item.Quantity}";
+                        return RedirectToAction("Index");
+                    }
+                }
+                else if (item.IsComponent)
+                {
+                    // Проверяем компонент
+                    var component = await _context.Components.FindAsync(item.ComponentId);
+                    if (component == null)
+                    {
+                        TempData["ErrorMessage"] = $"Комплектующее '{item.Name}' не найдено";
+                        return RedirectToAction("Index");
+                    }
+                    if (component.Quantity < item.Quantity)
+                    {
+                        TempData["ErrorMessage"] = $"Недостаточно комплектующих '{item.Name}' в наличии. Доступно: {component.Quantity}, Заказано: {item.Quantity}";
+                        return RedirectToAction("Index");
+                    }
                 }
             }
 
@@ -250,27 +382,47 @@ namespace ComputerShop.Controllers
                 // Получаем ID текущего пользователя
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
-                // Получаем пользователя для обновления данных
+                // ПРЕДВАРИТЕЛЬНАЯ ПРОВЕРКА НАЛИЧИЯ ТОВАРОВ
+                foreach (var item in cart.Items)
+                {
+                    if (item.IsComputer)
+                    {
+                        var computer = await _context.Computers.FindAsync(item.ComputerId);
+                        if (computer == null || computer.Quantity < item.Quantity)
+                        {
+                            throw new Exception($"Недостаточно компьютеров '{item.Name}' в наличии. Доступно: {computer?.Quantity ?? 0}, Заказано: {item.Quantity}");
+                        }
+                    }
+                    else if (item.IsComponent)
+                    {
+                        var component = await _context.Components.FindAsync(item.ComponentId);
+                        if (component == null || component.Quantity < item.Quantity)
+                        {
+                            throw new Exception($"Недостаточно комплектующих '{item.Name}' в наличии. Доступно: {component?.Quantity ?? 0}, Заказано: {item.Quantity}");
+                        }
+                    }
+                }
+
+                // Обновляем данные пользователя
                 var user = await _context.Users.FindAsync(userId);
                 if (user != null)
                 {
-                    // Обновляем данные пользователя, если они изменились
                     if (!string.IsNullOrEmpty(firstName)) user.FirstName = firstName;
                     if (!string.IsNullOrEmpty(lastName)) user.LastName = lastName;
                     if (!string.IsNullOrEmpty(email)) user.Email = email;
                     if (!string.IsNullOrEmpty(phone)) user.Phone = phone;
                     _context.Users.Update(user);
+                    await _context.SaveChangesAsync(); // Сохраняем изменения пользователя
                 }
 
-                // Создаем заказ с ВСЕМИ обязательными полями
+                // Создаем заказ
                 var order = new Order
                 {
                     UserId = userId,
                     OrderDate = DateTime.Now,
-                    OrderTypeId = 4, // Продажа
+                    OrderTypeId = 3, // Продажа
                     StatusId = 5, // В ожидании
                     TotalAmount = cart.TotalAmount,
-                    // Добавляем адрес и комментарий в описание заказа
                     Description = $"Адрес доставки: {address}. {(string.IsNullOrEmpty(comment) ? "" : $"Комментарий: {comment}")}"
                 };
 
@@ -279,38 +431,61 @@ namespace ComputerShop.Controllers
 
                 Console.WriteLine($"Order created with ID: {order.Id}");
 
-                // Добавляем товары в заказ
+                // Обрабатываем товары в корзине
                 foreach (var item in cart.Items)
                 {
-                    var computer = await _context.Computers.FindAsync(item.ComputerId);
-                    if (computer != null)
+                    if (item.IsComputer)
                     {
-                        // Проверяем наличие
-                        if (computer.Quantity < item.Quantity)
+                        // Обработка компьютера
+                        var computer = await _context.Computers.FindAsync(item.ComputerId);
+                        if (computer != null)
                         {
-                            throw new Exception($"Недостаточно товара '{computer.Name}' в наличии. Доступно: {computer.Quantity}, Заказано: {item.Quantity}");
+                            // Проверяем наличие еще раз перед списанием
+                            if (computer.Quantity < item.Quantity)
+                            {
+                                throw new Exception($"Недостаточно компьютеров '{computer.Name}' в наличии при обработке заказа");
+                            }
+
+                            computer.Quantity -= item.Quantity;
+                            _context.Computers.Update(computer);
+
+                            var computerOrder = new ComputerOrder
+                            {
+                                OrderId = order.Id,
+                                ComputerId = item.ComputerId,
+                                Quantity = item.Quantity,
+                                UnitPrice = item.Price
+                            };
+
+                            _context.ComputerOrders.Add(computerOrder);
                         }
-
-                        // Уменьшаем количество на складе
-                        computer.Quantity -= item.Quantity;
-                        _context.Computers.Update(computer);
-
-                        // Добавляем в заказ
-                        var computerOrder = new ComputerOrder
-                        {
-                            OrderId = order.Id,
-                            ComputerId = item.ComputerId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.Price
-                        };
-
-                        _context.ComputerOrders.Add(computerOrder);
-
-                        Console.WriteLine($"Added to order: {computer.Name}, Qty: {item.Quantity}, Price: {item.Price}");
                     }
-                    else
+                    else if (item.IsComponent)
                     {
-                        throw new Exception($"Компьютер с ID {item.ComputerId} не найден");
+                        // Обработка компонента
+                        var component = await _context.Components.FindAsync(item.ComponentId);
+                        if (component != null)
+                        {
+                            // Проверяем наличие еще раз перед списанием
+                            if (component.Quantity < item.Quantity)
+                            {
+                                throw new Exception($"Недостаточно комплектующих '{component.Name}' в наличии при обработке заказа");
+                            }
+
+                            component.Quantity -= item.Quantity;
+                            _context.Components.Update(component);
+
+                            // ИСПРАВЛЕННАЯ ЧАСТЬ: не устанавливаем навигационные свойства вручную
+                            var componentOrder = new ComponentOrder
+                            {
+                                OrderId = order.Id,
+                                ComponentId = item.ComponentId,
+                                Quantity = item.Quantity,
+                                UnitPrice = item.Price
+                            };
+
+                            _context.ComponentOrders.Add(componentOrder);
+                        }
                     }
                 }
 
@@ -322,21 +497,8 @@ namespace ComputerShop.Controllers
                 TempData["SuccessMessage"] = $"Заказ #{order.Id} успешно оформлен! Сумма: {order.TotalAmount:C}";
                 return RedirectToAction("MyOrders", "Order");
             }
-            catch (DbUpdateException dbEx)
-            {
-                // Логируем детали ошибки базы данных
-                Console.WriteLine($"Database update error: {dbEx.Message}");
-                Console.WriteLine($"Inner exception: {dbEx.InnerException?.Message}");
-
-                TempData["ErrorMessage"] = $"Ошибка базы данных при оформлении заказа: {dbEx.InnerException?.Message ?? dbEx.Message}";
-                return RedirectToAction("Checkout");
-            }
             catch (Exception ex)
             {
-                // Логируем общую ошибку
-                Console.WriteLine($"Order completion error: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-
                 TempData["ErrorMessage"] = $"Ошибка при оформлении заказа: {ex.Message}";
                 return RedirectToAction("Checkout");
             }

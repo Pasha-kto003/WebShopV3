@@ -25,9 +25,12 @@ namespace WebShopV3.Controllers
                 .Include(o => o.OrderType)
                 .Include(o => o.Status)
                 .Include(o => o.ComputerOrders)
-                .ThenInclude(co => co.Computer)
+                    .ThenInclude(co => co.Computer)
+                .Include(o => o.ComponentOrders) // Добавляем загрузку компонентов
+                    .ThenInclude(co => co.Component)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
+
 
             return View(orders);
         }
@@ -42,7 +45,9 @@ namespace WebShopV3.Controllers
                 .Include(o => o.OrderType)
                 .Include(o => o.Status)
                 .Include(o => o.ComputerOrders)
-                .ThenInclude(co => co.Computer)
+                    .ThenInclude(co => co.Computer)
+                .Include(o => o.ComponentOrders) // Добавляем загрузку компонентов
+                    .ThenInclude(co => co.Component)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
@@ -63,6 +68,8 @@ namespace WebShopV3.Controllers
                 .Include(o => o.Status)
                 .Include(o => o.ComputerOrders)
                 .ThenInclude(co => co.Computer)
+                .Include(o => o.ComponentOrders) // Добавляем загрузку компонентов
+                .ThenInclude(co => co.Component)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (order == null)
@@ -457,7 +464,7 @@ namespace WebShopV3.Controllers
                 var order = await _context.Orders.FindAsync(id);
                 if (order != null)
                 {
-                    order.StatusId = 1; // Завершен
+                    order.StatusId = 4; // Завершен
                     _context.Update(order);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Заказ отмечен как выполненный!";

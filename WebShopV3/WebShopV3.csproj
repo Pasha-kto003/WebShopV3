@@ -7,19 +7,58 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\Images\1.jpg" />
+    <Content Remove="wwwroot\Images\10.jpg" />
+    <Content Remove="wwwroot\Images\2.jpg" />
+    <Content Remove="wwwroot\Images\3.jpg" />
+    <Content Remove="wwwroot\Images\4.jpg" />
+    <Content Remove="wwwroot\Images\5.jpg" />
+    <Content Remove="wwwroot\Images\6.jpg" />
+    <Content Remove="wwwroot\Images\7.jpg" />
+    <Content Remove="wwwroot\Images\8.jpg" />
+    <Content Remove="wwwroot\Images\9.jpg" />
     <Content Remove="wwwroot\Images\image %2834%29.png" />
     <Content Remove="wwwroot\Images\image %2839%29.png" />
     <Content Remove="wwwroot\Images\photo_2025-03-06_17-50-02.jpg" />
+    <Content Remove="wwwroot\Images\sddefault.jpg" />
     <Content Remove="wwwroot\Images\Кобылка.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="wwwroot\Images\movie-thm01-ts-2103300411240000.jpeg">
+    <Resource Include="wwwroot\Images\computers\2.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\3.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\5.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\4.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\6.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\7.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\8.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\9.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\1.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\movie-thm01-ts-2103300411240000.jpeg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FreeSpire.XLS" Version="14.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
@@ -30,16 +69,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="wwwroot\Images\image (34).png">
+    <Resource Include="wwwroot\Images\computers\image %2834%29.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="wwwroot\Images\image (39).png">
+    <Resource Include="wwwroot\Images\computers\image %2839%29.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="wwwroot\Images\photo_2025-03-06_17-50-02.jpg">
+    <Resource Include="wwwroot\Images\computers\photo_2025-03-06_17-50-02.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="wwwroot\Images\Кобылка.png">
+    <Resource Include="wwwroot\Images\computers\10.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\sddefault.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\Кобылка.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

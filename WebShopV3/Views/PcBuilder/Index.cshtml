@@ -291,8 +291,9 @@
                         @(ViewBag.ComputerId != null ? "Редактирование конфигурации" : "Ваша конфигурация")
                     </h2>
         
-                    <!-- Поля для названия и описания -->
+                    <!-- Поля для названия, описания и фотографии -->
                     <div class="mb-6 space-y-4">
+                        <!-- Поле для названия -->
                         <div>
                             <label for="computerName" class="block text-sm font-medium text-gray-300 mb-2">
                                 Название компьютера *
@@ -306,6 +307,7 @@
                             <div class="text-xs text-gray-400 mt-1" id="nameCounter">0/100</div>
                         </div>
             
+                        <!-- Поле для описания -->
                         <div>
                             <label for="computerDescription" class="block text-sm font-medium text-gray-300 mb-2">
                                 Описание
@@ -316,6 +318,36 @@
                                       placeholder="Описание конфигурации (необязательно)"
                                       maxlength="500">@ViewBag.ComputerDescription</textarea>
                             <div class="text-xs text-gray-400 mt-1" id="descriptionCounter">0/500</div>
+                        </div>
+
+                        <!-- Поле для загрузки фотографии -->
+                        <!-- Поле для загрузки фотографии -->
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">
+                                Фотография компьютера
+                            </label>
+    
+                            <!-- Простое поле выбора файла -->
+                            <input type="file" id="computerImage" name="ImageFile" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                                   accept=".jpg,.jpeg,.png,.webp"/>
+    
+                            <p class="text-gray-400 text-sm mt-1">PNG, JPG, JPEG, WebP (макс. 5MB)</p>
+    
+                            <!-- Отображение текущего изображения при редактировании -->
+                            @if (ViewBag.ComputerId != null && !string.IsNullOrEmpty(ViewBag.ComputerImageUrl))
+                            {
+                                <div class="mt-3">
+                                    <p class="text-sm text-gray-400 mb-2">Текущее изображение:</p>
+                                    <div class="relative inline-block">
+                                        <img src="@ViewBag.ComputerImageUrl" class="w-32 h-32 object-cover rounded-lg border border-gray-600" 
+                                             alt="Текущее изображение компьютера">
+                                        <span class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">
+                                            Текущее
+                                        </span>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
         
@@ -330,10 +362,23 @@
                         <!-- Результаты проверки совместимости -->
                     </div>
 
+
+                    <!-- В правой колонке, перед кнопкой сохранения -->
                     <div class="border-t border-gray-700 pt-4">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-gray-400">Итого:</span>
-                            <span id="totalPrice" class="text-2xl font-bold text-primary">0 ₽</span>
+                        <!-- Отображение расчета цены -->
+                        <div class="mb-4 space-y-2 text-sm">
+                            <div class="flex justify-between text-gray-400">
+                                <span>Сумма компонентов:</span>
+                                <span id="componentsTotal">0 ₽</span>
+                            </div>
+                            <div class="flex justify-between text-gray-400">
+                                <span>Наценка (10%):</span>
+                                <span id="markupAmount">0 ₽</span>
+                            </div>
+                            <div class="flex justify-between items-center text-lg border-t border-gray-600 pt-2">
+                                <span class="text-white font-semibold">Итоговая цена:</span>
+                                <span id="totalPrice" class="text-2xl font-bold text-primary">0 ₽</span>
+                            </div>
                         </div>
 
                         <button id="saveConfiguration" 
@@ -341,7 +386,7 @@
                                 disabled>
                             @(ViewBag.ComputerId != null ? "Обновить конфигурацию" : "Сохранить конфигурацию")
                         </button>
-            
+    
                         @if (ViewBag.ComputerId != null)
                         {
                             <a href="@Url.Action("Details", "Computer", new { id = ViewBag.ComputerId })" 
@@ -361,6 +406,40 @@
     <script>
         let selectedComponents = [];
         let totalPrice = 0;
+        let componentsTotalPrice = 0;
+        let markupAmount = 0;
+
+        function calculatePrices() {
+            // Сумма компонентов
+            componentsTotalPrice = selectedComponents.reduce((sum, component) => sum + component.price, 0);
+    
+            // Наценка 10%
+            markupAmount = componentsTotalPrice * 0.1;
+    
+            // Итоговая цена
+            totalPrice = componentsTotalPrice + markupAmount;
+    
+            // Обновляем отображение
+            updatePriceDisplay();
+        }
+        // Обновление отображения цен
+        function updatePriceDisplay() {
+            const componentsTotalElement = document.getElementById('componentsTotal');
+            const markupAmountElement = document.getElementById('markupAmount');
+            const totalPriceElement = document.getElementById('totalPrice');
+    
+            if (componentsTotalElement) {
+                componentsTotalElement.textContent = formatPrice(componentsTotalPrice);
+            }
+    
+            if (markupAmountElement) {
+                markupAmountElement.textContent = formatPrice(markupAmount);
+            }
+    
+            if (totalPriceElement) {
+                totalPriceElement.textContent = formatPrice(totalPrice);
+            }
+        }
 
         // Инициализация при загрузке страницы
         // Переключение выбора компонента
@@ -397,17 +476,13 @@
             updateConfigurationDisplay();
             updateComponentCards();
             checkCompatibility();
+            calculatePrices();
         }
 
-        // Обновление отображения конфигурации
+        // Обновляем функцию updateConfigurationDisplay (убираем расчет цены оттуда)
         function updateConfigurationDisplay() {
             const configurationList = document.getElementById('configurationList');
-            const totalPriceElement = document.getElementById('totalPrice');
             const saveButton = document.getElementById('saveConfiguration');
-
-            // Пересчитываем общую цену
-            totalPrice = selectedComponents.reduce((sum, component) => sum + component.price, 0);
-            totalPriceElement.textContent = formatPrice(totalPrice);
 
             if (selectedComponents.length === 0) {
                 configurationList.innerHTML = `
@@ -541,45 +616,7 @@
             }
         }
 
-        // Сохранение конфигурации
-        async function saveConfiguration() {
-            const configurationName = prompt('Введите название для вашей конфигурации:');
-            if (!configurationName) return;
-
-            const configuration = {
-                name: configurationName,
-                description: `Собранный ПК: ${selectedComponents.map(c => c.name).join(', ')}`,
-                totalPrice: totalPrice,
-                componentIds: selectedComponents.map(c => c.id),
-                computerId: @(ViewBag.ComputerId ?? "null") // Для редактирования
-            };
-
-            try {
-                const response = await fetch('@Url.Action("SaveConfiguration", "PcBuilder")', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                    },
-                    body: JSON.stringify(configuration)
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result.success) {
-                        alert('Конфигурация успешно сохранена!');
-                    } else {
-                        alert('Ошибка при сохранении конфигурации');
-                    }
-                } else {
-                    throw new Error('Ошибка сети');
-                }
-            } catch (error) {
-                alert('Ошибка при сохранении конфигурации: ' + error.message);
-            }
-        }
-
-        // Вспомогательные функции
+        // Вспомогательная функция для форматирования цены
         function formatPrice(price) {
             return new Intl.NumberFormat('ru-RU', {
                 style: 'currency',
@@ -587,6 +624,282 @@
                 minimumFractionDigits: 0
             }).format(price);
         }
+
+    function setupImageUpload() {
+        const imageInput = document.getElementById('computerImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        const removeImageBtn = document.getElementById('removeImage');
+        const currentImage = document.getElementById('currentImage');
+        const uploadArea = imageInput.closest('label');
+
+        // Добавляем обработчики для drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('border-primary', 'bg-primary/10');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary', 'bg-primary/10');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary', 'bg-primary/10');
+        
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                imageInput.files = files;
+                handleImageSelection(files[0]);
+            }
+        });
+
+        // Обработчик выбора файла через диалог
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageSelection(file);
+            }
+        });
+
+        // Функция обработки выбранного изображения
+        function handleImageSelection(file) {
+            // Проверяем размер файла (макс. 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Файл слишком большой. Максимальный размер: 5MB');
+                imageInput.value = '';
+                return;
+            }
+
+            // Проверяем тип файла
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                alert('Пожалуйста, выберите файл в формате JPG, PNG или WebP');
+                imageInput.value = '';
+                return;
+            }
+
+            // Показываем превью
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+                imagePreview.classList.add('animate-fade-in');
+            
+                // Скрываем текущее изображение при загрузке нового
+                if (currentImage) {
+                    currentImage.classList.add('hidden');
+                }
+
+                // Меняем текст в области загрузки
+                uploadArea.querySelector('p').textContent = 'Файл выбран: ' + file.name;
+            };
+            reader.onerror = function() {
+                alert('Ошибка при чтении файла');
+                imageInput.value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Обработчик удаления изображения
+        removeImageBtn.addEventListener('click', function() {
+            imageInput.value = '';
+            imagePreview.classList.add('hidden');
+        
+            // Восстанавливаем текст в области загрузки
+            uploadArea.querySelector('p').textContent = 'Нажмите для загрузки';
+        
+            // Показываем текущее изображение обратно
+            if (currentImage) {
+                currentImage.classList.remove('hidden');
+            }
+        });
+    }
+
+        // Счетчики символов для полей ввода
+        function setupInputCounters() {
+            const nameInput = document.getElementById('computerName');
+            const descriptionInput = document.getElementById('computerDescription');
+            const nameCounter = document.getElementById('nameCounter');
+            const descriptionCounter = document.getElementById('descriptionCounter');
+
+            function updateCounter(input, counter, maxLength) {
+                const count = input.value.length;
+                counter.textContent = `${count}/${maxLength}`;
+        
+                if (count > maxLength * 0.8) {
+                    counter.className = 'text-xs text-yellow-400 mt-1';
+                } else {
+                    counter.className = 'text-xs text-gray-400 mt-1';
+                }
+            }
+
+            nameInput.addEventListener('input', () => {
+                updateCounter(nameInput, nameCounter, 100);
+            });
+
+            descriptionInput.addEventListener('input', () => {
+                updateCounter(descriptionInput, descriptionCounter, 500);
+            });
+
+            // Инициализируем счетчики
+            updateCounter(nameInput, nameCounter, 100);
+            updateCounter(descriptionInput, descriptionCounter, 500);
+        }
+        // Сохранение конфигурации
+        // Обновляем функцию saveConfiguration
+        async function saveConfiguration() {
+            const computerName = document.getElementById('computerName').value.trim();
+            const computerDescription = document.getElementById('computerDescription').value.trim();
+
+            const imageInput = document.getElementById('computerImage');
+            const imageFile = imageInput.files[0];
+
+            // Валидация названия
+            if (!computerName) {
+                alert('Пожалуйста, введите название конфигурации');
+                document.getElementById('computerName').focus();
+                return;
+            }
+
+            if (computerName.length > 100) {
+                alert('Название не должно превышать 100 символов');
+                document.getElementById('computerName').focus();
+                return;
+            }
+
+            if (computerDescription.length > 500) {
+                alert('Описание не должно превышать 500 символов');
+                document.getElementById('computerDescription').focus();
+                return;
+            }
+
+            // Проверяем, что выбраны обязательные компоненты
+            const requiredTypes = ['MB', 'CPU', 'RAM', 'PSU', 'Case'];
+            const missingTypes = requiredTypes.filter(type => 
+                !selectedComponents.some(sc => sc.type === type)
+            );
+
+            if (missingTypes.length > 0) {
+                const typeNames = {
+                    'MB': 'Материнская плата',
+                    'CPU': 'Процессор', 
+                    'RAM': 'Оперативная память',
+                    'PSU': 'Блок питания',
+                    'Case': 'Корпус'
+                };
+        
+                const missingNames = missingTypes.map(type => typeNames[type]).join(', ');
+                alert(`Пожалуйста, выберите обязательные компоненты: ${missingNames}`);
+                return;
+            }
+
+            // Валидация изображения
+            if (imageFile) {
+                // Проверяем размер файла (макс. 5MB)
+                if (imageFile.size > 5 * 1024 * 1024) {
+                    alert('Файл слишком большой. Максимальный размер: 5MB');
+                    return;
+                }
+
+                // Проверяем тип файла
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                if (!validTypes.includes(imageFile.type)) {
+                    alert('Пожалуйста, выберите файл в формате JPG, PNG или WebP');
+                    return;
+                }
+            }
+
+            // Показываем индикатор загрузки
+            const saveButton = document.getElementById('saveConfiguration');
+            const originalText = saveButton.innerHTML;
+            saveButton.disabled = true;
+            saveButton.innerHTML = `
+                <div class="inline-block animate-spin rounded-full h-5 w-5 border-b-2 border-dark mr-2"></div>
+                Сохранение...
+            `;
+
+            try {
+                // Создаем FormData для отправки файла
+                const formData = new FormData();
+                formData.append('Name', computerName);
+                formData.append('Description', computerDescription || `Собранный ПК: ${selectedComponents.map(c => c.name).join(', ')}`);
+                formData.append('Price', totalPrice.toString());
+                formData.append('Quantity', '1');
+        
+                // Добавляем компоненты
+                selectedComponents.forEach((component, index) => {
+                    formData.append('ComponentIds', component.id.toString());
+                });
+
+                // Добавляем ID компьютера если редактируем
+                const computerId = @(ViewBag.ComputerId ?? "null");
+                if (computerId) {
+                    formData.append('ComputerId', computerId.toString());
+                }
+
+                // Добавляем файл изображения если выбран
+                if (imageFile) {
+                    formData.append('ImageFile', imageFile);
+                }
+
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        
+                if (!token) {
+                    throw new Error('Токен безопасности не найден');
+                }
+
+                const response = await fetch('@Url.Action("SaveConfiguration", "PcBuilder")', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(result.message);
+                        window.location.href = '@Url.Action("Details", "Computer")' + `/${result.computerId}`;
+                    } else {
+                        alert('Ошибка при сохранении конфигурации: ' + (result.message || 'Неизвестная ошибка'));
+                    }
+                } else {
+                    throw new Error('Ошибка сервера при сохранении');
+                }
+            } catch (error) {
+                console.error('Ошибка при сохранении конфигурации:', error);
+                alert('Ошибка при сохранении конфигурации: ' + error.message);
+            } finally {
+                // Восстанавливаем кнопку
+                saveButton.disabled = false;
+                saveButton.innerHTML = originalText;
+            }
+        }
+
+        // Упрощенная инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('saveConfiguration').addEventListener('click', saveConfiguration);
+            
+            setupInputCounters();
+            calculatePrices();
+
+            // Если это режим редактирования, выбираем компоненты
+            const selectedComponentIds = @Html.Raw(Json.Serialize(ViewBag.SelectedComponentIds ?? new List<int>()));
+    
+            if (selectedComponentIds && selectedComponentIds.length > 0) {
+                setTimeout(() => {
+                    selectedComponentIds.forEach(componentId => {
+                        const componentCard = document.querySelector(`[data-component-id="${componentId}"]`);
+                        if (componentCard) {
+                            componentCard.click();
+                        }
+                    });
+                }, 500);
+            }
+        });
 
         function getComponentTypeName(type) {
             const typeNames = {
@@ -602,31 +915,24 @@
             return typeNames[type] || type;
         }
 
-        // Настройка обработчиков событий
+        // Обновляем инициализацию
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('saveConfiguration').addEventListener('click', saveConfiguration);
-        });
-        // Добавьте инициализацию выбранных компонентов при редактировании
-        document.addEventListener('DOMContentLoaded', function() {
+            setupInputCounters();
+            setupImageUpload();
+    
             // Если это режим редактирования, выбираем компоненты
             const selectedComponentIds = @Html.Raw(Json.Serialize(ViewBag.SelectedComponentIds ?? new List<int>()));
     
             if (selectedComponentIds && selectedComponentIds.length > 0) {
-                // Автоматически выбираем компоненты из редактируемого компьютера
-                selectedComponentIds.forEach(componentId => {
-                    const componentCard = document.querySelector(`[data-component-id="${componentId}"]`);
-                    if (componentCard) {
-                        componentCard.click(); // Имитируем клик для выбора
-                    }
-                });
-            }
-
-            // Обновляем поля названия и описания если это редактирование
-            const computerName = '@Html.Raw(ViewBag.ComputerName ?? "")';
-            const computerDescription = '@Html.Raw(ViewBag.ComputerDescription ?? "")';
-    
-            if (computerName) {
-                // Можно добавить поля для редактирования названия и описания
+                setTimeout(() => {
+                    selectedComponentIds.forEach(componentId => {
+                        const componentCard = document.querySelector(`[data-component-id="${componentId}"]`);
+                        if (componentCard) {
+                            componentCard.click();
+                        }
+                    });
+                }, 500);
             }
         });
     </script>
@@ -660,6 +966,56 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+        /* Стили для загрузки изображений */
+        .image-upload-area {
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-area:hover {
+            border-color: #00ff88;
+            background-color: rgba(0, 255, 136, 0.05);
+        }
+
+        .image-upload-area.dragover {
+            border-color: #00ff88;
+            background-color: rgba(0, 255, 136, 0.1);
+        }
+
+        /* Анимация для превью */
+        #imagePreview {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* Стили для текущего изображения */
+        #currentImage img {
+            transition: transform 0.2s ease;
+        }
+
+        #currentImage img:hover {
+            transform: scale(1.05);
+        }
+        /* Анимация для кнопки загрузки */
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Стили для текущего изображения */
+        img {
+            transition: transform 0.2s ease;
+        }
+
+        img:hover {
+            transform: scale(1.05);
         }
     </style>
 }

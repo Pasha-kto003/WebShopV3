@@ -22,11 +22,12 @@ namespace WebShopV3.Models
         public virtual User User { get; set; }
         public virtual OrderType OrderType { get; set; }
         public virtual Status Status { get; set; }
-        public virtual ICollection<ComputerOrder> ComputerOrders { get; set; }
-
+        public virtual ICollection<ComputerOrder> ComputerOrders { get; set; } = new HashSet<ComputerOrder>();
+        public virtual ICollection<ComponentOrder> ComponentOrders { get; set; } = new HashSet<ComponentOrder>();
         public Order()
         {
             ComputerOrders = new HashSet<ComputerOrder>();
+            ComponentOrders = new HashSet<ComponentOrder>();
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿@model WebShopV3.Models.Computer
 @{
     ViewData["Title"] = "Подробности о компьютере";
+
+    @((Model.ComputerComponents.Sum(cc => cc.Component.Price) * 0.1m).ToString("C"))
 }
 
 <div class="min-h-screen bg-dark pt-20">
