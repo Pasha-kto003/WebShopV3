@@ -50,6 +50,9 @@ builder.Services.AddSession(options =>
 });
 builder.Services.AddScoped<CompatibilityService>();
 
+builder.Services.AddHttpClient<IYookassaService, YookassaService>();
+builder.Services.AddScoped<IYookassaService, YookassaService>();
+
 
 var app = builder.Build();
 

@@ -1,0 +1,38 @@
+﻿@model WebShopV3.Models.Order
+@{
+    ViewData["Title"] = "Оплата успешна";
+}
+
+<div class="min-h-screen bg-dark pt-20">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="bg-dark-card rounded-2xl p-8 border border-gray-800">
+            <div class="text-green-400 text-6xl mb-6">✅</div>
+            <h1 class="text-3xl font-bold text-white mb-4">Оплата прошла успешно!</h1>
+            <p class="text-gray-400 text-lg mb-6">
+                Ваш заказ <strong class="text-primary">#@Model.Id</strong> успешно оплачен.
+            </p>
+            <div class="bg-gray-800 rounded-lg p-6 mb-6">
+                <div class="grid grid-cols-2 gap-4 text-left">
+                    <div class="text-gray-400">Сумма заказа:</div>
+                    <div class="text-white font-bold">@Model.TotalAmount.ToString("C")</div>
+
+                    <div class="text-gray-400">Дата заказа:</div>
+                    <div class="text-white">@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</div>
+
+                    <div class="text-gray-400">Статус:</div>
+                    <div class="text-green-400 font-semibold">Оплачен</div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <a href="@Url.Action("MyOrders", "Order")"
+                   class="inline-block bg-primary text-dark px-8 py-3 rounded-lg font-bold hover:bg-primary/90 transition duration-300">
+                    Мои заказы
+                </a>
+                <a href="@Url.Action("Index", "Home")"
+                   class="inline-block bg-dark border border-gray-700 text-white px-8 py-3 rounded-lg font-bold hover:border-primary transition duration-300 ml-4">
+                    На главную
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

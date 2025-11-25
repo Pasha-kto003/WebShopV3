@@ -146,11 +146,12 @@
             </div>
 
             <!-- Правая колонка - Информация о заказе -->
+            <!-- Правая колонка - Информация о заказе -->
             <div class="lg:col-span-1">
                 <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 sticky top-24 checkout-summary">
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center">
                         <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
                         Ваш заказ
                     </h3>
@@ -168,7 +169,7 @@
                             </div>
                         }
                     </div>
-                    
+
                     <!-- Итоги -->
                     <div class="space-y-3 mb-6">
                         <div class="flex justify-between text-gray-400">
@@ -179,7 +180,7 @@
                             <span>Доставка</span>
                             <span class="text-green-400">Бесплатно</span>
                         </div>
-                        
+
                         <div class="border-t border-gray-700 pt-4">
                             <div class="flex justify-between items-center text-lg">
                                 <span class="text-white font-semibold">Итого</span>
@@ -190,25 +191,51 @@
 
                     <!-- Кнопки действий -->
                     <div class="space-y-3">
-                        <button type="submit" form="checkout-form" 
-                                class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center checkout-submit">
+                        <!-- Основная форма для обычного заказа -->
+                        <form id="checkout-form" asp-action="CompleteOrder" method="post" class="hidden">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="firstName" value="@firstName" />
+                            <input type="hidden" name="lastName" value="@lastName" />
+                            <input type="hidden" name="email" value="@email" />
+                            <input type="hidden" name="phone" value="@phone" />
+                            <input type="hidden" name="address" id="mainFormAddress" />
+                            <input type="hidden" name="comment" id="mainFormComment" />
+                            <input type="hidden" name="paymentType" value="direct" />
+                        </form>
+
+                        <!-- Форма для оплаты через ЮКассу -->
+                        <form id="yookassa-form" asp-action="ProcessYookassaPayment" method="post" class="hidden">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="firstName" value="@firstName" />
+                            <input type="hidden" name="lastName" value="@lastName" />
+                            <input type="hidden" name="email" value="@email" />
+                            <input type="hidden" name="phone" value="@phone" />
+                            <input type="hidden" name="address" id="yookassaFormAddress" />
+                            <input type="hidden" name="comment" id="yookassaFormComment" />
+                        </form>
+
+                        <!-- Кнопка обычного заказа -->
+                        <button type="button" id="direct-order-btn"
+                                class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center">
                             <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                             Подтвердить заказ
                         </button>
-                        <a asp-controller="Cart" asp-action="Final" 
-                           class="w-full bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 flex items-center justify-center checkout-action-btn">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                            </svg>
-                            Страница оплаты
-                        </a>
 
-                        <a href="@Url.Action("Index", "Cart")" 
-                           class="w-full bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 flex items-center justify-center checkout-action-btn">
+                        <!-- Кнопка оплаты через ЮКассу -->
+                        <button type="button" id="yookassa-order-btn"
+                                class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-blue-500/25 transition duration-300 flex items-center justify-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            Оплатить через ЮКассу
+                        </button>
+
+                        <a href="@Url.Action("Index", "Cart")"
+                           class="w-full bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 flex items-center justify-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
                             Вернуться в корзину
                         </a>
@@ -218,7 +245,7 @@
                     <div class="mt-6 pt-6 border-t border-gray-700 checkout-security">
                         <div class="flex items-center text-gray-400 text-sm">
                             <svg class="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                             Ваши данные защищены. Мы не передаем их третьим лицам.
                         </div>
@@ -248,11 +275,10 @@
                 }
             });
 
-            // Валидация формы
-            $('#checkout-form').on('submit', function(e) {
+            // Функция валидации формы
+            function validateForm() {
                 const address = $('textarea[name="address"]').val().trim();
                 if (address.length < 10) {
-                    e.preventDefault();
                     showNotification('Пожалуйста, укажите полный адрес доставки (не менее 10 символов)', 'error');
                     $('textarea[name="address"]').focus();
                     $('textarea[name="address"]').addClass('border-red-500');
@@ -263,7 +289,6 @@
 
                 const phone = $('input[name="phone"]').val().trim();
                 if (!isValidPhone(phone)) {
-                    e.preventDefault();
                     showNotification('Пожалуйста, укажите корректный номер телефона', 'error');
                     $('input[name="phone"]').focus();
                     $('input[name="phone"]').addClass('border-red-500');
@@ -272,34 +297,29 @@
                     $('input[name="phone"]').removeClass('border-red-500');
                 }
 
-                // Показываем индикатор загрузки
-                $('button[type="submit"]').prop('disabled', true).html(`
-                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-dark mr-2"></div>
-                    Оформляем заказ...
-                `);
-            });
+                return true;
+            }
 
             function isValidPhone(phone) {
-                // Простая валидация телефона
                 const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
                 return phoneRegex.test(phone);
             }
 
             function showNotification(message, type = 'success') {
                 const alertClass = type === 'success' ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-red-500/20 border-red-500/30 text-red-400';
-                
+
                 const notification = $(`
                     <div class="fixed top-4 right-4 z-50 p-4 rounded-lg border backdrop-blur-sm transition-transform duration-300 transform translate-x-full ${alertClass}">
                         ${message}
                     </div>
                 `);
-                
+
                 $('body').append(notification);
-                
+
                 setTimeout(() => {
                     notification.removeClass('translate-x-full');
                 }, 100);
-                
+
                 setTimeout(() => {
                     notification.addClass('translate-x-full');
                     setTimeout(() => {
@@ -307,6 +327,52 @@
                     }, 300);
                 }, 4000);
             }
+
+            // Обработка кнопки обычного заказа
+            $('#direct-order-btn').on('click', function() {
+                if (!validateForm()) {
+                    return false;
+                }
+
+                // Копируем данные из видимых полей в скрытые поля формы
+                const address = $('textarea[name="address"]').val();
+                const comment = $('textarea[name="comment"]').val();
+
+                $('#mainFormAddress').val(address);
+                $('#mainFormComment').val(comment);
+
+                // Показываем индикатор загрузки
+                $(this).prop('disabled', true).html(`
+                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-dark mr-2"></div>
+                    Оформляем заказ...
+                `);
+
+                // Отправляем форму
+                $('#checkout-form').submit();
+            });
+
+            // Обработка кнопки оплаты через ЮКассу
+            $('#yookassa-order-btn').on('click', function() {
+                if (!validateForm()) {
+                    return false;
+                }
+
+                // Копируем данные из видимых полей в скрытые поля формы ЮКассы
+                const address = $('textarea[name="address"]').val();
+                const comment = $('textarea[name="comment"]').val();
+
+                $('#yookassaFormAddress').val(address);
+                $('#yookassaFormComment').val(comment);
+
+                // Показываем индикатор загрузки
+                $(this).prop('disabled', true).html(`
+                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-2"></div>
+                    Перенаправляем на оплату...
+                `);
+
+                // Отправляем форму ЮКассы
+                $('#yookassa-form').submit();
+            });
 
             // Загружаем сохраненный адрес при загрузке страницы
             loadSavedAddress();
@@ -342,25 +408,26 @@
         .animate-fade-in {
             animation: fadeIn 0.6s ease-in-out;
         }
-        
+
         input:focus, textarea:focus {
             border-color: #00ff88;
             box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
         }
-        
+
         .border-red-500 {
             border-color: #ef4444 !important;
             box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
         }
-        
+
         @@keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
