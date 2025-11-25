@@ -39,7 +39,6 @@ namespace ComputerShop.Controllers
 
         // POST: Cart/AddToCart
         // POST: Cart/AddToCart - универсальный метод для компьютеров и компонентов
-        // GET и POST для добавления в корзину
         [HttpGet]
         [HttpPost]
         public async Task<IActionResult> AddToCart(int? computerId, int? componentId, int quantity = 1)
@@ -160,7 +159,6 @@ namespace ComputerShop.Controllers
 
 
         // POST: Cart/UpdateQuantity
-        // POST: Cart/UpdateQuantity - универсальный метод
         [HttpPost]
         public async Task<IActionResult> UpdateQuantity(int? computerId, int? componentId, int quantity)
         {
@@ -379,10 +377,8 @@ namespace ComputerShop.Controllers
 
             try
             {
-                // Получаем ID текущего пользователя
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
-                // ПРЕДВАРИТЕЛЬНАЯ ПРОВЕРКА НАЛИЧИЯ ТОВАРОВ
                 foreach (var item in cart.Items)
                 {
                     if (item.IsComputer)
@@ -403,7 +399,6 @@ namespace ComputerShop.Controllers
                     }
                 }
 
-                // Обновляем данные пользователя
                 var user = await _context.Users.FindAsync(userId);
                 if (user != null)
                 {
@@ -415,7 +410,6 @@ namespace ComputerShop.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                // Создаем заказ со статусом "Ожидает оплаты"
                 var order = new Order
                 {
                     UserId = userId,
@@ -429,7 +423,6 @@ namespace ComputerShop.Controllers
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                // Добавляем товары в заказ (но НЕ списываем со склада пока оплата не пройдет)
                 foreach (var item in cart.Items)
                 {
                     if (item.IsComputer)
@@ -469,7 +462,6 @@ namespace ComputerShop.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateYookassaOrder()
         {
-            // Перенаправляем на Checkout с сообщением
             TempData["ErrorMessage"] = "Для оплаты через ЮКассу необходимо заполнить форму на странице оформления заказа";
             return RedirectToAction("Checkout");
         }
@@ -498,10 +490,8 @@ namespace ComputerShop.Controllers
 
             try
             {
-                // Получаем ID текущего пользователя
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
-                // ПРЕДВАРИТЕЛЬНАЯ ПРОВЕРКА НАЛИЧИЯ ТОВАРОВ
                 foreach (var item in cart.Items)
                 {
                     if (item.IsComputer)
@@ -524,7 +514,6 @@ namespace ComputerShop.Controllers
                     }
                 }
 
-                // Обновляем данные пользователя
                 var user = await _context.Users.FindAsync(userId);
                 if (user != null)
                 {
@@ -536,7 +525,6 @@ namespace ComputerShop.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                // Создаем заказ со статусом "Ожидает оплаты"
                 var order = new Order
                 {
                     UserId = userId,
@@ -550,7 +538,6 @@ namespace ComputerShop.Controllers
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                // Добавляем товары в заказ (без списания со склада)
                 foreach (var item in cart.Items)
                 {
                     if (item.IsComputer)
@@ -579,7 +566,6 @@ namespace ComputerShop.Controllers
 
                 await _context.SaveChangesAsync();
 
-                // Перенаправляем на оплату
                 return RedirectToAction("Process", "Payment", new { orderId = order.Id, amount = cart.TotalAmount });
             }
             catch (Exception ex)
@@ -612,10 +598,8 @@ namespace ComputerShop.Controllers
 
             try
             {
-                // Получаем ID текущего пользователя
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
-                // ПРЕДВАРИТЕЛЬНАЯ ПРОВЕРКА НАЛИЧИЯ ТОВАРОВ
                 foreach (var item in cart.Items)
                 {
                     if (item.IsComputer)
@@ -638,7 +622,6 @@ namespace ComputerShop.Controllers
                     }
                 }
 
-                // Обновляем данные пользователя
                 var user = await _context.Users.FindAsync(userId);
                 if (user != null)
                 {
@@ -650,7 +633,6 @@ namespace ComputerShop.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                // Создаем заказ со статусом "Ожидает оплаты"
                 var order = new Order
                 {
                     UserId = userId,
@@ -664,7 +646,6 @@ namespace ComputerShop.Controllers
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                // Добавляем товары в заказ
                 foreach (var item in cart.Items)
                 {
                     if (item.IsComputer)
@@ -693,9 +674,6 @@ namespace ComputerShop.Controllers
 
                 await _context.SaveChangesAsync();
 
-                // НЕ очищаем корзину - оставим до успешной оплаты
-
-                // Создаем платеж в ЮКассе и перенаправляем пользователя
                 var paymentRequest = new PaymentRequest
                 {
                     Amount = cart.TotalAmount,
@@ -740,7 +718,6 @@ namespace ComputerShop.Controllers
 
             try
             {
-                // Получаем ID текущего пользователя
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
                 // ПРЕДВАРИТЕЛЬНАЯ ПРОВЕРКА НАЛИЧИЯ ТОВАРОВ
@@ -764,7 +741,6 @@ namespace ComputerShop.Controllers
                     }
                 }
 
-                // Обновляем данные пользователя
                 var user = await _context.Users.FindAsync(userId);
                 if (user != null)
                 {
@@ -776,7 +752,6 @@ namespace ComputerShop.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                // Создаем заказ
                 var order = new Order
                 {
                     UserId = userId,
@@ -790,7 +765,7 @@ namespace ComputerShop.Controllers
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                // Добавляем товары в заказ и списываем со склада
+
                 foreach (var item in cart.Items)
                 {
                     if (item.IsComputer)

@@ -17,7 +17,7 @@ namespace WebShopV3.Controllers
             _context = context;
         }
 
-        // GET: Payment/Process
+        // POST: Payment/Process
         [HttpPost]
         public async Task<IActionResult> Process(int orderId, decimal amount)
         {
@@ -120,7 +120,6 @@ namespace WebShopV3.Controllers
         {
             try
             {
-                // Загружаем заказ с связанными данными
                 var order = await _context.Orders
                     .Include(o => o.ComputerOrders)
                     .ThenInclude(co => co.Computer)
@@ -214,6 +213,7 @@ namespace WebShopV3.Controllers
         }
 
         // GET: Payment/Failure
+        [HttpGet]
         public IActionResult Failure(int orderId)
         {
             TempData["ErrorMessage"] = "Оплата не была завершена. Пожалуйста, попробуйте еще раз.";
