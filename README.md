@@ -60,6 +60,7 @@
 "ConnectionStrings": {
   "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=WebShopV3Db;Trusted_Connection=true;"
 }
+```
 
 6. **Примените миграции (если есть):**
    dotnet ef database update
