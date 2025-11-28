@@ -65,4 +65,5 @@
 6. **Запустите приложение:**
    - Через Visual Studio (F5)
    - Или через терминал:
-   - dotnet run
+   ```PM 
+     dotnet run
