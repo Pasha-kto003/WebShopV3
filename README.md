@@ -53,16 +53,16 @@
    ```bash
    git clone https://github.com/Pasha-kto003/WebShopV3.git
 
-2. Откройте решение в Visual Studio 2022 (или новее).
-3. Восстановите зависимости NuGet (обычно происходит автоматически).
-4. Настройте строку подключения в appsettings.json:
+2. **Откройте решение в Visual Studio 2022 (или новее).**
+3. **Восстановите зависимости NuGet (обычно происходит автоматически).**
+4. **Настройте строку подключения в appsettings.json:**
 "ConnectionStrings": {
   "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=WebShopV3Db;Trusted_Connection=true;"
 }
 
-5. Примените миграции (если есть):
+5. **Примените миграции (если есть):**
    dotnet ef database update
-6. Запустите приложение:
+6. **Запустите приложение:**
    - Через Visual Studio (F5)
    - Или через терминал:
    - dotnet run
