@@ -29,10 +29,10 @@
 
 - **Язык программирования**: C# 10+
 - **Фреймворк**: ASP.NET Core 6.0+ (MVC)
-- **База данных**: Microsoft SQL Server (LocalDB / Express / Full)
+- **База данных**: Microsoft SQL Server
 - **Entity Framework Core**: для ORM и миграций
-- **Frontend**: HTML5, CSS3, Bootstrap 5, JavaScript (без фреймворков)
-- **Аутентификация**: Identity (если реализована)
+- **Frontend**: HTML5, CSS3, Tailwind, JavaScript (без фреймворков)
+- **Аутентификация**: Identity + SQL
 - **Инструменты**: Visual Studio 2022, SQL Server Management Studio
 
 ---
