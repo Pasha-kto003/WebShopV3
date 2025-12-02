@@ -56,7 +56,12 @@ namespace WebShopV3.Controllers
         [Authorize(Roles = "Админ")]
         public async Task<IActionResult> Create(Component component)
         {
-
+            component.FormFactor = "";
+            component.MaxMemory = 0;
+            component.MemorySlots = 0;
+            component.MemoryType = "";
+            component.PowerConnector = "";
+            component.Socket = "";
             _context.Add(component);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -100,6 +105,18 @@ namespace WebShopV3.Controllers
             {
                 try
                 {
+                    if(component.FormFactor == null)
+                        component.FormFactor = "";
+                    if(component.MaxMemory == null)
+                        component.MaxMemory = 0;
+                    if(component.MemorySlots == null)
+                        component.MemorySlots = 0;
+                    if(component.MemoryType == null)
+                        component.MemoryType = "";
+                    if(component.PowerConnector == null)
+                        component.PowerConnector = "";
+                    if(component.Socket == null)
+                        component.Socket = "";
                     _context.Update(component);
                     await _context.SaveChangesAsync();
 

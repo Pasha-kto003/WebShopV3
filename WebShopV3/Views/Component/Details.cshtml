@@ -1,10 +1,10 @@
 ﻿@model WebShopV3.Models.Component
 @{
-    ViewData["Title"] = "Подробности о комплектующем";
+    ViewData["Title"] = Model.Name;
 }
 
 <div class="min-h-screen bg-dark pt-20">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Заголовок -->
         <div class="text-center mb-12">
             <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6 component-details-icon">
@@ -20,7 +20,24 @@
             </p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <div class="bg-gradient-to-br from-blue-400/20 to-blue-400/10 rounded-2xl p-8 flex items-center justify-center">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="/Images/components/@Model.ImageUrl" 
+                                 alt="@Model.Name" 
+                                 class="w-full max-h-96 object-contain rounded-xl"
+                                 onerror="this.onerror=null; this.src='/Images/components/default-component.jpg'"/>
+                        }
+                        else
+                        {
+                            <span class="text-8xl text-blue-400">
+                                @GetComponentIcon(Model.Type)
+                            </span>
+                        }
+                    </div>
+                </div>
             <!-- Основная информация -->
             <div class="lg:col-span-2">
                 <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl mb-8 component-main-info">
@@ -264,6 +281,23 @@
             0 => "bg-red-500/20 text-red-400 border border-red-500/30",
             < 5 => "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
             _ => "bg-green-500/20 text-green-400 border border-green-500/30"
+        };
+    }
+
+    public string GetComponentIcon(string type)
+    {
+        return type?.ToLower() switch
+        {
+            "cpu" => "🔴",
+            "gpu" => "🟢", 
+            "ram" => "🟡",
+            "mb" => "🔵",
+            "psu" => "🟣",
+            "ssd" => "🟠",
+            "hdd" => "🟤",
+            "case" => "⚫",
+            "cooler" => "❄️",
+            _ => "⚙️"
         };
     }
 

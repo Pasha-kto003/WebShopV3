@@ -154,6 +154,18 @@
                             <span asp-validation-for="Specifications" class="text-red-400 text-sm mt-1 block"></span>
                             <div class="text-gray-400 text-xs mt-1 text-right char-counter" data-for="Specifications">@(Model.Specifications?.Length ?? 0) символов</div>
                         </div>
+                        <div>
+                            <label asp-for="ImageUrl" class="block text-sm font-semibold text-gray-300 mb-2">
+                                Изображение
+                            </label>
+                            <div class="mb-3">
+                                <span class="text-gray-400 text-sm">Текущее изображение: </span>
+                                <span class="text-primary font-medium">@Model.ImageUrl</span>
+                            </div>
+                            <input type="file" asp-for="ImageUrl" 
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-dark hover:file:bg-green-400 transition duration-200"/>
+                            <span asp-validation-for="ImageUrl" class="text-red-400 text-sm mt-1"></span>
+                        </div>
                     </div>
                 </div>
 

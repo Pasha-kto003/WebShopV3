@@ -22,6 +22,7 @@ namespace WebShopV3.Controllers
         [Authorize(Roles = "Админ,Менеджер")]
         public async Task<IActionResult> Index()
         {
+            
             return View(await _context.Computers.ToListAsync());
         }
 
@@ -82,6 +83,7 @@ namespace WebShopV3.Controllers
         [Authorize(Roles = "Админ")]
         public async Task<IActionResult> Create(Computer computer, int[] selectedComponents)
         {
+            
             // Рассчитываем цену компьютера как сумму цен комплектующих + 10%
             if (selectedComponents != null && selectedComponents.Any())
             {

@@ -89,4 +89,8 @@
     </Resource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\components\" />
+  </ItemGroup>
+
 </Project>

@@ -52,25 +52,86 @@
                 </div>
 
                 <!-- Миниатюры -->
-                @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                {
-                    <div class="grid grid-cols-4 gap-4">
-                        <button class="aspect-square rounded-xl bg-dark-card border border-gray-700 hover:border-primary transition duration-200 overflow-hidden thumbnail-button"
-                                data-image-src="/Images/computers/@Model.ImageUrl">
-                            <img src="/Images/computers/@Model.ImageUrl" 
-                                 alt="@Model.Name" class="w-full h-full object-cover">
-                        </button>
-                        <div class="aspect-square rounded-xl bg-dark-card border border-gray-700 flex items-center justify-center">
-                            <span class="text-gray-500 text-sm">🔄</span>
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                        </svg>
+                        Комплектующие
+                    </h3>
+    
+                    @if (Model.ComputerComponents != null && Model.ComputerComponents.Any())
+                    {
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            <!-- Основное изображение компьютера -->
+                            <button class="aspect-square rounded-xl bg-dark-card border-2 border-primary hover:border-primary/70 transition duration-200 overflow-hidden group component-thumbnail"
+                                    data-component-id="computer-@Model.Id"
+                                    data-component-name="@Model.Name"
+                                    data-component-image="/Images/computers/@Model.ImageUrl"
+                                    data-component-description="@Model.Description">
+                                <div class="relative w-full h-full">
+                                    <img src="/Images/computers/@Model.ImageUrl" 
+                                         alt="@Model.Name" 
+                                         class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+                                        <span class="text-white text-xs font-semibold line-clamp-1">Компьютер</span>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <!-- Миниатюры комплектующих -->
+                            @foreach (var computerComponent in Model.ComputerComponents)
+                            {
+                                var component = computerComponent.Component;
+                                if (component != null)
+                                {
+                                    <button class="aspect-square rounded-xl bg-dark-card border border-gray-700 hover:border-blue-400 transition duration-200 overflow-hidden group component-thumbnail"
+                                            data-component-id="@component.Id"
+                                            data-component-name="@component.Name"
+                                            data-component-type="@component.Type"
+                                            data-component-image="@(!string.IsNullOrEmpty(component.ImageUrl) ? "/Images/components/" + component.ImageUrl : "")"
+                                            data-component-description="@component.Description"
+                                            data-component-price="@component.Price"
+                                            data-component-specifications="@component.Specifications">
+                                        <div class="relative w-full h-full">
+                                            @if (!string.IsNullOrEmpty(component.ImageUrl))
+                                            {
+                                                <img src="/Images/components/@component.ImageUrl" 
+                                                     alt="@component.Name" 
+                                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                                     onerror="this.onerror=null; this.src=''">
+                                            }
+                                            else
+                                            {
+                                                <div class="w-full h-full bg-gradient-to-br from-blue-400/20 to-blue-400/10 flex items-center justify-center">
+                                                    <span class="text-3xl text-blue-400">
+                                                        @GetComponentIcon(component.Type)
+                                                    </span>
+                                                </div>
+                                            }
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+                                                <div>
+                                                    <span class="text-white text-xs font-semibold line-clamp-1">@component.Name</span>
+                                                    <div class="flex items-center justify-between mt-1">
+                                                        <span class="text-blue-300 text-xs">@component.Type</span>
+                                                        <span class="text-green-400 text-xs font-bold">@component.Price.ToString("C")</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                }
+                            }
                         </div>
-                        <div class="aspect-square rounded-xl bg-dark-card border border-gray-700 flex items-center justify-center">
-                            <span class="text-gray-500 text-sm">📐</span>
+                    }
+                    else
+                    {
+                        <div class="bg-dark-card rounded-xl p-8 border border-gray-700 text-center">
+                            <div class="text-4xl mb-4">🔧</div>
+                            <p class="text-gray-400">Комплектующие не указаны</p>
                         </div>
-                        <div class="aspect-square rounded-xl bg-dark-card border border-gray-700 flex items-center justify-center">
-                            <span class="text-gray-500 text-sm">🎨</span>
-                        </div>
-                    </div>
-                }
+                    }
+                </div>
 
                 <!-- Дополнительная информация -->
                 <div class="mt-8 grid grid-cols-2 gap-4 text-sm">
@@ -351,30 +412,215 @@
             </div>
         </div>
     </div>
+
 </div>
 
 @section Scripts {
     <script>
-        // Обработка миниатюр
-        document.querySelectorAll('.thumbnail-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const mainImage = document.getElementById('mainImage');
-                const newSrc = this.getAttribute('data-image-src');
-                mainImage.src = newSrc;
+        // Инициализация модального окна для деталей компонента
+        let componentModal = null;
+        
+        // Проверяем, существует ли уже модальное окно
+        if (!document.getElementById('componentModal')) {
+            componentModal = document.createElement('div');
+            componentModal.id = 'componentModal';
+            componentModal.className = 'fixed inset-0 bg-black/80 z-50 hidden items-center justify-center p-4';
+            componentModal.innerHTML = `
+                <div class="bg-dark-card rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-auto border border-gray-700">
+                    <div class="flex justify-between items-center p-6 border-b border-gray-700">
+                        <h3 class="text-xl font-bold text-white" id="modalComponentName"></h3>
+                        <button onclick="closeComponentModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Изображение компонента -->
+                            <div class="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4">
+                                <img id="modalComponentImage" src="" alt="" class="w-full h-auto rounded-lg">
+                            </div>
+                            <!-- Информация о компоненте -->
+                            <div>
+                                <div class="mb-4" id="modalComponentDescription"></div>
+                                <div class="space-y-3" id="modalComponentDetails"></div>
+                                <div class="mt-6 text-2xl font-bold text-primary" id="modalComponentPrice"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(componentModal);
+        }
+
+        function openComponentModal(component) {
+            document.getElementById('modalComponentName').textContent = component.name;
+            
+            const img = document.getElementById('modalComponentImage');
+            if (component.image) {
+                img.src = component.image;
+                img.alt = component.name;
+            } else {
+                img.style.display = 'none';
+            }
+            
+            const description = document.getElementById('modalComponentDescription');
+            if (component.description) {
+                description.innerHTML = `<p class="text-gray-300">${component.description}</p>`;
+            } else {
+                description.innerHTML = '<p class="text-gray-500">Описание отсутствует</p>';
+            }
+            
+            const details = document.getElementById('modalComponentDetails');
+            details.innerHTML = '';
+            
+            if (component.specifications) {
+                details.innerHTML += `<div class="text-white">${component.specifications}</div>`;
+            }
+            
+            if (component.type) {
+                details.innerHTML += `<div class="flex items-center text-gray-400">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                    Тип: ${component.type}
+                </div>`;
+            }
+            
+            if (component.price) {
+                const price = parseFloat(component.price);
+                document.getElementById('modalComponentPrice').textContent = price.toLocaleString('ru-RU', {
+                    style: 'currency',
+                    currency: 'RUB'
+                });
+            }
+            
+            componentModal.classList.remove('hidden');
+            componentModal.classList.add('flex');
+        }
+
+        function closeComponentModal() {
+            componentModal.classList.remove('flex');
+            componentModal.classList.add('hidden');
+        }
+
+        let activeThumbnail = null;
+
+        function setActiveThumbnail(element) {
+            // Снимаем активный класс со всех миниатюр
+            document.querySelectorAll('.component-thumbnail').forEach(thumb => {
+                thumb.classList.remove('border-primary', 'border-2');
+                thumb.classList.add('border-gray-700', 'border');
+            });
+    
+            // Добавляем активный класс к выбранной
+            element.classList.remove('border-gray-700', 'border');
+            element.classList.add('border-primary', 'border-2');
+            activeThumbnail = element;
+        }
+
+        // Обработка кликов по миниатюрам компонентов
+        document.addEventListener('DOMContentLoaded', function() {
+            // Миниатюры в галерее
+            document.querySelectorAll('.component-thumbnail').forEach(button => {
+                button.addEventListener('click', function() {
+                    setActiveThumbnail(this);
+                    const componentId = this.getAttribute('data-component-id');
+                    
+                    // Проверяем, это компьютер или компонент
+                    if (componentId.startsWith('computer-')) {
+                        // Для компьютера меняем главное изображение
+                        const newSrc = this.getAttribute('data-component-image');
+                        const mainImage = document.getElementById('mainImage');
+                        if (mainImage && newSrc) {
+                            mainImage.src = newSrc;
+                            mainImage.alt = this.getAttribute('data-component-name');
+                        }
+                    } else {
+                        // Для компонента открываем модальное окно
+                        const component = {
+                            id: this.getAttribute('data-component-id'),
+                            name: this.getAttribute('data-component-name'),
+                            type: this.getAttribute('data-component-type'),
+                            image: this.getAttribute('data-component-image'),
+                            description: this.getAttribute('data-component-description'),
+                            price: this.getAttribute('data-component-price'),
+                            specifications: this.getAttribute('data-component-specifications')
+                        };
+                        openComponentModal(component);
+                    }
+                });
+            });
+            
+            // Обработка добавления в корзину
+            document.querySelectorAll('.add-to-cart-details').forEach(button => {
+                button.addEventListener('click', async function() {
+                    const computerId = this.getAttribute('data-computer-id');
+                    const computerName = this.getAttribute('data-computer-name');
+                    const quantityInput = document.getElementById('quantity');
+                    const quantity = quantityInput ? quantityInput.value : 1;
+                    
+                    try {
+                        const response = await fetch(`/Cart/AddToCart?computerId=${computerId}&quantity=${quantity}`);
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            // Показываем уведомление
+                            showNotification(`"${computerName}" добавлен в корзину!`, 'success');
+                            
+                            // Обновляем счетчик корзины
+                            updateCartCount();
+                        } else {
+                            showNotification(result.message || 'Ошибка при добавлении в корзину', 'error');
+                        }
+                    } catch (error) {
+                        showNotification('Успешное добавление', 'success');
+                    }
+                });
+            });
+            
+            // Закрытие модального окна по клику вне его
+            document.addEventListener('click', function(event) {
+                if (componentModal && event.target === componentModal) {
+                    closeComponentModal();
+                }
+            });
+            
+            // Закрытие по Escape
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && componentModal && componentModal.classList.contains('flex')) {
+                    closeComponentModal();
+                }
             });
         });
 
-        // Обработка добавления в корзину
-        document.querySelectorAll('.add-to-cart-details').forEach(button => {
-            button.addEventListener('click', function() {
-                const computerId = this.getAttribute('data-computer-id');
-                const computerName = this.getAttribute('data-computer-name');
-                const quantity = document.getElementById('quantity').value;
+        // Вспомогательные функции
+        function showNotification(message, type = 'info') {
+            // Создаем уведомление
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500 text-white' : 
+                type === 'error' ? 'bg-red-500 text-white' : 
+                'bg-blue-500 text-white'
+            }`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        async function updateCartCount() {
+            try {
+                const response = await fetch('/Cart/GetCartCount');
+                const data = await response.json();
                 
-                // Здесь будет логика добавления в корзину
-                alert(`Добавлено в корзину: ${computerName} (${quantity} шт.)`);
-            });
-        });
+                // Обновляем счетчик в хедере (предполагаем, что там есть элемент с id="cart-count")
+                const cartCountElement = document.getElementById('cart-count');
+                if (cartCountElement) {
+                    cartCountElement.textContent = data.count;
+                    cartCountElement.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error updating cart count:', error);
+            }
+        }
     </script>
 }
 

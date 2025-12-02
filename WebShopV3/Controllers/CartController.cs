@@ -37,7 +37,6 @@ namespace ComputerShop.Controllers
             return View();
         }
 
-        // POST: Cart/AddToCart
         // POST: Cart/AddToCart - универсальный метод для компьютеров и компонентов
         [HttpGet]
         [HttpPost]

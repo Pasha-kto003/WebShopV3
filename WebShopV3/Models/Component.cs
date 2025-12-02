@@ -23,24 +23,28 @@ namespace WebShopV3.Models
         public int Quantity { get; set; }
 
         [StringLength(50)]
-        public string Type { get; set; } // CPU, GPU, RAM, etc.
+        public string? Type { get; set; } // CPU, GPU, RAM, etc.
 
-        public string Specifications { get; set; }
-
-        [StringLength(50)]
-        public string Socket { get; set; } // Для CPU и MB
+        public string? Specifications { get; set; }
 
         [StringLength(50)]
-        public string MemoryType { get; set; } // Для RAM и MB (DDR4, DDR5)
+        public string? Socket { get; set; } // Для CPU и MB
 
         [StringLength(50)]
-        public string FormFactor { get; set; } // Для MB и Case (ATX, mATX, ITX)
+        public string? MemoryType { get; set; } // Для RAM и MB (DDR4, DDR5)
 
         [StringLength(50)]
-        public string PowerConnector { get; set; } // Для GPU и PSU
+        public string? FormFactor { get; set; } // Для MB и Case (ATX, mATX, ITX)
+
+        [StringLength(50)]
+        public string? PowerConnector { get; set; } // Для GPU и PSU
 
         public int? MaxMemory { get; set; } // Для MB (макс. объем памяти)
         public int? MemorySlots { get; set; } // Для MB (количество слотов)
+
+        [StringLength(100)]
+        [Display(Name = "URL изображения")]
+        public string? ImageUrl { get; set; }
 
         // Навигационные свойства
         public virtual ICollection<ComputerComponent> ComputerComponents { get; set; }
