@@ -1,11 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using WebShopV3.Services;
 
 namespace WebShopV3.Models
 {
 
     public static class DbInitializer
     {
-        public static void Initialize(ApplicationDbContext context)
+        public static void Initialize(ApplicationDbContext context, IPasswordHasher passwordHasher)
         {
             // Добавляем данные напрямую в базу
             if (!context.Characteristics.Any())
@@ -50,7 +52,30 @@ namespace WebShopV3.Models
                     }
                 );
             }
+            var admin = new User
+            {
+                Username = "admin",
+                Email = "admin@example.com",
+                FirstName = "Администратор",
+                LastName = "Системы",
+                PasswordHash = passwordHasher.HashPassword("Admin123!"),
+                UserTypeId = 1, // Админ
+                CreatedAt = DateTime.Now
+            };
 
+            // Создаем тестового пользователя
+            var user = new User
+            {
+                Username = "user",
+                Email = "user@example.com",
+                FirstName = "Тестовый",
+                LastName = "Пользователь",
+                PasswordHash = passwordHasher.HashPassword("User123!"),
+                UserTypeId = 3, // Пользователь
+                CreatedAt = DateTime.Now
+            };
+
+            context.Users.AddRange(admin, user);
             context.SaveChanges();
         }
     }

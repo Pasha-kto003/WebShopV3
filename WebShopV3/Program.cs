@@ -31,14 +31,25 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Auth/Login";
         options.AccessDeniedPath = "/Auth/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.None
+            : CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
     });
 
+// Авторизация
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Админ"));
     options.AddPolicy("ManagerOnly", policy => policy.RequireRole("Менеджер"));
     options.AddPolicy("AdminOrManager", policy => policy.RequireRole("Админ", "Менеджер"));
     options.AddPolicy("Authenticated", policy => policy.RequireAuthenticatedUser());
+
+    // Политика для паролей
+    options.AddPolicy("StrongPassword", policy =>
+        policy.RequireClaim("PasswordStrength", "Strong"));
 });
 
 builder.Services.AddDistributedMemoryCache();
@@ -48,11 +59,12 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-builder.Services.AddScoped<CompatibilityService>();
 
+builder.Services.AddScoped<IPasswordHasher, PasswordHasherService>();
+builder.Services.AddScoped<CompatibilityService>();
 builder.Services.AddHttpClient<IYookassaService, YookassaService>();
 builder.Services.AddScoped<IYookassaService, YookassaService>();
-
+builder.Services.AddLogging();
 
 var app = builder.Build();
 
@@ -68,11 +80,13 @@ else
     using (var scope = app.Services.CreateScope())
     {
         var services = scope.ServiceProvider;
+        var logger = services.GetRequiredService<ILogger<Program>>();
         try
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
+            var passwordHasher = services.GetRequiredService<IPasswordHasher>();
             context.Database.EnsureCreated(); // Creates database if it doesn't exist
-            DbInitializer.Initialize(context);
+            DbInitializer.Initialize(context, passwordHasher);
             Console.WriteLine("Database created successfully!");
         }
         catch (Exception ex)
