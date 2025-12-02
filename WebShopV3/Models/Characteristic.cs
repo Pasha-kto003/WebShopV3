@@ -21,7 +21,6 @@ namespace WebShopV3.Models
         [Display(Name = "Описание")]
         public string Description { get; set; }
 
-        public DateTime? CreatedAt { get; set; } = DateTime.Now;
         // Навигационные свойства
         public virtual ICollection<ComponentCharacteristic> ComponentCharacteristics { get; set; }
 

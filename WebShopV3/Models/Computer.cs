@@ -24,6 +24,7 @@ namespace WebShopV3.Models
 
         public string ImageUrl { get; set; }
 
+
         // Навигационные свойства
         public virtual ICollection<ComputerComponent> ComputerComponents { get; set; }
         public virtual ICollection<ComputerOrder> ComputerOrders { get; set; }
