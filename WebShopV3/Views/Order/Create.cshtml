@@ -16,7 +16,7 @@
                 Создать заказ
             </h1>
             <p class="text-xl text-gray-400">
-                Оформление нового заказа в системе GameTech
+                Оформление нового заказа с компьютерами и комплектующими
             </p>
         </div>
 
@@ -50,7 +50,7 @@
                             </svg>
                             Тип заказа *
                         </label>
-                        <select asp-for="OrderTypeId" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200" required>
+                        <select asp-for="OrderTypeId" id="orderTypeSelect" class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200" required>
                             <option value="">Выберите тип заказа</option>
                             @foreach (var type in ViewBag.OrderTypes)
                             {
@@ -77,84 +77,190 @@
                     </div>
                 </div>
 
-                <!-- Компьютеры в заказе -->
+                <!-- Вкладки: Компьютеры и Комплектующие -->
                 <div class="mt-8">
-                    <div class="flex items-center mb-6">
-                        <svg class="w-6 h-6 text-primary mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
-                        </svg>
-                        <h2 class="text-2xl font-bold text-white">Компьютеры в заказе</h2>
+                    <div class="border-b border-gray-700">
+                        <nav class="-mb-px flex space-x-8">
+                            <button type="button" 
+                                    class="tab-button py-4 px-1 border-b-2 font-medium text-sm transition duration-200 flex items-center"
+                                    data-tab="computers">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                                </svg>
+                                Компьютеры
+                            </button>
+                            <button type="button" 
+                                    class="tab-button py-4 px-1 border-b-2 font-medium text-sm transition duration-200 flex items-center"
+                                    data-tab="components">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                                </svg>
+                                Комплектующие
+                            </button>
+                        </nav>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="computersContainer">
-                        @{
-                            var computers = ViewBag.Computers as List<WebShopV3.Models.Computer>;
-                            if (computers != null && computers.Any())
-                            {
-                                for (int i = 0; i < computers.Count; i++)
+                    <!-- Вкладка Компьютеры -->
+                    <div id="computersTab" class="tab-content pt-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="computersContainer">
+                            @{
+                                var computers = ViewBag.Computers as List<WebShopV3.Models.Computer>;
+                                if (computers != null && computers.Any())
                                 {
-                                    <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-primary/50 transition duration-200 computer-card"
-                                         data-computer-id="@computers[i].Id">
-                                        <div class="flex items-start justify-between mb-4">
-                                            <h3 class="text-lg font-semibold text-white">@computers[i].Name</h3>
-                                            <span class="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full computer-price" data-computer-id="@computers[i].Id">
-                                                @computers[i].Price.ToString("C")
-                                            </span>
-                                        </div>
-                        
-                                        <div class="flex items-center text-gray-400 text-sm mb-4">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-                                            </svg>
-                                            В наличии: @computers[i].Quantity шт.
-                                        </div>
-
-                                        <div class="space-y-3">
-                                            <label class="block text-sm font-medium text-gray-300">Количество:</label>
-                                            <input type="number" 
-                                                   name="quantities[@i]" 
-                                                   value="0" 
-                                                   min="0" 
-                                                   max="@computers[i].Quantity"
-                                                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 quantity-input"
-                                                   data-computer-id="@computers[i].Id"
-                                                   data-index="@i">
+                                    for (int i = 0; i < computers.Count; i++)
+                                    {
+                                        <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-primary/50 transition duration-200 computer-card"
+                                             data-computer-id="@computers[i].Id">
+                                            <div class="flex items-start justify-between mb-4">
+                                                <h3 class="text-lg font-semibold text-white">@computers[i].Name</h3>
+                                                <span class="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full computer-price" data-computer-id="@computers[i].Id">
+                                                    @computers[i].Price.ToString("C")
+                                                </span>
+                                            </div>
                             
-                                            <!-- Скрытое поле для ID компьютера -->
-                                            <input type="hidden" 
-                                                   name="selectedComputers[@i]" 
-                                                   value="@computers[i].Id"
-                                                   class="computer-id-input">
-                                        </div>
+                                            <div class="flex items-center text-gray-400 text-sm mb-4">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                                                </svg>
+                                                В наличии: @computers[i].Quantity шт.
+                                            </div>
 
-                                        <!-- Отображение стоимости позиции -->
-                                        <div class="mt-3 text-sm">
-                                            <div class="flex justify-between text-gray-400">
-                                                <span>Стоимость позиции:</span>
-                                                <span class="text-primary font-semibold item-total" data-computer-id="@computers[i].Id">0 ₽</span>
+                                            <div class="space-y-3">
+                                                <label class="block text-sm font-medium text-gray-300">Количество:</label>
+                                                <input type="number" 
+                                                       name="computerQuantities[@i]" 
+                                                       value="0" 
+                                                       min="0" 
+                                                       max="@computers[i].Quantity"
+                                                       class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 computer-quantity-input"
+                                                       data-computer-id="@computers[i].Id"
+                                                       data-price="@computers[i].Price">
+
+                                                <input type="hidden" 
+                                                       name="selectedComputers[@i]" 
+                                                       value="@computers[i].Id"
+                                                       class="computer-id-input">
+                                            </div>
+
+                                            <!-- Отображение стоимости позиции -->
+                                            <div class="mt-3 text-sm">
+                                                <div class="flex justify-between text-gray-400">
+                                                    <span>Стоимость позиции:</span>
+                                                    <span class="text-primary font-semibold computer-item-total" data-computer-id="@computers[i].Id">0 ₽</span>
+                                                </div>
                                             </div>
                                         </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="col-span-3 text-center py-8">
+                                        <svg class="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <p class="text-gray-400 text-lg">Нет доступных компьютеров</p>
                                     </div>
                                 }
                             }
-                            else
-                            {
-                                <div class="col-span-3 text-center py-8">
-                                    <svg class="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <p class="text-gray-400 text-lg">Нет доступных компьютеров</p>
-                                </div>
-                            }
-                        }
+                        </div>
                     </div>
 
-                    <!-- Итоговая сумма -->
-                    <div class="mt-6 pt-6 border-t border-gray-700">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xl font-bold text-white">Общая сумма заказа:</span>
-                            <span id="orderTotal" class="text-2xl font-bold text-primary">0 ₽</span>
+                    <!-- Вкладка Комплектующие -->
+                    <div id="componentsTab" class="tab-content hidden pt-6">
+                        <div class="mb-6">
+                            <div class="flex items-center mb-4">
+                                <svg class="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                                </svg>
+                                <select id="componentTypeFilter" class="bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200">
+                                    <option value="all">Все типы</option>
+                                    <option value="CPU">Процессоры</option>
+                                    <option value="GPU">Видеокарты</option>
+                                    <option value="RAM">Оперативная память</option>
+                                    <option value="MB">Материнские платы</option>
+                                    <option value="Storage">Накопители</option>
+                                    <option value="PSU">Блоки питания</option>
+                                    <option value="Case">Корпуса</option>
+                                </select>
+                            </div>
                         </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="componentsContainer">
+                            @{
+                                var components = ViewBag.Components as List<WebShopV3.Models.Component>;
+                                if (components != null && components.Any())
+                                {
+                                    for (int i = 0; i < components.Count; i++)
+                                    {
+                                        <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition duration-200 component-card"
+                                             data-component-id="@components[i].Id"
+                                             data-component-type="@components[i].Type">
+                                            <div class="flex items-start justify-between mb-4">
+                                                <div>
+                                                    <h3 class="text-lg font-semibold text-white mb-1">@components[i].Name</h3>
+                                                    <span class="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded">
+                                                        @(components[i].Type ?? "Не указан")
+                                                    </span>
+                                                </div>
+                                                <span class="bg-blue-500/20 text-blue-400 text-sm font-bold px-3 py-1 rounded-full component-price" 
+                                                      data-component-id="@components[i].Id">
+                                                    @components[i].Price.ToString("C")
+                                                </span>
+                                            </div>
+                            
+                                            <div class="flex items-center text-gray-400 text-sm mb-4">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                                                </svg>
+                                                В наличии: @components[i].Quantity шт.
+                                            </div>
+
+                                            <div class="space-y-3">
+                                                <label class="block text-sm font-medium text-gray-300">Количество:</label>
+                                                <input type="number" 
+                                                       name="componentQuantities[@i]" 
+                                                       value="0" 
+                                                       min="0" 
+                                                       max="@components[i].Quantity"
+                                                       class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition duration-200 component-quantity-input"
+                                                       data-component-id="@components[i].Id"
+                                                       data-price="@components[i].Price">
+
+                                                <input type="hidden" 
+                                                       name="selectedComponents[@i]" 
+                                                       value="@components[i].Id"
+                                                       class="component-id-input">
+                                            </div>
+
+                                            <!-- Отображение стоимости позиции -->
+                                            <div class="mt-3 text-sm">
+                                                <div class="flex justify-between text-gray-400">
+                                                    <span>Стоимость позиции:</span>
+                                                    <span class="text-blue-400 font-semibold component-item-total" data-component-id="@components[i].Id">0 ₽</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="col-span-3 text-center py-8">
+                                        <svg class="w-12 h-12 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <p class="text-gray-400 text-lg">Нет доступных комплектующих</p>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Итоговая сумма -->
+                <div class="mt-6 pt-6 border-t border-gray-700">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-bold text-white">Общая сумма заказа:</span>
+                        <span id="orderTotal" class="text-2xl font-bold text-primary">0 ₽</span>
                     </div>
                 </div>
 
@@ -178,56 +284,193 @@
                 </div>
             </form>
         </div>
-
-        <!-- Дополнительная информация -->
-        <div class="mt-8 text-center">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400 mb-6">
-                <div class="flex items-center justify-center">
-                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
-                    Безопасные платежи
-                </div>
-                <div class="flex items-center justify-center">
-                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                    </svg>
-                    Быстрая доставка
-                </div>
-                <div class="flex items-center justify-center">
-                    <svg class="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Поддержка 24/7
-                </div>
-            </div>
-            
-            <p class="text-gray-500 text-sm">
-                © 2024 GameTech PCs. Все права защищены.
-            </p>
-        </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // Храним цены компьютеров
-        const computerPrices = {
-            @foreach (var computer in ViewBag.Computers as List<WebShopV3.Models.Computer> ?? new List<WebShopV3.Models.Computer>())
-            {
-                <text>@computer.Id: @computer.Price,</text>
+        // Храним цены
+        const computerPrices = {};
+        const componentPrices = {};
+        
+        // Инициализируем цены компьютеров
+        @foreach (var computer in ViewBag.Computers as List<WebShopV3.Models.Computer> ?? new List<WebShopV3.Models.Computer>())
+        {
+            <text>computerPrices[@computer.Id] = @computer.Price;</text>
+        }
+        
+        // Инициализируем цены комплектующих
+        @foreach (var component in ViewBag.Components as List<WebShopV3.Models.Component> ?? new List<WebShopV3.Models.Component>())
+        {
+            <text>componentPrices[@component.Id] = @component.Price;</text>
+        }
+
+        // Управление вкладками
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Инициализация первой вкладки
+            tabButtons[0].classList.add('border-primary', 'text-primary');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    // Сброс активных вкладок
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('border-primary', 'text-primary');
+                        btn.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    
+                    // Активация текущей вкладки
+                    this.classList.add('border-primary', 'text-primary');
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    
+                    // Показ/скрытие контента
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    document.getElementById(`${tabId}Tab`).classList.remove('hidden');
+                });
+            });
+            
+            // Фильтр по типу комплектующих
+            const typeFilter = document.getElementById('componentTypeFilter');
+            if (typeFilter) {
+                typeFilter.addEventListener('change', function() {
+                    const selectedType = this.value;
+                    const componentCards = document.querySelectorAll('.component-card');
+                    
+                    componentCards.forEach(card => {
+                        const componentType = card.dataset.componentType;
+                        if (selectedType === 'all' || componentType === selectedType) {
+                            card.classList.remove('hidden');
+                        } else {
+                            card.classList.add('hidden');
+                        }
+                    });
+                });
             }
-        };
+            
+            // Обновление выбора компьютера
+            const computerInputs = document.querySelectorAll('.computer-quantity-input');
+            computerInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    updateComputerSelection(this);
+                    updateOrderTotal();
+                });
+            });
+            
+            // Обновление выбора комплектующего
+            const componentInputs = document.querySelectorAll('.component-quantity-input');
+            componentInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    updateComponentSelection(this);
+                    updateOrderTotal();
+                });
+            });
+            
+            // Автоматическое обновление при изменении типа заказа
+            const orderTypeSelect = document.getElementById('orderTypeSelect');
+            if (orderTypeSelect) {
+                orderTypeSelect.addEventListener('change', function() {
+                    const orderTypeText = this.options[this.selectedIndex].text;
+                    const isIncomeOrder = orderTypeText.toLowerCase().includes('приход');
+                    
+                    // Обновляем подсказки для максимального количества
+                    updateMaxQuantities(isIncomeOrder);
+                });
+            }
+            
+            updateAllSelections();
+            updateOrderTotal();
+        });
+
+        // Обновление выбора компьютера
+        function updateComputerSelection(input) {
+            const computerId = input.getAttribute('data-computer-id');
+            const quantity = parseInt(input.value) || 0;
+            const price = computerPrices[computerId] || 0;
+            const card = input.closest('.computer-card');
+            const itemTotalElement = card.querySelector('.computer-item-total');
+            const maxQuantity = parseInt(input.max) || 0;
+            
+            // Проверяем максимальное количество
+            if (quantity > maxQuantity) {
+                input.value = maxQuantity;
+                quantity = maxQuantity;
+            }
+            
+            const itemTotal = quantity * price;
+            
+            if (quantity > 0) {
+                card.classList.add('ring-2', 'ring-primary/50', 'bg-primary/10');
+                if (itemTotalElement) {
+                    itemTotalElement.textContent = itemTotal.toLocaleString('ru-RU') + ' ₽';
+                }
+            } else {
+                card.classList.remove('ring-2', 'ring-primary/50', 'bg-primary/10');
+                if (itemTotalElement) {
+                    itemTotalElement.textContent = '0 ₽';
+                }
+            }
+        }
+
+        // Обновление выбора комплектующего
+        function updateComponentSelection(input) {
+            const componentId = input.getAttribute('data-component-id');
+            let quantity = parseInt(input.value) || 0;
+            const price = componentPrices[componentId] || 0;
+            const card = input.closest('.component-card');
+            const itemTotalElement = card.querySelector('.component-item-total');
+            const maxQuantity = parseInt(input.max) || 0;
+            
+            // Проверяем максимальное количество
+            if (quantity > maxQuantity) {
+                input.value = maxQuantity;
+                quantity = maxQuantity;
+            }
+            
+            const itemTotal = quantity * price;
+            
+            if (quantity > 0) {
+                card.classList.add('ring-2', 'ring-blue-500/50', 'bg-blue-500/10');
+                if (itemTotalElement) {
+                    itemTotalElement.textContent = itemTotal.toLocaleString('ru-RU') + ' ₽';
+                }
+            } else {
+                card.classList.remove('ring-2', 'ring-blue-500/50', 'bg-blue-500/10');
+                if (itemTotalElement) {
+                    itemTotalElement.textContent = '0 ₽';
+                }
+            }
+        }
+
+        // Обновление всех выборов
+        function updateAllSelections() {
+            document.querySelectorAll('.computer-quantity-input').forEach(input => updateComputerSelection(input));
+            document.querySelectorAll('.component-quantity-input').forEach(input => updateComponentSelection(input));
+        }
 
         // Обновление общей суммы заказа
         function updateOrderTotal() {
             let total = 0;
-            const quantityInputs = document.querySelectorAll('.quantity-input');
             
-            quantityInputs.forEach(input => {
+            // Сумма компьютеров
+            document.querySelectorAll('.computer-quantity-input').forEach(input => {
                 const computerId = input.getAttribute('data-computer-id');
                 const quantity = parseInt(input.value) || 0;
                 const price = computerPrices[computerId] || 0;
+                total += quantity * price;
+            });
+            
+            // Сумма комплектующих
+            document.querySelectorAll('.component-quantity-input').forEach(input => {
+                const componentId = input.getAttribute('data-component-id');
+                const quantity = parseInt(input.value) || 0;
+                const price = componentPrices[componentId] || 0;
                 total += quantity * price;
             });
             
@@ -235,82 +478,41 @@
             if (orderTotalElement) {
                 orderTotalElement.textContent = total.toLocaleString('ru-RU') + ' ₽';
             }
-            
-            console.log('Order total updated:', total);
         }
 
-        // Обновление выбора компьютера
-        function updateComputerSelection(input) {
-            const computerId = input.getAttribute('data-computer-id');
-            const quantity = parseInt(input.value);
-            const card = input.closest('.computer-card');
-            const itemTotalElement = card.querySelector('.item-total');
-            
-            // Получаем цену компьютера
-            const price = computerPrices[computerId] || 0;
-            const itemTotal = quantity * price;
-            
-            if (quantity > 0) {
-                // Показываем что компьютер выбран
-                card.classList.add('ring-2', 'ring-primary/50', 'bg-primary/10');
+        // Обновление максимальных количеств в зависимости от типа заказа
+        function updateMaxQuantities(isIncomeOrder) {
+            if (!isIncomeOrder) {
+                // Для продажи - ограничиваем количеством на складе
+                document.querySelectorAll('.computer-quantity-input').forEach(input => {
+                    const max = parseInt(input.getAttribute('max')) || 0;
+                    input.max = max;
+                });
                 
-                // Обновляем отображение стоимости
-                if (itemTotalElement) {
-                    itemTotalElement.textContent = itemTotal.toLocaleString('ru-RU') + ' ₽';
-                }
+                document.querySelectorAll('.component-quantity-input').forEach(input => {
+                    const max = parseInt(input.getAttribute('max')) || 0;
+                    input.max = max;
+                });
             } else {
-                // Снимаем выделение
-                card.classList.remove('ring-2', 'ring-primary/50', 'bg-primary/10');
-                
-                // Сбрасываем стоимость
-                if (itemTotalElement) {
-                    itemTotalElement.textContent = '0 ₽';
-                }
+                // Для прихода - убираем ограничения (можно добавить любое количество)
+                document.querySelectorAll('.computer-quantity-input, .component-quantity-input').forEach(input => {
+                    input.removeAttribute('max');
+                });
             }
-            
-            // Обновляем общую сумму
-            updateOrderTotal();
         }
 
-        // Обновление всех выборов при загрузке
-        function updateAllSelections() {
-            const quantityInputs = document.querySelectorAll('.quantity-input');
-            quantityInputs.forEach(input => {
-                updateComputerSelection(input);
-            });
-        }
-
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            updateAllSelections();
-            
-            // Добавляем обработчики изменения количества
-            const quantityInputs = document.querySelectorAll('.quantity-input');
-            quantityInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    updateComputerSelection(this);
-                });
-                
-                input.addEventListener('change', function() {
-                    updateComputerSelection(this);
-                });
-            });
-        });
-
-        // Обработчик отправки формы
-        const form = document.getElementById('orderForm');
-        form.addEventListener('submit', function(e) {
+        // Валидация формы
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
             const userId = document.querySelector('select[name="UserId"]').value;
             const orderTypeId = document.querySelector('select[name="OrderTypeId"]').value;
             const statusId = document.querySelector('select[name="StatusId"]').value;
             
-            // Проверяем есть ли компьютеры с количеством > 0
-            const quantityInputs = document.querySelectorAll('.quantity-input');
-            let hasSelectedComputers = false;
+            // Проверяем есть ли выбранные товары
+            let hasSelectedItems = false;
             
-            quantityInputs.forEach(input => {
+            document.querySelectorAll('.computer-quantity-input, .component-quantity-input').forEach(input => {
                 if (parseInt(input.value) > 0) {
-                    hasSelectedComputers = true;
+                    hasSelectedItems = true;
                 }
             });
             
@@ -331,28 +533,14 @@
                 isValid = false;
             }
             
-            if (!hasSelectedComputers) {
-                alert('Выберите хотя бы один компьютер с количеством больше 0');
+            if (!hasSelectedItems) {
+                alert('Выберите хотя бы один товар с количеством больше 0');
                 isValid = false;
             }
             
             if (!isValid) {
                 e.preventDefault();
-                return false;
             }
-
-            // Отладочная информация
-            console.log('Отправка формы:');
-            console.log('UserId:', userId);
-            console.log('OrderTypeId:', orderTypeId);
-            console.log('StatusId:', statusId);
-            
-            const formData = new FormData(this);
-            for (let [key, value] of formData.entries()) {
-                console.log(key + ': ' + value);
-            }
-            
-            return true;
         });
 
         function highlightError(element) {
@@ -361,24 +549,32 @@
                 element.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
             }, 3000);
         }
-
-        // Убираем подсветку ошибок при изменении
-        const inputs = form.querySelectorAll('select, input');
-        inputs.forEach(input => {
-            input.addEventListener('change', function() {
-                this.classList.remove('border-red-500', 'ring-1', 'ring-red-500');
-            });
-        });
     </script>
 
     <style>
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-in-out;
+        .tab-button {
+            transition: all 0.2s ease;
         }
         
-        select:focus, input:focus {
+        .tab-button.border-primary {
             border-color: #00ff88;
-            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+        }
+        
+        .tab-button.text-primary {
+            color: #00ff88;
+        }
+        
+        .tab-button.text-gray-500 {
+            color: #6b7280;
+        }
+        
+        .tab-content {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .border-red-500 {
@@ -386,25 +582,8 @@
             box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
         }
         
-        @@keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-        
-        .quantity-input::-webkit-outer-spin-button,
-        .quantity-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        
-        .quantity-input[type=number] {
-            -moz-appearance: textfield;
+        .hidden {
+            display: none !important;
         }
     </style>
 }

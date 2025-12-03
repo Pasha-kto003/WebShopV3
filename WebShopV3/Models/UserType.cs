@@ -9,7 +9,7 @@ namespace WebShopV3.Models
 
         [Required]
         [StringLength(50)]
-        public string Name { get; set; } // Админ, Пользователь, Менеджер
+        public string Name { get; set; } // Админ (Id=4), Пользователь (Id=6), Менеджер (Id=5)
 
         // Навигационные свойства
         public virtual ICollection<User> Users { get; set; }

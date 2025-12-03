@@ -1,0 +1,88 @@
+﻿@model dynamic
+@{
+    var computer = Model.Model as WebShopV3.Models.Computer;
+    var totalPages = (int)Model.TotalPages;
+    var currentPage = (int)Model.CurrentPage;
+    var allRecommended = Model.AllRecommended as List<object>;
+    var pageSize = (int)Model.PageSize;
+}
+
+@if (totalPages > 1)
+{
+    <div class="flex items-center justify-center space-x-2 mt-8">
+        <!-- Кнопка "Назад" -->
+        @if (currentPage > 1)
+        {
+            <a asp-action="ComputerDetails" 
+               asp-route-id="@computer.Id" 
+               asp-route-page="@(currentPage - 1)"
+               class="bg-dark-card border border-gray-700 text-white px-3 py-2 rounded-lg hover:border-primary transition duration-200 flex items-center text-sm">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Назад
+            </a>
+        }
+        else
+        {
+            <span class="bg-dark-card border border-gray-700 text-gray-500 px-3 py-2 rounded-lg flex items-center text-sm cursor-not-allowed">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Назад
+            </span>
+        }
+
+        <!-- Номера страниц -->
+        <div class="flex space-x-1">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                if (i == 1 || i == totalPages || (i >= currentPage - 1 && i <= currentPage + 1))
+                {
+                    <a asp-action="ComputerDetails" 
+                       asp-route-id="@computer.Id" 
+                       asp-route-page="@i"
+                       class="@(i == currentPage ? "bg-primary text-dark" : "bg-dark-card border border-gray-700 text-white") w-8 h-8 flex items-center justify-center rounded-lg text-sm hover:border-primary transition duration-200">
+                        @i
+                    </a>
+                }
+                else if (i == currentPage - 2 || i == currentPage + 2)
+                {
+                    <span class="w-8 h-8 flex items-center justify-center text-gray-500 text-sm">...</span>
+                }
+            }
+        </div>
+
+        <!-- Кнопка "Вперед" -->
+        @if (currentPage < totalPages)
+        {
+            <a asp-action="ComputerDetails" 
+               asp-route-id="@computer.Id" 
+               asp-route-page="@(currentPage + 1)"
+               class="bg-dark-card border border-gray-700 text-white px-3 py-2 rounded-lg hover:border-primary transition duration-200 flex items-center text-sm">
+                Вперед
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        }
+        else
+        {
+            <span class="bg-dark-card border border-gray-700 text-gray-500 px-3 py-2 rounded-lg flex items-center text-sm cursor-not-allowed">
+                Вперед
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </span>
+        }
+    </div>
+}
+
+<!-- Информация о пагинации -->
+@if (allRecommended.Count > 0)
+{
+    <div class="text-center text-gray-500 text-sm mt-4">
+        Страница @currentPage из @totalPages • 
+        Показано @((currentPage - 1) * pageSize + 1)-@Math.Min(currentPage * pageSize, allRecommended.Count) из @allRecommended.Count товаров
+    </div>
+}

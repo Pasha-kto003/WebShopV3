@@ -36,8 +36,7 @@ namespace WebShopV3.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Catalog(string search, string sortBy, string componentType,
-        decimal? minPrice, decimal? maxPrice, string productType = "all")
+        public async Task<IActionResult> Catalog(string search, string sortBy, string componentType, decimal? minPrice, decimal? maxPrice, string productType = "all")
         {
             ViewBag.SearchQuery = search;
             ViewBag.SortBy = sortBy;
@@ -46,7 +45,6 @@ namespace WebShopV3.Controllers
             ViewBag.MaxPrice = maxPrice;
             ViewBag.ProductType = productType;
 
-            // Получаем все доступные типы комплектующих для фильтра
             ViewBag.ComponentTypes = await _context.Components
                 .Select(c => c.Type)
                 .Distinct()
@@ -75,8 +73,7 @@ namespace WebShopV3.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> SearchProducts(string search, string sortBy, string componentType,
-    decimal? minPrice, decimal? maxPrice, string productType = "all")
+        public async Task<IActionResult> SearchProducts(string search, string sortBy, string componentType, decimal? minPrice, decimal? maxPrice, string productType = "all")
         {
             var computers = await GetFilteredComputers(search, sortBy, componentType, minPrice, maxPrice);
             var components = await GetFilteredComponents(search, sortBy, componentType, minPrice, maxPrice);
@@ -155,8 +152,7 @@ namespace WebShopV3.Controllers
             return await query.ToListAsync();
         }
 
-        private async Task<List<Component>> GetFilteredComponents(string search, string sortBy,
-    string componentType, decimal? minPrice, decimal? maxPrice)
+        private async Task<List<Component>> GetFilteredComponents(string search, string sortBy, string componentType, decimal? minPrice, decimal? maxPrice)
         {
             var query = _context.Components
                 .Include(c => c.ComponentCharacteristics)
@@ -208,7 +204,7 @@ namespace WebShopV3.Controllers
 
 
         [AllowAnonymous]
-        public async Task<IActionResult> ComputerDetails(int? id)
+        public async Task<IActionResult> ComputerDetails(int? id, int page = 1)
         {
             if (id == null) return NotFound();
 
@@ -220,6 +216,28 @@ namespace WebShopV3.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (computer == null) return NotFound();
+
+            // Получаем типы компонентов текущего компьютера
+            var componentTypes = computer.ComputerComponents
+                .Select(cc => cc.Component.Type)
+                .Distinct()
+                .ToList();
+
+            // Получаем рекомендованные компьютеры (исключая текущий)
+            var recommendedComputers = await _context.Computers
+                .Where(c => c.Quantity > 0 && c.Id != id)
+                .Take(6)
+                .ToListAsync();
+
+            // Получаем рекомендованные комплектующие тех же типов
+            var recommendedComponents = await _context.Components
+                .Where(c => c.Quantity > 0 && componentTypes.Contains(c.Type))
+                .Take(6)
+                .ToListAsync();
+
+            // Передаем через ViewBag
+            ViewBag.RecommendedComputers = recommendedComputers;
+            ViewBag.RecommendedComponents = recommendedComponents;
 
             var cartJson = HttpContext.Session.GetString("Cart");
             var cart = string.IsNullOrEmpty(cartJson)

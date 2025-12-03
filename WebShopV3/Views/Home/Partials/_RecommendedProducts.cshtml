@@ -1,0 +1,251 @@
+﻿@model WebShopV3.Models.Computer
+@{
+    // Получаем списки из ViewBag
+    var recommendedComputers = ViewBag.RecommendedComputers as List<WebShopV3.Models.Computer> ?? new List<WebShopV3.Models.Computer>();
+    var recommendedComponents = ViewBag.RecommendedComponents as List<WebShopV3.Models.Component> ?? new List<WebShopV3.Models.Component>();
+    
+    // Объединяем все товары в один список для пагинации
+    var allRecommended = new List<object>();
+    
+    // Добавляем компьютеры
+    foreach (var computer in recommendedComputers)
+    {
+        allRecommended.Add(new {
+            Id = computer.Id,
+            Name = computer.Name,
+            Price = computer.Price,
+            ImageUrl = computer.ImageUrl,
+            Type = "Computer",
+            Description = computer.Description,
+            Quantity = computer.Quantity
+        });
+    }
+    
+    // Добавляем комплектующие
+    foreach (var component in recommendedComponents)
+    {
+        allRecommended.Add(new {
+            Id = component.Id,
+            Name = component.Name,
+            Price = component.Price,
+            ImageUrl = component.ImageUrl,
+            Type = "Component",
+            ComponentType = component.Type,
+            Description = component.Description,
+            Quantity = component.Quantity
+        });
+    }
+    
+    // Пагинация
+    var pageSize = 4;
+    var totalPages = (int)Math.Ceiling((double)allRecommended.Count / pageSize);
+    var currentPage = Context.Request.Query.ContainsKey("page") ? 
+        int.TryParse(Context.Request.Query["page"], out var page) ? page : 1 : 1;
+    currentPage = Math.Max(1, Math.Min(currentPage, totalPages));
+    var startIndex = (currentPage - 1) * pageSize;
+    var pagedProducts = allRecommended.Skip(startIndex).Take(pageSize).ToList();
+}
+
+<!-- Секция с рекомендованными товарами -->
+<div class="mt-12">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-bold text-white">Рекомендуемые товары</h2>
+        
+        <!-- Фильтры -->
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <select id="recommendedFilter" class="bg-dark border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 appearance-none pr-10">
+                    <option value="all">Все товары</option>
+                    <option value="computers">Компьютеры</option>
+                    <option value="components">Комплектующие</option>
+                </select>
+                <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сетка рекомендованных товаров - 4 карточки в ряд -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="recommendedProductsGrid">
+        @if (pagedProducts.Any())
+        {
+            @foreach (dynamic product in pagedProducts)
+            {
+                var isComputer = product.Type.ToString() == "Computer";
+                var productId = product.Id;
+                var productName = product.Name.ToString();
+                var productPrice = (decimal)product.Price;
+                var productImage = product.ImageUrl?.ToString();
+                var productDescription = product.Description?.ToString();
+                var productQuantity = (int)product.Quantity;
+                var productComponentType = !isComputer ? product.ComponentType?.ToString() : null;
+                
+                <div class="bg-dark-card rounded-xl border border-gray-800 overflow-hidden hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 product-card flex flex-col h-full"
+                     data-product-type="@(isComputer ? "computer" : "component")"
+                     data-product-id="@productId">
+                    <!-- Изображение товара -->
+                    <div class="relative h-40 overflow-hidden flex-shrink-0">
+                        @if (!string.IsNullOrEmpty(productImage))
+                        {
+                            <img src="/Images/@(isComputer ? "computers" : "components")/@productImage" 
+                                 alt="@productName"
+                                 class="w-full h-full object-cover transform hover:scale-105 transition duration-500">
+                        }
+                        else
+                        {
+                            <div class="w-full h-full flex items-center justify-center @(isComputer ? "bg-gradient-to-br from-primary/20 to-primary/10" : "bg-gradient-to-br from-blue-500/20 to-blue-500/10")">
+                                <span class="text-4xl">
+                                    @if (isComputer)
+                                    {
+                                        @:🖥️
+                                    }
+                                    else
+                                    {
+                                        @GetComponentIcon(productComponentType)
+                                    }
+                                </span>
+                            </div>
+                        }
+                        
+                        <!-- Бейдж типа товара -->
+                        <div class="absolute top-2 left-2">
+                            <span class="@(isComputer ? "bg-primary/20 text-primary" : "bg-blue-500/20 text-blue-400") text-xs font-bold px-2 py-1 rounded-full">
+                                @if (isComputer)
+                                {
+                                    @:ПК
+                                }
+                                else
+                                {
+                                    @GetShortTypeName(productComponentType)
+                                }
+                            </span>
+                        </div>
+                        
+                        <!-- Бейдж наличия -->
+                        <div class="absolute top-2 right-2 @(productQuantity > 0 ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400") text-xs font-bold px-2 py-1 rounded-full">
+                            @(productQuantity > 0 ? $"{productQuantity} шт" : "Нет")
+                        </div>
+                    </div>
+                    
+                    <!-- Информация о товаре -->
+                    <div class="p-4 flex-grow flex flex-col">
+                        <h3 class="text-base font-bold text-white mb-2 line-clamp-1 hover:text-primary transition duration-200">
+                            @if (isComputer)
+                            {
+                                <a asp-controller="Home" asp-action="ComputerDetails" asp-route-id="@productId" class="hover:text-primary">@productName</a>
+                            }
+                            else
+                            {
+                                <a href="#" class="component-link hover:text-primary" data-component-id="@productId">@productName</a>
+                            }
+                        </h3>
+                        
+                        @if (!string.IsNullOrEmpty(productDescription))
+                        {
+                            <p class="text-gray-400 text-xs mb-3 line-clamp-2 flex-grow">@productDescription</p>
+                        }
+                        else
+                        {
+                            <div class="flex-grow"></div>
+                        }
+                        
+                        <div class="mt-auto">
+                            <div class="text-lg font-bold text-primary mb-2">@productPrice.ToString("C")</div>
+                            
+                            <!-- Действия -->
+                            <div class="flex space-x-2">
+                                @if (productQuantity > 0)
+                                {
+                                    <button class="w-full bg-primary/10 text-primary hover:bg-primary hover:text-dark px-3 py-2 rounded-lg font-semibold text-sm transition duration-200 flex items-center justify-center add-to-cart-btn"
+                                            data-product-id="@productId"
+                                            data-product-type="@(isComputer ? "computer" : "component")"
+                                            data-product-name="@productName">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                        </svg>
+                                        В корзину
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="w-full bg-gray-800 text-gray-500 px-3 py-2 rounded-lg font-semibold text-sm text-center cursor-not-allowed block">
+                                        Нет в наличии
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-span-4 text-center py-12">
+                <svg class="w-16 h-16 text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-gray-400 text-lg">Рекомендуемые товары отсутствуют</p>
+            </div>
+        }
+    </div>
+
+    <!-- Пагинация и информация о пагинации -->
+    @await Html.PartialAsync("Partials/_Pagination", new {
+        Model = Model,
+        TotalPages = totalPages,
+        CurrentPage = currentPage,
+        AllRecommended = allRecommended,
+        PageSize = pageSize
+    })
+</div>
+
+@functions {
+    public string GetShortTypeName(string type)
+    {
+        return type switch
+        {
+            "CPU" => "Проц.",
+            "GPU" => "Видео",
+            "RAM" => "ОЗУ",
+            "SSD" => "SSD",
+            "HDD" => "HDD",
+            "PSU" => "БП",
+            "MB" => "Мат. плата",
+            "Case" => "Корпус",
+            _ => type?.Length > 4 ? type.Substring(0, 4) : type ?? ""
+        };
+    }
+
+    public string GetComponentIcon(string type)
+    {
+        return type switch
+        {
+            "CPU" => "⚙️",
+            "GPU" => "🎮",
+            "RAM" => "💾",
+            "SSD" => "💿",
+            "HDD" => "📀",
+            "PSU" => "⚡",
+            "MB" => "🔌",
+            "Case" => "📦",
+            _ => "🔧"
+        };
+    }
+
+    public string GetTypeDisplayName(string type)
+    {
+        return type switch
+        {
+            "CPU" => "Процессор",
+            "GPU" => "Видеокарта",
+            "RAM" => "Оперативная память",
+            "SSD" => "SSD накопитель",
+            "HDD" => "Жесткий диск",
+            "PSU" => "Блок питания",
+            "MB" => "Материнская плата",
+            "Case" => "Корпус",
+            _ => type ?? "Комплектующее"
+        };
+    }
+}

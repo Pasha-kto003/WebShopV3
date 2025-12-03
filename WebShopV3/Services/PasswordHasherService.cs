@@ -23,12 +23,10 @@ namespace WebShopV3.Services
             if (string.IsNullOrWhiteSpace(password))
                 throw new ArgumentException("Password cannot be empty");
 
-            // Генерируем случайную соль
             using var rng = RandomNumberGenerator.Create();
             var salt = new byte[SaltSize];
             rng.GetBytes(salt);
 
-            // Хэшируем пароль с солью
             using var pbkdf2 = new Rfc2898DeriveBytes(
                 password,
                 salt,
@@ -52,7 +50,7 @@ namespace WebShopV3.Services
 
             try
             {
-                // Декодируем хэш
+                // Тут декод
                 var hashBytes = Convert.FromBase64String(hashedPassword);
 
                 var salt = new byte[SaltSize];
@@ -73,7 +71,6 @@ namespace WebShopV3.Services
             }
             catch (FormatException)
             {
-                // Некорректный формат хэша (старые пароли в открытом виде)
                 return hashedPassword == providedPassword;
             }
         }

@@ -491,6 +491,7 @@ namespace ComputerShop.Controllers
             {
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
+                // ПРОВЕРЯЕМ НАЛИЧИЕ
                 foreach (var item in cart.Items)
                 {
                     if (item.IsComputer)
@@ -524,12 +525,13 @@ namespace ComputerShop.Controllers
                     await _context.SaveChangesAsync();
                 }
 
+                // ДЛЯ ОНЛАЙН-ОПЛАТЫ: создаем заказ со статусом "В ожидании" и списываем товары
                 var order = new Order
                 {
                     UserId = userId,
                     OrderDate = DateTime.Now,
                     OrderTypeId = 3, // Продажа
-                    StatusId = 5, // Ожидает оплаты
+                    StatusId = 5, // В ожидании оплаты
                     TotalAmount = cart.TotalAmount,
                     Description = $"Адрес доставки: {address}. {(string.IsNullOrEmpty(comment) ? "" : $"Комментарий: {comment}")}"
                 };
@@ -537,39 +539,68 @@ namespace ComputerShop.Controllers
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
+                // СПИСЫВАЕМ ТОВАРЫ ПРИ СОЗДАНИИ ЗАКАЗА (забронируем)
                 foreach (var item in cart.Items)
                 {
                     if (item.IsComputer)
                     {
-                        var computerOrder = new ComputerOrder
+                        var computer = await _context.Computers.FindAsync(item.ComputerId);
+                        if (computer != null)
                         {
-                            OrderId = order.Id,
-                            ComputerId = item.ComputerId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.Price
-                        };
-                        _context.ComputerOrders.Add(computerOrder);
+                            // Списываем товары сразу - они "забронированы"
+                            computer.Quantity -= item.Quantity;
+                            _context.Computers.Update(computer);
+
+                            var computerOrder = new ComputerOrder
+                            {
+                                OrderId = order.Id,
+                                ComputerId = item.ComputerId,
+                                Quantity = item.Quantity,
+                                UnitPrice = item.Price
+                            };
+                            _context.ComputerOrders.Add(computerOrder);
+                        }
                     }
                     else if (item.IsComponent)
                     {
-                        var componentOrder = new ComponentOrder
+                        var component = await _context.Components.FindAsync(item.ComponentId);
+                        if (component != null)
                         {
-                            OrderId = order.Id,
-                            ComponentId = item.ComponentId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.Price
-                        };
-                        _context.ComponentOrders.Add(componentOrder);
+                            // Списываем товары сразу - они "забронированы"
+                            component.Quantity -= item.Quantity;
+                            _context.Components.Update(component);
+
+                            var componentOrder = new ComponentOrder
+                            {
+                                OrderId = order.Id,
+                                ComponentId = item.ComponentId,
+                                Quantity = item.Quantity,
+                                UnitPrice = item.Price
+                            };
+                            _context.ComponentOrders.Add(componentOrder);
+                        }
                     }
                 }
 
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Process", "Payment", new { orderId = order.Id, amount = cart.TotalAmount });
+                var paymentRequest = new PaymentRequest
+                {
+                    Amount = cart.TotalAmount,
+                    Description = $"Оплата заказа #{order.Id}",
+                    OrderId = order.Id,
+                    ReturnUrl = Url.Action("Success", "Payment", new { orderId = order.Id }, Request.Scheme) ??
+                               $"{Request.Scheme}://{Request.Host}/Payment/Success?orderId={order.Id}"
+                };
+
+                var paymentResponse = await _yookassaService.CreatePaymentAsync(paymentRequest);
+
+                // Перенаправляем пользователя на страницу оплаты ЮКассы
+                return Redirect(paymentResponse.ConfirmationUrl);
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Ошибка при создании заказа: {ex.Message}";
+                TempData["ErrorMessage"] = $"Ошибка при создании платежа: {ex.Message}";
                 return RedirectToAction("Checkout");
             }
         }
@@ -751,12 +782,13 @@ namespace ComputerShop.Controllers
                     await _context.SaveChangesAsync();
                 }
 
+                // ЗАКАЗ БЕЗ ОНЛАЙН-ОПЛАТЫ - статус "Завершен" сразу
                 var order = new Order
                 {
                     UserId = userId,
                     OrderDate = DateTime.Now,
-                    OrderTypeId = 3,
-                    StatusId = 5, // В ожидании
+                    OrderTypeId = 3, // Продажа
+                    StatusId = 4, // Изменяем на "Завершен" (не "В ожидании")
                     TotalAmount = cart.TotalAmount,
                     Description = $"Адрес доставки: {address}. {(string.IsNullOrEmpty(comment) ? "" : $"Комментарий: {comment}")}"
                 };
@@ -764,7 +796,7 @@ namespace ComputerShop.Controllers
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-
+                // СПИСЫВАЕМ ТОВАРЫ ТОЛЬКО ЗДЕСЬ - для заказов без онлайн-оплаты
                 foreach (var item in cart.Items)
                 {
                     if (item.IsComputer)

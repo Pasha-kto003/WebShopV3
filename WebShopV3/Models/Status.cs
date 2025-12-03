@@ -9,7 +9,7 @@ namespace WebShopV3.Models
 
         [Required]
         [StringLength(50)]
-        public string Name { get; set; } // Выполнен, В ожидании, Отменен
+        public string Name { get; set; } // Выполнен (Id=4), В ожидании (Id=5), Отмена (Id=6), Проблема с наличием (Id=7)
 
         // Навигационные свойства
         public virtual ICollection<Order> Orders { get; set; }

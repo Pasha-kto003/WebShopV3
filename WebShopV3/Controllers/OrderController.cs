@@ -67,9 +67,9 @@ namespace WebShopV3.Controllers
                 .Include(o => o.OrderType)
                 .Include(o => o.Status)
                 .Include(o => o.ComputerOrders)
-                .ThenInclude(co => co.Computer)
+                    .ThenInclude(co => co.Computer)
                 .Include(o => o.ComponentOrders) // Добавляем загрузку компонентов
-                .ThenInclude(co => co.Component)
+                    .ThenInclude(co => co.Component)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (order == null)
@@ -102,7 +102,7 @@ namespace WebShopV3.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Админ,Менеджер")]
-        public async Task<IActionResult> Create(Order order, int[] selectedComputers, int[] quantities)
+        public async Task<IActionResult> Create(Order order, int[] selectedComputers, int[] computerQuantities, int[] selectedComponents, int[] componentQuantities)
         {
             // ОТЛАДКА: выводим входящие данные
             Console.WriteLine("=== CREATE ORDER DEBUG ===");
@@ -110,47 +110,50 @@ namespace WebShopV3.Controllers
             Console.WriteLine($"UserId: {order.UserId}");
             Console.WriteLine($"StatusId: {order.StatusId}");
 
-            if (selectedComputers != null)
-            {
-                Console.WriteLine($"SelectedComputers count: {selectedComputers.Length}");
-                for (int i = 0; i < selectedComputers.Length; i++)
-                {
-                    Console.WriteLine($"  Computer {i}: {selectedComputers[i]}");
-                }
-            }
-
-            if (quantities != null)
-            {
-                Console.WriteLine($"Quantities count: {quantities.Length}");
-                for (int i = 0; i < quantities.Length; i++)
-                {
-                    Console.WriteLine($"  Quantity {i}: {quantities[i]}");
-                }
-            }
+            Console.WriteLine($"SelectedComputers count: {selectedComputers?.Length ?? 0}");
+            Console.WriteLine($"SelectedComponents count: {selectedComponents?.Length ?? 0}");
 
             // Проверяем наличие данных
-            if (selectedComputers == null || quantities == null)
+            if ((selectedComputers == null || computerQuantities == null) &&
+                (selectedComponents == null || componentQuantities == null))
             {
-                TempData["ErrorMessage"] = "Ошибка в данных заказа: несоответствие выбранных компьютеров и количеств";
+                TempData["ErrorMessage"] = "Не выбрано ни одного товара для заказа";
                 await LoadViewData();
                 return View(order);
             }
 
             // Фильтруем компьютеры с количеством > 0
             var validComputers = new List<(int ComputerId, int Quantity)>();
-            for (int i = 0; i < selectedComputers.Length; i++)
+            if (selectedComputers != null && computerQuantities != null)
             {
-                if (quantities[i] > 0)
+                for (int i = 0; i < selectedComputers.Length; i++)
                 {
-                    validComputers.Add((selectedComputers[i], quantities[i]));
-                    Console.WriteLine($"Valid computer: ID={selectedComputers[i]}, Qty={quantities[i]}");
+                    if (i < computerQuantities.Length && computerQuantities[i] > 0)
+                    {
+                        validComputers.Add((selectedComputers[i], computerQuantities[i]));
+                        Console.WriteLine($"Valid computer: ID={selectedComputers[i]}, Qty={computerQuantities[i]}");
+                    }
                 }
             }
 
-            // Проверяем, есть ли валидные компьютеры
-            if (!validComputers.Any())
+            // Фильтруем комплектующие с количеством > 0
+            var validComponents = new List<(int ComponentId, int Quantity)>();
+            if (selectedComponents != null && componentQuantities != null)
             {
-                TempData["ErrorMessage"] = "Не выбрано ни одного компьютера с количеством больше 0";
+                for (int i = 0; i < selectedComponents.Length; i++)
+                {
+                    if (i < componentQuantities.Length && componentQuantities[i] > 0)
+                    {
+                        validComponents.Add((selectedComponents[i], componentQuantities[i]));
+                        Console.WriteLine($"Valid component: ID={selectedComponents[i]}, Qty={componentQuantities[i]}");
+                    }
+                }
+            }
+
+            // Проверяем, есть ли выбранные товары
+            if (!validComputers.Any() && !validComponents.Any())
+            {
+                TempData["ErrorMessage"] = "Не выбрано ни одного товара с количеством больше 0";
                 await LoadViewData();
                 return View(order);
             }
@@ -162,9 +165,10 @@ namespace WebShopV3.Controllers
             Console.WriteLine($"Order type: {orderType?.Name}, Is income: {isIncomeOrder}");
 
             // Для заказов типа "Продажа" проверяем наличие товаров на складе
+            var stockErrors = new List<string>();
             if (!isIncomeOrder)
             {
-                var stockErrors = new List<string>();
+                // Проверка компьютеров
                 foreach (var (computerId, quantity) in validComputers)
                 {
                     var computer = await _context.Computers.FindAsync(computerId);
@@ -174,7 +178,21 @@ namespace WebShopV3.Controllers
                     }
                     else if (computer.Quantity < quantity)
                     {
-                        stockErrors.Add($"Недостаточно товара '{computer.Name}' в наличии. Доступно: {computer.Quantity}, Заказано: {quantity}");
+                        stockErrors.Add($"Недостаточно компьютера '{computer.Name}' в наличии. Доступно: {computer.Quantity}, Заказано: {quantity}");
+                    }
+                }
+
+                // Проверка комплектующих
+                foreach (var (componentId, quantity) in validComponents)
+                {
+                    var component = await _context.Components.FindAsync(componentId);
+                    if (component == null)
+                    {
+                        stockErrors.Add($"Комплектующее с ID {componentId} не найден");
+                    }
+                    else if (component.Quantity < quantity)
+                    {
+                        stockErrors.Add($"Недостаточно комплектующего '{component.Name}' в наличии. Доступно: {component.Quantity}, Заказано: {quantity}");
                     }
                 }
 
@@ -217,24 +235,62 @@ namespace WebShopV3.Controllers
                         var itemTotal = computer.Price * quantity;
                         totalAmount += itemTotal;
 
-                        Console.WriteLine($"Added: {computer.Name}, Qty: {quantity}, Price: {computer.Price}, Total: {itemTotal}");
+                        Console.WriteLine($"Added computer: {computer.Name}, Qty: {quantity}, Price: {computer.Price}, Total: {itemTotal}");
 
                         // Обновляем склад в зависимости от типа заказа
                         if (isIncomeOrder)
                         {
                             // приход - увеличиваем количество
                             computer.Quantity += quantity;
-                            Console.WriteLine($"Income order: increasing stock for {computer.Name} by {quantity}");
+                            Console.WriteLine($"Income order: increasing stock for computer '{computer.Name}' by {quantity}");
                         }
                         else
                         {
                             // Продажа - уменьшаем количество
                             computer.Quantity -= quantity;
-                            Console.WriteLine($"Sale order: decreasing stock for {computer.Name} by {quantity}");
+                            Console.WriteLine($"Sale order: decreasing stock for computer '{computer.Name}' by {quantity}");
                         }
 
                         _context.Computers.Update(computer);
                         _context.ComputerOrders.Add(computerOrder);
+                    }
+                }
+
+                // Обрабатываем комплектующие
+                foreach (var (componentId, quantity) in validComponents)
+                {
+                    var component = await _context.Components.FindAsync(componentId);
+                    if (component != null)
+                    {
+                        var componentOrder = new ComponentOrder
+                        {
+                            OrderId = order.Id,
+                            ComponentId = componentId,
+                            Quantity = quantity,
+                            UnitPrice = component.Price
+                        };
+
+                        var itemTotal = component.Price * quantity;
+                        totalAmount += itemTotal;
+
+                        Console.WriteLine($"Added component: {component.Name}, Qty: {quantity}, Price: {component.Price}, Total: {itemTotal}");
+
+                        // Обновляем склад в зависимости от типа заказа
+                        if (isIncomeOrder)
+                        {
+                            // приход - увеличиваем количество
+                            component.Quantity += quantity;
+                            Console.WriteLine($"Income order: increasing stock for component '{component.Name}' by {quantity}");
+                        }
+                        else
+                        {
+                            // Продажа - уменьшаем количество
+                            component.Quantity -= quantity;
+                            Console.WriteLine($"Sale order: decreasing stock for component '{component.Name}' by {quantity}");
+                        }
+
+                        _context.Components.Update(component);
+                        _context.ComponentOrders.Add(componentOrder);
                     }
                 }
 
@@ -244,9 +300,25 @@ namespace WebShopV3.Controllers
                 await _context.SaveChangesAsync();
 
                 Console.WriteLine($"Final order total: {order.TotalAmount}");
+                Console.WriteLine($"Computers in order: {validComputers.Count}");
+                Console.WriteLine($"Components in order: {validComponents.Count}");
 
                 var orderTypeName = isIncomeOrder ? "приход" : "продажа";
-                TempData["SuccessMessage"] = $"Заказ #{order.Id} ({orderTypeName}) успешно создан! Сумма: {order.TotalAmount:C}";
+                var itemSummary = new List<string>();
+
+                if (validComputers.Any())
+                {
+                    itemSummary.Add($"{validComputers.Count} компьютеров");
+                }
+                if (validComponents.Any())
+                {
+                    itemSummary.Add($"{validComponents.Count} комплектующих");
+                }
+
+                var itemsText = string.Join(" и ", itemSummary);
+
+                TempData["SuccessMessage"] = $"Заказ #{order.Id} ({orderTypeName}) успешно создан! " +
+                                            $"{itemsText} на сумму {order.TotalAmount:C}";
 
                 return RedirectToAction("Details", new { id = order.Id });
             }
@@ -270,8 +342,13 @@ namespace WebShopV3.Controllers
             }
 
             var order = await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderType)
+                .Include(o => o.Status)
                 .Include(o => o.ComputerOrders)
-                .ThenInclude(co => co.Computer)
+                    .ThenInclude(co => co.Computer)
+                .Include(o => o.ComponentOrders) // Добавляем загрузку компонентов
+                    .ThenInclude(co => co.Component)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (order == null)
@@ -385,7 +462,9 @@ namespace WebShopV3.Controllers
                 .Include(o => o.OrderType)
                 .Include(o => o.Status)
                 .Include(o => o.ComputerOrders)
-                .ThenInclude(co => co.Computer)
+                    .ThenInclude(co => co.Computer)
+                .Include(o => o.ComponentOrders) // Добавляем загрузку компонентов
+                    .ThenInclude(co => co.Component)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (order == null)
@@ -543,6 +622,53 @@ namespace WebShopV3.Controllers
             }
         }
 
+        // В OrderController добавить метод
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReturnToStock(int orderId)
+        {
+            try
+            {
+                var order = await _context.Orders
+                    .Include(o => o.ComputerOrders)
+                        .ThenInclude(co => co.Computer)
+                    .Include(o => o.ComponentOrders)
+                        .ThenInclude(co => co.Component)
+                    .FirstOrDefaultAsync(o => o.Id == orderId);
+
+                if (order == null)
+                    return Json(new { success = false, message = "Заказ не найден" });
+
+                // Возвращаем товары на склад
+                foreach (var computerOrder in order.ComputerOrders)
+                {
+                    var computer = computerOrder.Computer;
+                    if (computer != null)
+                    {
+                        computer.Quantity += computerOrder.Quantity;
+                        _context.Computers.Update(computer);
+                    }
+                }
+
+                foreach (var componentOrder in order.ComponentOrders)
+                {
+                    var component = componentOrder.Component;
+                    if (component != null)
+                    {
+                        component.Quantity += componentOrder.Quantity;
+                        _context.Components.Update(component);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = "Товары возвращены на склад" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Ошибка: {ex.Message}" });
+            }
+        }
+
         private bool OrderExists(int id)
         {
             return _context.Orders.Any(e => e.Id == id);
@@ -553,7 +679,12 @@ namespace WebShopV3.Controllers
             ViewBag.Users = await _context.Users.ToListAsync();
             ViewBag.OrderTypes = await _context.OrderTypes.ToListAsync();
             ViewBag.Statuses = await _context.Statuses.ToListAsync();
-            ViewBag.Computers = await _context.Computers.Where(c => c.Quantity > 0).ToListAsync();
+            ViewBag.Computers = await _context.Computers
+                .Where(c => c.Quantity > 0 || c.Quantity == 0) // Показываем даже с нулевым количеством для приходов
+                .ToListAsync();
+            ViewBag.Components = await _context.Components
+                .Where(c => c.Quantity > 0 || c.Quantity == 0) // Показываем даже с нулевым количеством для приходов
+                .ToListAsync();
         }
     }
 }

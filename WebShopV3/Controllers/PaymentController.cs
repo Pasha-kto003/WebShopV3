@@ -122,9 +122,9 @@ namespace WebShopV3.Controllers
             {
                 var order = await _context.Orders
                     .Include(o => o.ComputerOrders)
-                    .ThenInclude(co => co.Computer)
+                        .ThenInclude(co => co.Computer)
                     .Include(o => o.ComponentOrders)
-                    .ThenInclude(co => co.Component)
+                        .ThenInclude(co => co.Component)
                     .FirstOrDefaultAsync(o => o.Id == orderId);
 
                 if (order == null)
@@ -136,7 +136,7 @@ namespace WebShopV3.Controllers
                 Console.WriteLine($"Обработка заказа #{orderId}, текущий статус: {order.StatusId}");
 
                 // Проверяем статус заказа
-                if (order.StatusId == 4) // Уже оплачен
+                if (order.StatusId == 4) // Уже завершен (оплачен)
                 {
                     TempData["SuccessMessage"] = $"Заказ #{orderId} уже оплачен!";
                     return View(order);
@@ -148,58 +148,29 @@ namespace WebShopV3.Controllers
                     return RedirectToAction("MyOrders", "Order");
                 }
 
-                // Списание товаров
-                bool hasStockIssues = false;
+                // ТОВАРЫ НЕ СПИСЫВАЕМ - они уже списаны при создании заказа в ожидании оплаты
+                // Просто меняем статус с "В ожидании" на "Завершен"
 
-                foreach (var computerOrder in order.ComputerOrders)
+                // Проверяем, что заказ находится в статусе "В ожидании" (ожидает оплаты)
+                if (order.StatusId == 5) // В ожидании
                 {
-                    var computer = computerOrder.Computer;
-                    if (computer != null && computer.Quantity >= computerOrder.Quantity)
-                    {
-                        computer.Quantity -= computerOrder.Quantity;
-                        Console.WriteLine($"Списан компьютер: {computer.Name}");
-                    }
-                    else
-                    {
-                        hasStockIssues = true;
-                        Console.WriteLine($"Проблема с компьютером: {computer?.Name}");
-                        break;
-                    }
+                    // УБИРАЕМ ПРОВЕРКУ НАЛИЧИЯ И СПИСАНИЕ!
+                    // Товары уже забронированы при создании заказа в статусе "В ожидании"
+
+                    // Только меняем статус на "Завершен"
+                    order.StatusId = 4;
+
+                    Console.WriteLine($"Статус заказа #{orderId} изменен на 'Завершен'");
+                }
+                else
+                {
+                    Console.WriteLine($"Заказ #{orderId} имеет неожиданный статус: {order.StatusId}");
                 }
 
-                if (!hasStockIssues)
-                {
-                    foreach (var componentOrder in order.ComponentOrders)
-                    {
-                        var component = componentOrder.Component;
-                        if (component != null && component.Quantity >= componentOrder.Quantity)
-                        {
-                            component.Quantity -= componentOrder.Quantity;
-                            Console.WriteLine($"Списан компонент: {component.Name}");
-                        }
-                        else
-                        {
-                            hasStockIssues = true;
-                            Console.WriteLine($"Проблема с компонентом: {component?.Name}");
-                            break;
-                        }
-                    }
-                }
-
-                if (hasStockIssues)
-                {
-                    order.StatusId = 7; // Проблема с наличием
-                    await _context.SaveChangesAsync();
-                    TempData["ErrorMessage"] = "К сожалению, некоторых товаров нет в достаточном количестве. Мы свяжемся с вами для уточнения деталей.";
-                    return RedirectToAction("MyOrders", "Order");
-                }
-
-                // Меняем статус на "Оплачен"
-                order.StatusId = 4;
                 await _context.SaveChangesAsync();
 
                 // Очищаем корзину
-                HttpContext.Session.Remove("Cart");
+                HttpContext.Session.Remove(CartSessionKey);
 
                 TempData["SuccessMessage"] = $"Заказ #{orderId} успешно оплачен! Товары будут отправлены в ближайшее время.";
                 return View(order);

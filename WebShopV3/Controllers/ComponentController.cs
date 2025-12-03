@@ -105,17 +105,17 @@ namespace WebShopV3.Controllers
             {
                 try
                 {
-                    if (component.FormFactor == null)
+                    if(component.FormFactor == null)
                         component.FormFactor = "";
-                    if (component.MaxMemory == null)
+                    if(component.MaxMemory == null)
                         component.MaxMemory = 0;
-                    if (component.MemorySlots == null)
+                    if(component.MemorySlots == null)
                         component.MemorySlots = 0;
-                    if (component.MemoryType == null)
+                    if(component.MemoryType == null)
                         component.MemoryType = "";
-                    if (component.PowerConnector == null)
+                    if(component.PowerConnector == null)
                         component.PowerConnector = "";
-                    if (component.Socket == null)
+                    if(component.Socket == null)
                         component.Socket = "";
                     _context.Update(component);
                     await _context.SaveChangesAsync();

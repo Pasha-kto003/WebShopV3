@@ -66,6 +66,8 @@ builder.Services.AddHttpClient<IYookassaService, YookassaService>();
 builder.Services.AddScoped<IYookassaService, YookassaService>();
 builder.Services.AddLogging();
 
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

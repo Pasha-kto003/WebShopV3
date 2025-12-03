@@ -73,7 +73,14 @@ namespace WebShopV3.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveConfiguration(string Name, string Description, decimal Price, int Quantity, List<int> ComponentIds, int? ComputerId, IFormFile ImageFile = null)
+        public async Task<IActionResult> SaveConfiguration(
+    string Name,
+    string Description,
+    decimal Price,
+    int Quantity,
+    List<int> ComponentIds,
+    int? ComputerId,
+    IFormFile ImageFile = null)
         {
             try
             {
@@ -96,6 +103,30 @@ namespace WebShopV3.Controllers
                     });
                 }
 
+                // 1. ПРОВЕРЯЕМ НАЛИЧИЕ КОМПЛЕКТУЮЩИХ НА СКЛАДЕ
+                var stockIssues = new List<string>();
+                foreach (var component in selectedComponents)
+                {
+                    // Проверяем, что на складе есть хотя бы 1 экземпляр каждого компонента
+                    if (component.Quantity < 1)
+                    {
+                        stockIssues.Add(
+                            $"Недостаточно '{component.Name}' в наличии. " +
+                            $"Доступно: {component.Quantity}, Требуется: 1"
+                        );
+                    }
+                }
+
+                if (stockIssues.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Недостаточно комплектующих на складе",
+                        errors = stockIssues
+                    });
+                }
+
                 decimal componentsTotalPrice = selectedComponents.Sum(c => c.Price);
 
                 // Добавляем наценку 10%
@@ -103,7 +134,6 @@ namespace WebShopV3.Controllers
 
                 Console.WriteLine($"Price calculation: Components total = {componentsTotalPrice:C}, Final price with 10% markup = {finalPrice:C}");
 
-                Computer computer;
                 string imageUrl = "1.jpg"; // изображение по умолчанию
 
                 // Обработка загрузки изображения
@@ -130,73 +160,126 @@ namespace WebShopV3.Controllers
                     imageUrl = ImageFile.FileName;
                 }
 
-                if (ComputerId.HasValue)
-                {
-                    // Редактирование существующего компьютера
-                    computer = await _context.Computers
-                        .Include(c => c.ComputerComponents)
-                        .FirstOrDefaultAsync(c => c.Id == ComputerId.Value);
+                // Используем Execution Strategy для транзакций с ретраями
+                var executionStrategy = _context.Database.CreateExecutionStrategy();
 
-                    if (computer == null)
+                Computer computer = null;
+
+                await executionStrategy.ExecuteAsync(async () =>
+                {
+                    // Начинаем транзакцию внутри execution strategy
+                    using var transaction = await _context.Database.BeginTransactionAsync();
+
+                    try
                     {
-                        return Json(new { success = false, message = "Компьютер не найден" });
+                        if (ComputerId.HasValue)
+                        {
+                            // РЕДАКТИРОВАНИЕ существующего компьютера
+                            computer = await _context.Computers
+                                .Include(c => c.ComputerComponents)
+                                    .ThenInclude(cc => cc.Component)
+                                .FirstOrDefaultAsync(c => c.Id == ComputerId.Value);
+
+                            if (computer == null)
+                            {
+                                throw new Exception("Компьютер не найден");
+                            }
+
+                            // ВОЗВРАЩАЕМ СТАРЫЕ КОМПЛЕКТУЮЩИЕ НА СКЛАД
+                            foreach (var oldComponent in computer.ComputerComponents)
+                            {
+                                var component = oldComponent.Component;
+                                if (component != null)
+                                {
+                                    component.Quantity += 1; // Возвращаем на склад
+                                    _context.Components.Update(component);
+                                    Console.WriteLine($"Returned to stock: {component.Name}, New quantity: {component.Quantity}");
+                                }
+                            }
+
+                            // Обновляем данные компьютера
+                            computer.Name = Name;
+                            computer.Description = Description;
+                            computer.Price = finalPrice;
+                            computer.Quantity = Quantity;
+
+                            // Обновляем изображение только если загружено новое
+                            if (ImageFile != null)
+                            {
+                                computer.ImageUrl = imageUrl;
+                            }
+
+                            // Удаляем старые связи
+                            _context.ComputerComponents.RemoveRange(computer.ComputerComponents);
+                        }
+                        else
+                        {
+                            // СОЗДАНИЕ нового компьютера
+                            computer = new Computer
+                            {
+                                Name = Name,
+                                Description = Description,
+                                Price = finalPrice,
+                                Quantity = Quantity,
+                                ImageUrl = imageUrl
+                            };
+
+                            _context.Computers.Add(computer);
+                        }
+
+                        await _context.SaveChangesAsync();
+
+                        // 2. СПИСЫВАЕМ НОВЫЕ КОМПЛЕКТУЮЩИЕ СО СКЛАДА
+                        foreach (var component in selectedComponents)
+                        {
+                            // Уменьшаем количество на складе на 1
+                            component.Quantity -= 1;
+                            _context.Components.Update(component);
+
+                            Console.WriteLine($"Deducted from stock: {component.Name}, New quantity: {component.Quantity}");
+
+                            // Создаем связь компьютер-комплектующее
+                            var computerComponent = new ComputerComponent
+                            {
+                                ComputerId = computer.Id,
+                                ComponentId = component.Id
+                            };
+                            _context.ComputerComponents.Add(computerComponent);
+                        }
+
+                        await _context.SaveChangesAsync();
+
+                        // Фиксируем транзакцию
+                        await transaction.CommitAsync();
                     }
-
-                    // Обновляем данные компьютера
-                    computer.Name = Name;
-                    computer.Description = Description;
-                    computer.Price = finalPrice;
-
-                    // Обновляем изображение только если загружено новое
-                    if (ImageFile != null)
+                    catch (Exception ex)
                     {
-                        computer.ImageUrl = imageUrl;
+                        // При ошибке транзакция автоматически откатится при using
+                        Console.WriteLine($"Transaction error: {ex.Message}");
+                        throw; // Пробрасываем дальше
                     }
+                });
 
-                    // Удаляем старые компоненты
-                    _context.ComputerComponents.RemoveRange(computer.ComputerComponents);
-                }
-                else
-                {
-                    // Создание нового компьютера
-                    computer = new Computer
-                    {
-                        Name = Name,
-                        Description = Description,
-                        Price = finalPrice,
-                        Quantity = Quantity,
-                        ImageUrl = imageUrl
-                    };
-
-                    _context.Computers.Add(computer);
-                }
-
-                await _context.SaveChangesAsync();
-
-                // Добавляем новые компоненты
-                foreach (var componentId in ComponentIds)
-                {
-                    var computerComponent = new ComputerComponent
-                    {
-                        ComputerId = computer.Id,
-                        ComponentId = componentId
-                    };
-                    _context.ComputerComponents.Add(computerComponent);
-                }
-
-                await _context.SaveChangesAsync();
-
+                // Если мы здесь, значит транзакция успешно завершена
                 return Json(new
                 {
                     success = true,
-                    computerId = computer.Id,
-                    message = ComputerId.HasValue ? "Конфигурация обновлена" : "Конфигурация сохранена",
-                    calculatesPrice = finalPrice
+                    computerId = computer?.Id ?? 0,
+                    message = ComputerId.HasValue
+                        ? "Конфигурация обновлена. Склад скорректирован."
+                        : "Конфигурация сохранена. Комплектующие списаны со склада.",
+                    calculatedPrice = finalPrice,
+                    componentsUsed = selectedComponents.Count,
+                    stockUpdated = true
                 });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"Ошибка: {ex.Message}" });
+                return Json(new
+                {
+                    success = false,
+                    message = $"Ошибка при сохранении конфигурации: {ex.Message}"
+                });
             }
         }
     }

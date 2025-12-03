@@ -1,0 +1,121 @@
+﻿@model WebShopV3.Models.Computer
+
+<div class="bg-dark-card rounded-2xl p-8 border border-gray-800">
+    <!-- Заголовок и цена -->
+    <div class="mb-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">@Model.Name</h1>
+        <p class="text-xl text-gray-400 mb-4">@Model.Description</p>
+        
+        <div class="flex items-center gap-4 mb-4">
+            <div class="text-3xl font-bold text-primary">@Model.Price.ToString("C")</div>
+            @if (Model.ComputerComponents.Any())
+            {
+                var componentsTotal = Model.ComputerComponents.Sum(cc => cc.Component.Price);
+                var markup = componentsTotal * 0.1m;
+                <div class="text-lg text-gray-400 line-through">@((componentsTotal + markup).ToString("C"))</div>
+                <div class="bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm font-bold">
+                    -@((int)((1 - Model.Price / (componentsTotal + markup)) * 100))%
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Основные характеристики -->
+    <div class="space-y-4 mb-6">
+        <h3 class="text-lg font-semibold text-white">Ключевые характеристики:</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            @if (Model.ComputerComponents.Any())
+            {
+                var cpu = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "CPU");
+                var gpu = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "GPU");
+                var ram = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "RAM");
+                var storage = Model.ComputerComponents.FirstOrDefault(cc => cc.Component.Type == "SSD" || cc.Component.Type == "HDD");
+                
+                if (cpu != null)
+                {
+                    <div class="flex items-center text-gray-300">
+                        <span class="w-2 h-2 bg-primary rounded-full mr-3"></span>
+                        <span class="text-gray-400 w-24">Процессор:</span>
+                        <span class="text-white">@cpu.Component.Name</span>
+                    </div>
+                }
+                if (gpu != null)
+                {
+                    <div class="flex items-center text-gray-300">
+                        <span class="w-2 h-2 bg-primary rounded-full mr-3"></span>
+                        <span class="text-gray-400 w-24">Видеокарта:</span>
+                        <span class="text-primary">@gpu.Component.Name</span>
+                    </div>
+                }
+                if (ram != null)
+                {
+                    <div class="flex items-center text-gray-300">
+                        <span class="w-2 h-2 bg-primary rounded-full mr-3"></span>
+                        <span class="text-gray-400 w-24">ОЗУ:</span>
+                        <span class="text-white">@ram.Component.Name</span>
+                    </div>
+                }
+                if (storage != null)
+                {
+                    <div class="flex items-center text-gray-300">
+                        <span class="w-2 h-2 bg-primary rounded-full mr-3"></span>
+                        <span class="text-gray-400 w-24">Накопитель:</span>
+                        <span class="text-white">@storage.Component.Name</span>
+                    </div>
+                }
+            }
+            <div class="flex items-center text-gray-300">
+                <span class="w-2 h-2 bg-primary rounded-full mr-3"></span>
+                <span class="text-gray-400 w-24">В наличии:</span>
+                <span class="text-white">@Model.Quantity шт.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопки действий -->
+    <div class="space-y-4 mb-6">
+        @if (Model.Quantity > 0)
+        {
+            <div class="flex items-center gap-4 mb-3">
+                <label for="quantity" class="text-gray-300">Количество:</label>
+                <input type="number" id="quantity" 
+                       class="w-20 bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary" 
+                       value="1" min="1" max="@Model.Quantity">
+            </div>
+            <button class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center add-to-cart-details"
+                    data-computer-id="@Model.Id" 
+                    data-computer-name="@Model.Name">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                Добавить в корзину
+            </button>
+        }
+        else
+        {
+            <button class="w-full bg-gray-600 text-gray-300 py-4 rounded-lg font-bold text-lg cursor-not-allowed" disabled>
+                Нет в наличии
+            </button>
+        }
+        
+        <div class="grid grid-cols-2 gap-3">
+            <button class="bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200">
+                💝 В избранное
+            </button>
+            <a href="@Url.Action("Catalog", "Home")" class="bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 text-center">
+                ← Назад
+            </a>
+        </div>
+    </div>
+
+    <!-- Быстрая доставка -->
+    <div class="bg-primary/10 border border-primary/20 rounded-lg p-4">
+        <div class="flex items-center text-sm text-primary">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="font-semibold">Быстрая доставка:</span>
+            <span class="ml-1">сборка за 3-5 дней, доставка 1-2 дня</span>
+        </div>
+    </div>
+</div>
