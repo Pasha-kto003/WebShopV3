@@ -71,16 +71,49 @@ namespace WebShopV3.Controllers
             return Json(result);
         }
 
+        private string GenerateDetailedComputerDescription(List<Component> components)
+        {
+            var descriptionParts = new List<string>();
+
+            foreach (var component in components.OrderBy(c => c.Type))
+            {
+                var componentInfo = GetComponentInfo(component);
+                if (!string.IsNullOrEmpty(componentInfo))
+                {
+                    descriptionParts.Add(componentInfo);
+                }
+            }
+
+            return string.Join(", ", descriptionParts);
+        }
+
+        private string GetComponentInfo(Component component)
+        {
+            return component.Type switch
+            {
+                "MB" => $"Материнская плата: {component.Name}",
+                "CPU" => $"Процессор: {component.Name}",
+                "RAM" => $"Оперативная память: {component.Name}",
+                "GPU" => $"Видеокарта: {component.Name}",
+                "PSU" => $"Блок питания: {component.Name}",
+                "Case" => $"Корпус: {component.Name}",
+                "SSD" => $"SSD накопитель: {component.Name}",
+                "HDD" => $"Жесткий диск: {component.Name}",
+                "Cooler" => $"Охлаждение: {component.Name}",
+                _ => component.Name
+            };
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveConfiguration(
-    string Name,
-    string Description,
-    decimal Price,
-    int Quantity,
-    List<int> ComponentIds,
-    int? ComputerId,
-    IFormFile ImageFile = null)
+        string Name,
+        string Description,
+        decimal Price,
+        int Quantity,
+        List<int> ComponentIds,
+        int? ComputerId,
+        IFormFile ImageFile = null)
         {
             try
             {
@@ -158,6 +191,11 @@ namespace WebShopV3.Controllers
                     }
 
                     imageUrl = ImageFile.FileName;
+                }
+
+                if (string.IsNullOrWhiteSpace(Description))
+                {
+                    Description = GenerateDetailedComputerDescription(selectedComponents);
                 }
 
                 // Используем Execution Strategy для транзакций с ретраями

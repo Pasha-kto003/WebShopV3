@@ -136,7 +136,7 @@ namespace ComputerShop.Controllers
                         Name = component.Name,
                         Price = component.Price,
                         Quantity = quantity,
-                        ImageUrl = "default-component.jpg"
+                        ImageUrl = component.ImageUrl
                     });
                 }
                 productName = component.Name;
@@ -230,7 +230,104 @@ namespace ComputerShop.Controllers
                 });
             }
 
-            return Json(new { success = false, message = "Товар не найден в корзине" });
+            else
+            {
+                return Json(new { success = false, message = "Товар не найден в корзине" });
+            }
+        }
+
+        // GET: Cart/GetSimilarComputers
+        [HttpGet]
+        public async Task<IActionResult> GetSimilarComputers()
+        {
+            try
+            {
+                var cartJson = HttpContext.Session.GetString(CartSessionKey);
+                var cart = string.IsNullOrEmpty(cartJson)
+                    ? new Cart()
+                    : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
+
+                var recommendations = new List<object>();
+
+                // Получаем ID компьютеров в корзине
+                var computerIdsInCart = cart.Items
+                    .Where(item => item.IsComputer)
+                    .Select(item => item.ComputerId)
+                    .ToList();
+
+                // Если в корзине есть компьютеры, ищем похожие по цене
+                if (computerIdsInCart.Any())
+                {
+                    // Берем первый компьютер из корзины для сравнения
+                    var firstComputerId = computerIdsInCart.First();
+                    var cartComputer = await _context.Computers.FindAsync(firstComputerId);
+
+                    if (cartComputer != null)
+                    {
+                        // Ищем компьютеры в похожей ценовой категории (±20%)
+                        var minPrice = cartComputer.Price * 0.8m;
+                        var maxPrice = cartComputer.Price * 1.2m;
+
+                        var similarByPrice = await _context.Computers
+                            .Where(c => c.Id != firstComputerId &&
+                                       c.Quantity > 0 &&
+                                       c.Price >= minPrice &&
+                                       c.Price <= maxPrice)
+                            .OrderBy(c => Guid.NewGuid()) // Случайный порядок
+                            .Take(4)
+                            .Select(c => new
+                            {
+                                c.Id,
+                                c.Name,
+                                c.Price,
+                                ImageUrl = string.IsNullOrEmpty(c.ImageUrl) ? "default-computer.jpg" : c.ImageUrl,
+                                c.Description,
+                                Category = "Похожая цена"
+                            })
+                            .ToListAsync();
+
+                        recommendations.AddRange(similarByPrice);
+                    }
+                }
+
+                // Если рекомендаций мало или их нет, добавляем случайные компьютеры
+                if (recommendations.Count < 4)
+                {
+                    var randomCount = 4 - recommendations.Count;
+                    var randomComputers = await _context.Computers
+                        .Where(c => c.Quantity > 0)
+                        .OrderBy(c => Guid.NewGuid())
+                        .Take(randomCount)
+                        .Select(c => new
+                        {
+                            c.Id,
+                            c.Name,
+                            c.Price,
+                            ImageUrl = string.IsNullOrEmpty(c.ImageUrl) ? "default-computer.jpg" : c.ImageUrl,
+                            c.Description,
+                            Category = "Рекомендуем"
+                        })
+                        .ToListAsync();
+
+                    recommendations.AddRange(randomComputers);
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    recommendations = recommendations.Take(4).ToList()
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetSimilarComputers: {ex.Message}");
+                // Возвращаем пустой массив при ошибке
+                return Json(new
+                {
+                    success = true,
+                    recommendations = new List<object>()
+                });
+            }
         }
 
         // POST: Cart/RemoveFromCart - универсальный метод

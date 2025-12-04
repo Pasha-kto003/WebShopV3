@@ -1905,3 +1905,123 @@ select:invalid, input:invalid {
 select:valid, input:valid {
     border-color: #00ff88;
 }
+
+/* Добавить в wwwroot/css/site.css или в Layout */
+.recently-viewed-fade-in {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.recently-viewed-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+    .recently-viewed-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Анимация для карточек по очереди */
+    .recently-viewed-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .recently-viewed-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .recently-viewed-card:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .recently-viewed-card:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+
+/* Добавить в ваш CSS */
+.recently-viewed-card {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: none; /* Скрыты по умолчанию */
+}
+
+    .recently-viewed-card.visible {
+        display: block;
+    }
+
+/* Анимация для появления карточек */
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.recently-viewed-card.animate-in {
+    animation: cardSlideIn 0.6s ease-out forwards;
+}
+
+/* Стили для активной страницы */
+.page-btn.active {
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.3);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    #recently-viewed-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    #recently-viewed-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Эффект наведения для кнопок пагинации */
+.page-btn:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Плавная прокрутка при навигации */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Индикатор загрузки */
+.loading-spinner {
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid #00ff88;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

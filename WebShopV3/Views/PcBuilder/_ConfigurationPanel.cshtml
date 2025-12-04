@@ -1,0 +1,127 @@
+﻿<div class="bg-dark-card rounded-2xl p-6 border border-gray-800 sticky top-24">
+    <h2 class="text-2xl font-bold text-white mb-6">
+        @(ViewBag.ComputerId != null ? "Редактирование конфигурации" : "Ваша конфигурация")
+    </h2>
+
+    <!-- Поля для названия, описания и фотографии -->
+    <div class="mb-6 space-y-4">
+        <!-- Поле для названия -->
+        <div>
+            <label for="computerName" class="block text-sm font-medium text-gray-300 mb-2">
+                Название компьютера *
+            </label>
+            <input type="text" 
+                   id="computerName" 
+                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                   placeholder="Введите название конфигурации"
+                   value="@ViewBag.ComputerName"
+                   maxlength="100">
+            <div class="text-xs text-gray-400 mt-1" id="nameCounter">0/100</div>
+        </div>
+
+        <!-- Поле для описания -->
+        <div>
+            <label for="computerDescription" class="block text-sm font-medium text-gray-300 mb-2">
+                Описание
+                <button type="button" 
+                        onclick="generateAndFillDescription()"
+                        class="ml-2 text-xs text-primary hover:text-green-400 underline">
+                    Сгенерировать автоматически
+                </button>
+            </label>
+            <textarea id="computerDescription" 
+                      rows="3"
+                      class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                      placeholder="Описание конфигурации (необязательно)"
+                      maxlength="500">@ViewBag.ComputerDescription</textarea>
+            <div class="flex justify-between items-center mt-1">
+                <div class="text-xs text-gray-400" id="descriptionCounter">0/500</div>
+                <div class="flex gap-2">
+                    <button type="button" 
+                            onclick="generateAndFillDescription()"
+                            class="text-xs text-primary hover:text-green-400">
+                        ↻ Обновить
+                    </button>
+                    <button type="button" 
+                            onclick="clearDescription()"
+                            class="text-xs text-gray-400 hover:text-red-400">
+                        ✕ Очистить
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Поле для загрузки фотографии -->
+        <div class="mt-6">
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+                Фотография компьютера
+            </label>
+
+            <!-- Простое поле выбора файла -->
+            <input type="file" id="computerImage" name="ImageFile" 
+                   class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200"
+                   accept=".jpg,.jpeg,.png,.webp"/>
+
+            <p class="text-gray-400 text-sm mt-1">PNG, JPG, JPEG, WebP (макс. 5MB)</p>
+
+            <!-- Отображение текущего изображения при редактировании -->
+            @if (ViewBag.ComputerId != null && !string.IsNullOrEmpty(ViewBag.ComputerImageUrl))
+            {
+                <div class="mt-3">
+                    <p class="text-sm text-gray-400 mb-2">Текущее изображение:</p>
+                    <div class="relative inline-block">
+                        <img src="@ViewBag.ComputerImageUrl" class="w-32 h-32 object-cover rounded-lg border border-gray-600" 
+                             alt="Текущее изображение компьютера">
+                        <span class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">
+                            Текущее
+                        </span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div id="configurationList" class="space-y-4 mb-6">
+        <div class="text-center text-gray-400 py-8">
+            <div class="text-4xl mb-2">🖥️</div>
+            <p>Выберите компоненты для сборки</p>
+        </div>
+    </div>
+
+    <div id="compatibilityResult" class="mb-6">
+        <!-- Результаты проверки совместимости -->
+    </div>
+
+    <!-- В правой колонке, перед кнопкой сохранения -->
+    <div class="border-t border-gray-700 pt-4">
+        <!-- Отображение расчета цены -->
+        <div class="mb-4 space-y-2 text-sm">
+            <div class="flex justify-between text-gray-400">
+                <span>Сумма компонентов:</span>
+                <span id="componentsTotal">0 ₽</span>
+            </div>
+            <div class="flex justify-between text-gray-400">
+                <span>Наценка (10%):</span>
+                <span id="markupAmount">0 ₽</span>
+            </div>
+            <div class="flex justify-between items-center text-lg border-t border-gray-600 pt-2">
+                <span class="text-white font-semibold">Итоговая цена:</span>
+                <span id="totalPrice" class="text-2xl font-bold text-primary">0 ₽</span>
+            </div>
+        </div>
+
+        <button id="saveConfiguration" 
+                class="w-full bg-primary text-dark py-3 rounded-lg font-bold hover:bg-green-400 transition duration-200 disabled:bg-gray-600 disabled:cursor-not-allowed mb-2"
+                disabled>
+            @(ViewBag.ComputerId != null ? "Обновить конфигурацию" : "Сохранить конфигурацию")
+        </button>
+
+        @if (ViewBag.ComputerId != null)
+        {
+            <a href="@Url.Action("Details", "Computer", new { id = ViewBag.ComputerId })" 
+               class="w-full bg-gray-600 text-white py-3 rounded-lg font-bold hover:bg-gray-500 transition duration-200 text-center block">
+                Отмена
+            </a>
+        }
+    </div>
+</div>

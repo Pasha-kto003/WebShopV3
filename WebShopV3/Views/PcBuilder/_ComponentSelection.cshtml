@@ -1,0 +1,109 @@
+﻿@model List<Component>
+
+<div class="bg-dark-card rounded-2xl p-6 border border-gray-800 mb-6">
+    <h2 class="text-2xl font-bold text-white mb-6">Выбор компонентов</h2>
+    
+    <div class="space-y-6" id="componentCategories">
+        @if (Model != null && Model.Any())
+        {
+            <!-- Материнские платы -->
+            <div class="component-category">
+                <div class="flex items-center mb-4">
+                    <span class="text-2xl mr-3">🔌</span>
+                    <h3 class="text-xl font-bold text-white">Материнские платы</h3>
+                    <span class="ml-2 text-xs text-red-400">* обязательный</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="components-MB">
+                    @foreach (var component in Model.Where(c => c.Type == "MB"))
+                    {
+                        @await Html.PartialAsync("_ComponentCard", component)
+                    }
+                </div>
+            </div>
+
+            <!-- Процессоры -->
+            <div class="component-category">
+                <div class="flex items-center mb-4">
+                    <span class="text-2xl mr-3">⚙️</span>
+                    <h3 class="text-xl font-bold text-white">Процессоры</h3>
+                    <span class="ml-2 text-xs text-red-400">* обязательный</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="components-CPU">
+                    @foreach (var component in Model.Where(c => c.Type == "CPU"))
+                    {
+                        @await Html.PartialAsync("_ComponentCard", component)
+                    }
+                </div>
+            </div>
+
+            <!-- Оперативная память -->
+            <div class="component-category">
+                <div class="flex items-center mb-4">
+                    <span class="text-2xl mr-3">💾</span>
+                    <h3 class="text-xl font-bold text-white">Оперативная память</h3>
+                    <span class="ml-2 text-xs text-red-400">* обязательный</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="components-RAM">
+                    @foreach (var component in Model.Where(c => c.Type == "RAM"))
+                    {
+                        @await Html.PartialAsync("_ComponentCard", component)
+                    }
+                </div>
+            </div>
+
+            <!-- Блоки питания -->
+            <div class="component-category">
+                <div class="flex items-center mb-4">
+                    <span class="text-2xl mr-3">⚡</span>
+                    <h3 class="text-xl font-bold text-white">Блоки питания</h3>
+                    <span class="ml-2 text-xs text-red-400">* обязательный</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="components-PSU">
+                    @foreach (var component in Model.Where(c => c.Type == "PSU"))
+                    {
+                        @await Html.PartialAsync("_ComponentCard", component)
+                    }
+                </div>
+            </div>
+
+            <!-- Корпуса -->
+            <div class="component-category">
+                <div class="flex items-center mb-4">
+                    <span class="text-2xl mr-3">🏠</span>
+                    <h3 class="text-xl font-bold text-white">Корпуса</h3>
+                    <span class="ml-2 text-xs text-red-400">* обязательный</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="components-Case">
+                    @foreach (var component in Model.Where(c => c.Type == "Case"))
+                    {
+                        @await Html.PartialAsync("_ComponentCard", component)
+                    }
+                </div>
+            </div>
+
+            <!-- Видеокарты (необязательные) -->
+            @if (Model.Any(c => c.Type == "GPU"))
+            {
+                <div class="component-category">
+                    <div class="flex items-center mb-4">
+                        <span class="text-2xl mr-3">🎮</span>
+                        <h3 class="text-xl font-bold text-white">Видеокарты</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="components-GPU">
+                        @foreach (var component in Model.Where(c => c.Type == "GPU"))
+                        {
+                            @await Html.PartialAsync("_ComponentCard", component)
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center text-gray-400 py-8">
+                <div class="text-4xl mb-2">😔</div>
+                <p>Компоненты для сборки отсутствуют</p>
+            </div>
+        }
+    </div>
+</div>

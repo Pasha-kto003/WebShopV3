@@ -17,11 +17,17 @@
     <Content Remove="wwwroot\Images\7.jpg" />
     <Content Remove="wwwroot\Images\8.jpg" />
     <Content Remove="wwwroot\Images\9.jpg" />
+    <Content Remove="wwwroot\Images\computers\Japon 2010 - RBR - Sebastian Vettel.jfif" />
+    <Content Remove="wwwroot\Images\computers\Без названия %282%29.jfif" />
     <Content Remove="wwwroot\Images\image %2834%29.png" />
     <Content Remove="wwwroot\Images\image %2839%29.png" />
     <Content Remove="wwwroot\Images\photo_2025-03-06_17-50-02.jpg" />
     <Content Remove="wwwroot\Images\sddefault.jpg" />
     <Content Remove="wwwroot\Images\Кобылка.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="wwwroot\Images\computers\Japon 2010 - RBR - Sebastian Vettel.jfif" />
   </ItemGroup>
 
   <ItemGroup>
@@ -83,6 +89,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="wwwroot\Images\computers\sddefault.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="wwwroot\Images\computers\Без названия (2).jfif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="wwwroot\Images\computers\Кобылка.png">

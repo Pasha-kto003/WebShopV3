@@ -1,0 +1,54 @@
+﻿@model Component
+
+@{
+    // Определяем функцию для клика в зависимости от типа компонента
+    string onClickFunction = $"toggleComponent({Model.Id}, '{Model.Type}', '{Model.Name.Replace("'", "\\'")}', {Model.Price}, '{Model.Socket}', '{Model.MemoryType}', '{Model.FormFactor}', '{Model.PowerConnector}')";
+}
+
+<div class="component-card bg-gray-800/50 rounded-xl p-4 border-2 border-gray-700 hover:border-primary/50 transition duration-200 cursor-pointer"
+     data-component-id="@Model.Id"
+     onclick="@Html.Raw(onClickFunction)">
+    <div class="flex justify-between items-start mb-3">
+        <h4 class="text-white font-semibold text-sm">@Model.Name</h4>
+        <div class="text-primary font-bold">@Model.Price.ToString("C")</div>
+    </div>
+    <div class="text-gray-400 text-xs mb-3 line-clamp-2">@Model.Description</div>
+    <div class="space-y-1 text-xs">
+        @if (!string.IsNullOrEmpty(Model.Socket))
+        {
+            <div class="flex justify-between">
+                <span class="text-gray-500">Сокет:</span>
+                <span class="text-white">@Model.Socket</span>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.MemoryType))
+        {
+            <div class="flex justify-between">
+                <span class="text-gray-500">Память:</span>
+                <span class="text-white">@Model.MemoryType</span>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.FormFactor))
+        {
+            <div class="flex justify-between">
+                <span class="text-gray-500">Форм-фактор:</span>
+                <span class="text-white">@Model.FormFactor</span>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.PowerConnector) && Model.Type == "PSU")
+        {
+            <div class="flex justify-between">
+                <span class="text-gray-500">Разъемы:</span>
+                <span class="text-white">@Model.PowerConnector</span>
+            </div>
+        }
+    </div>
+    <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-700">
+        <span class="text-xs @(Model.Quantity > 0 ? "text-green-400" : "text-red-400")">
+            @(Model.Quantity > 0 ? $"В наличии: {Model.Quantity}" : "Нет в наличии")
+        </span>
+        <button class="text-xs text-primary hover:underline" onclick="event.stopPropagation(); @Html.Raw(onClickFunction)">
+            Добавить
+        </button>
+    </div>
+</div>
