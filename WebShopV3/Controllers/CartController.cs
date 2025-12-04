@@ -249,22 +249,18 @@ namespace ComputerShop.Controllers
 
                 var recommendations = new List<object>();
 
-                // Получаем ID компьютеров в корзине
                 var computerIdsInCart = cart.Items
                     .Where(item => item.IsComputer)
                     .Select(item => item.ComputerId)
                     .ToList();
 
-                // Если в корзине есть компьютеры, ищем похожие по цене
                 if (computerIdsInCart.Any())
                 {
-                    // Берем первый компьютер из корзины для сравнения
                     var firstComputerId = computerIdsInCart.First();
                     var cartComputer = await _context.Computers.FindAsync(firstComputerId);
 
                     if (cartComputer != null)
                     {
-                        // Ищем компьютеры в похожей ценовой категории (±20%)
                         var minPrice = cartComputer.Price * 0.8m;
                         var maxPrice = cartComputer.Price * 1.2m;
 
@@ -273,7 +269,7 @@ namespace ComputerShop.Controllers
                                        c.Quantity > 0 &&
                                        c.Price >= minPrice &&
                                        c.Price <= maxPrice)
-                            .OrderBy(c => Guid.NewGuid()) // Случайный порядок
+                            .OrderBy(c => Guid.NewGuid())
                             .Take(4)
                             .Select(c => new
                             {
@@ -290,7 +286,6 @@ namespace ComputerShop.Controllers
                     }
                 }
 
-                // Если рекомендаций мало или их нет, добавляем случайные компьютеры
                 if (recommendations.Count < 4)
                 {
                     var randomCount = 4 - recommendations.Count;
