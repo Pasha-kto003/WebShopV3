@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Text.Json;
 using WebShopV3.Models;
+using WebShopV3.Models.DTO;
 
 namespace WebShopV3.Controllers
 {
@@ -25,14 +26,137 @@ namespace WebShopV3.Controllers
                 .Take(8)
                 .ToListAsync();
 
+            var bestsellers = await _context.Components
+                .Where(c => c.Quantity > 0)
+                .OrderByDescending(c => c.Id)
+                .Take(6)
+                .ToListAsync();
+
+            // Получаем статистику для View
+            ViewBag.TotalComponents = await _context.Components
+                .Where(c => c.Quantity > 0)
+                .CountAsync();
+
+            ViewBag.TotalTypes = await _context.Components
+                .Select(c => c.Type)
+                .Distinct()
+                .CountAsync();
+
+            // Получаем компоненты по категориям
+            var categoryData = await GetComponentCategoriesDataAsync();
+            ViewBag.ComponentCategoriesData = categoryData;
+
             var cartJson = HttpContext.Session.GetString("Cart");
             var cart = string.IsNullOrEmpty(cartJson)
                 ? new Cart()
                 : JsonSerializer.Deserialize<Cart>(cartJson);
 
             ViewBag.CartItemsCount = cart?.TotalItems ?? 0;
+            ViewBag.Bestsellers = bestsellers;
+            ViewBag.ComponentTypes = await _context.Components
+                .Select(c => c.Type)
+                .Distinct()
+                .Where(t => !string.IsNullOrEmpty(t))
+                .Take(8)
+                .ToListAsync();
 
             return View(computers);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> ComponentDetails(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var component = await _context.Components
+                .Include(c => c.ComponentCharacteristics)
+                    .ThenInclude(cc => cc.Characteristic)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (component == null)
+            {
+                return NotFound();
+            }
+
+            // Получаем связанные компоненты (того же типа)
+            var relatedComponents = await _context.Components
+                .Where(c => c.Type == component.Type && c.Id != component.Id && c.Quantity > 0)
+                .OrderByDescending(c => c.Id)
+                .Take(4)
+                .ToListAsync();
+
+            // Передаем данные через ViewBag и ViewData
+            ViewBag.RelatedComponents = relatedComponents;
+            ViewBag.ComponentCharacteristics = component.ComponentCharacteristics.ToList();
+
+            var recentlyViewed = GetRecentlyViewedComputers();
+
+            ViewBag.RecentlyViewed = recentlyViewed
+                .Where(c => c.Id != id.Value)
+                .Take(5)
+                .ToList();
+
+            var componentTypes = _context.Components
+                .Select(cc => cc.Type)
+                .Distinct()
+                .ToList();
+
+            var recommendedComputers = await _context.Computers
+                .Where(c => c.Quantity > 0 && c.Id != id)
+                .Take(6)
+                .ToListAsync();
+
+            var recommendedComponents = await _context.Components
+                .Where(c => c.Quantity > 0 && componentTypes.Contains(c.Type))
+                .Take(6)
+                .ToListAsync();
+
+            // Передаем через ViewBag
+            ViewBag.RecommendedComputers = recommendedComputers;
+            ViewBag.RecommendedComponents = recommendedComponents;
+
+            // Получаем корзину для отображения количества
+            var cartJson = HttpContext.Session.GetString("Cart");
+            var cart = string.IsNullOrEmpty(cartJson)
+                ? new Cart()
+                : JsonSerializer.Deserialize<Cart>(cartJson);
+            ViewBag.CartItemsCount = cart?.TotalItems ?? 0;
+
+            return View(component); // Передаем сам компонент как модель
+        }
+
+        // Новый метод для получения данных категорий
+        private async Task<List<CategoryData>> GetComponentCategoriesDataAsync()
+        {
+            var categoryTypes = new[] { "CPU", "GPU", "RAM", "SSD", "HDD", "MB", "PSU", "CASE" };
+            var result = new List<CategoryData>();
+
+            foreach (var type in categoryTypes)
+            {
+                var component = await _context.Components
+                    .Where(c => c.Type == type && c.Quantity > 0)
+                    .OrderByDescending(c => c.Id)
+                    .Select(c => new ComponentData
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        Price = c.Price,
+                        Quantity = c.Quantity,
+                        Type = c.Type
+                    })
+                    .FirstOrDefaultAsync();
+
+                result.Add(new CategoryData
+                {
+                    Type = type,
+                    Component = component
+                });
+            }
+
+            return result;
         }
 
         [AllowAnonymous]
@@ -258,7 +382,6 @@ namespace WebShopV3.Controllers
         }
 
 
-        // Вспомогательный класс для хранения в куках (добавить как вложенный класс)
         private class RecentlyViewedItem
         {
             public int ComputerId { get; set; }
@@ -451,6 +574,54 @@ namespace WebShopV3.Controllers
             return Json(new { success = true, data = result });
         }
 
+        // HomeController.cs - добавьте этот метод
+        [AllowAnonymous]
+        public async Task<IActionResult> GetBestsellers(string type = "all", int limit = 6)
+        {
+            IQueryable<Component> query = _context.Components
+                .Where(c => c.Quantity > 0);
+
+            // Фильтрация по типу
+            if (!string.IsNullOrEmpty(type) && type.ToLower() != "all")
+            {
+                query = query.Where(c => c.Type == type.ToUpper());
+            }
+
+            // Для "всех категорий" показываем наиболее популярные товары
+            // Можно добавить логику сортировки по популярности (количеству продаж)
+            // Пока используем сортировку по ID (новые первыми)
+            var components = await query
+                .OrderByDescending(c => c.Id)
+                .Take(limit)
+                .Select(c => new
+                {
+                    id = c.Id,
+                    name = c.Name,
+                    price = c.Price,
+                    type = c.Type,
+                    description = c.Description,
+                    quantity = c.Quantity,
+                    specifications = c.Specifications,
+                    socket = c.Socket,
+                    memoryType = c.MemoryType,
+                    formFactor = c.FormFactor,
+                    imageUrl = c.ImageUrl,
+                    shortName = c.Name // Для отображения короткого имени
+                })
+                .ToListAsync();
+
+            return Json(new { success = true, components });
+        }
+
+        // Вспомогательный метод для сокращения имени
+        private string TruncateName(string name, int maxLength = 30)
+        {
+            if (string.IsNullOrEmpty(name) || name.Length <= maxLength)
+                return name;
+
+            return name.Substring(0, maxLength - 3) + "...";
+        }
+
         [AllowAnonymous]
         public IActionResult About()
         {
@@ -462,7 +633,6 @@ namespace WebShopV3.Controllers
         {
             return View();
         }
-        // Вспомогательный класс для хранения в куках (добавить как вложенный класс)
     }
 
 

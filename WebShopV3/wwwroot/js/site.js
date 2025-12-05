@@ -22,6 +22,24 @@ function addToCart(computerId, quantity = 1, computerName = '') {
         });
 }
 
+function addToCartComponent(id, quantity = 1, name = '') {
+    $.post('/Cart/AddToCart', { id, quantity })
+        .done(function (response) {
+            if (response.success) {
+                // Показываем уведомление
+                showNotification('success', `Товар "${name}" добавлен в корзину`);
+
+                // Обновляем счетчик в корзине
+                updateCartCounter(response.totalItems);
+            } else {
+                showNotification('error', response.message);
+            }
+        })
+        .fail(function () {
+            showNotification('error', 'Ошибка при добавлении в корзину');
+        });
+}
+
 function updateCartCounter(count) {
     // Можно добавить счетчик в навигации
     const cartCounter = $('#cart-counter');
@@ -242,6 +260,15 @@ $(document).ready(function () {
 
         if (typeof addToCart === 'function') {
             addToCart(computerId, quantity, computerName);
+        }
+    });
+    $('.add-to-cart-detailsComponent').on('click', function () {
+        const id = $(this).data('component-id');
+        const name = $(this).data('component-name');
+        const quantity = $('#quantity').val();
+
+        if (typeof addToCart === 'function') {
+            addToCartComponent(id, quantity, name);
         }
     });
 });
