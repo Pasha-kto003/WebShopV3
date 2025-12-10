@@ -1,5 +1,7 @@
-﻿@model WebShopV3.Models.CatalogViewModel
+﻿﻿
+@model WebShopV3.Models.CatalogViewModel
 
+@Html.AntiForgeryToken()
 <!-- Вид карточками -->
 <div id="cardsView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
     <!-- Компьютеры -->
@@ -110,11 +112,12 @@
             <div class="flex items-center justify-between mb-4">
                 <div class="text-2xl font-bold text-blue-400">@component.Price.ToString("C")</div>
             </div>
-    
-            <a href="@Url.Action("AddToCart", "Cart", new { componentId = component.Id, quantity = 1 })" 
-               class="w-full bg-gradient-to-r from-blue-400 to-cyan-400 text-dark py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-blue-400/25 transition duration-300 group-hover:scale-105 add-to-cart-component text-center block">
+
+            <button class="add-to-cart-component w-full bg-gradient-to-r from-primary to-green-400 text-dark py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300 group-hover:scale-105"
+                    data-component-id="@component.Id"
+                    data-component-name="@component.Name">
                 В корзину
-            </a>
+            </button>
         </div>
     }
 </div>
@@ -233,7 +236,7 @@
                     </div>
                 </div>
                 <div class="flex-shrink-0">
-                    <a href="@Url.Action("AddToCart", "Cart", new { componentId = component.Id, quantity = 1 })" 
+                    <a href="@Url.Action("AddToCart", "Cart", new { componentId = component.Id, quantity = 1 })"
                        class="w-full lg:w-auto bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-blue-400/25 transition duration-300 add-to-cart-component text-center block"
                        data-component-id="@component.Id">
                         В корзину

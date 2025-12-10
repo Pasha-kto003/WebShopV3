@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using WebShopV3.Models;
@@ -14,11 +12,16 @@ namespace ComputerShop.Controllers
         private readonly ApplicationDbContext _context;
         private const string CartSessionKey = "Cart";
         private readonly IYookassaService _yookassaService;
+        private readonly ILogger<CartController> _logger;
 
-        public CartController(ApplicationDbContext context, IYookassaService yookassaService)
+        public CartController(
+            ApplicationDbContext context,
+            IYookassaService yookassaService,
+            ILogger<CartController> logger)
         {
             _context = context;
             _yookassaService = yookassaService;
+            _logger = logger;
         }
 
         // GET: Cart
@@ -32,130 +35,139 @@ namespace ComputerShop.Controllers
             return View(cart);
         }
 
-        public IActionResult Final()
-        {
-            return View();
-        }
-
         // POST: Cart/AddToCart - универсальный метод для компьютеров и компонентов
-        [HttpGet]
         [HttpPost]
         public async Task<IActionResult> AddToCart(int? computerId, int? componentId, int quantity = 1)
         {
-            Console.WriteLine($"=== AddToCart called ===");
-            Console.WriteLine($"ComputerId: {computerId}, ComponentId: {componentId}, Quantity: {quantity}");
-
-            if (!computerId.HasValue && !componentId.HasValue)
+            try
             {
-                TempData["ErrorMessage"] = "Не указан товар для добавления";
-                return RedirectToAction("Index", "Home");
-            }
-
-            // Получаем корзину
-            var cartJson = HttpContext.Session.GetString(CartSessionKey);
-            var cart = string.IsNullOrEmpty(cartJson)
-                ? new Cart()
-                : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
-
-            string productName = "";
-            bool success = false;
-
-            if (computerId.HasValue)
-            {
-                // Добавление компьютера
-                var computer = await _context.Computers.FindAsync(computerId.Value);
-                if (computer == null)
+                if (!computerId.HasValue && !componentId.HasValue)
                 {
-                    TempData["ErrorMessage"] = "Компьютер не найден";
-                    return RedirectToAction("Catalog", "Home");
+                    return Json(new { success = false, message = "Не указан товар для добавления" });
                 }
 
-                if (computer.Quantity < quantity)
-                {
-                    TempData["ErrorMessage"] = "Недостаточно компьютеров в наличии";
-                    return RedirectToAction("Catalog", "Home");
-                }
+                var cartJson = HttpContext.Session.GetString(CartSessionKey);
+                var cart = string.IsNullOrEmpty(cartJson)
+                    ? new Cart()
+                    : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
 
-                var existingItem = cart.Items.FirstOrDefault(x => x.ComputerId == computerId && x.IsComputer);
+                string productName = "";
+                bool success = false;
 
-                if (existingItem != null)
+                if (computerId.HasValue)
                 {
-                    if (computer.Quantity < existingItem.Quantity + quantity)
+                    success = await AddComputerToCart(computerId.Value, quantity, cart);
+                    if (success)
                     {
-                        TempData["ErrorMessage"] = "Недостаточно компьютеров в наличии";
-                        return RedirectToAction("Catalog", "Home");
+                        var computer = await _context.Computers.FindAsync(computerId.Value);
+                        productName = computer?.Name ?? "";
                     }
-                    existingItem.Quantity += quantity;
+                }
+                else if (componentId.HasValue)
+                {
+                    success = await AddComponentToCart(componentId.Value, quantity, cart);
+                    if (success)
+                    {
+                        var component = await _context.Components.FindAsync(componentId.Value);
+                        productName = component?.Name ?? "";
+                    }
+                }
+
+                if (success)
+                {
+                    var updatedCartJson = JsonSerializer.Serialize(cart);
+                    HttpContext.Session.SetString(CartSessionKey, updatedCartJson);
+
+                    return Json(new
+                    {
+                        success = true,
+                        message = $"\"{productName}\" добавлен в корзину!",
+                        cartItems = cart.TotalItems,
+                        cartTotal = cart.TotalAmount
+                    });
                 }
                 else
                 {
-                    cart.Items.Add(new CartItem
+                    return Json(new
                     {
-                        ComputerId = computerId.Value,
-                        Name = computer.Name,
-                        Price = computer.Price,
-                        Quantity = quantity,
-                        ImageUrl = computer.ImageUrl
+                        success = false,
+                        message = "Не удалось добавить товар в корзину. Возможно, недостаточно товара на складе."
                     });
                 }
-                productName = computer.Name;
-                success = true;
             }
-            else if (componentId.HasValue)
+            catch (Exception ex)
             {
-                // Добавление компонента
-                var component = await _context.Components.FindAsync(componentId.Value);
-                if (component == null)
-                {
-                    TempData["ErrorMessage"] = "Комплектующее не найдено";
-                    return RedirectToAction("Catalog", "Home");
-                }
-
-                if (component.Quantity < quantity)
-                {
-                    TempData["ErrorMessage"] = "Недостаточно комплектующих в наличии";
-                    return RedirectToAction("Catalog", "Home");
-                }
-
-                var existingItem = cart.Items.FirstOrDefault(x => x.ComponentId == componentId && x.IsComponent);
-
-                if (existingItem != null)
-                {
-                    if (component.Quantity < existingItem.Quantity + quantity)
-                    {
-                        TempData["ErrorMessage"] = "Недостаточно комплектующих в наличии";
-                        return RedirectToAction("Catalog", "Home");
-                    }
-                    existingItem.Quantity += quantity;
-                }
-                else
-                {
-                    cart.Items.Add(new CartItem
-                    {
-                        ComponentId = componentId.Value,
-                        Name = component.Name,
-                        Price = component.Price,
-                        Quantity = quantity,
-                        ImageUrl = component.ImageUrl
-                    });
-                }
-                productName = component.Name;
-                success = true;
+                _logger.LogError(ex, "Error adding to cart");
+                return Json(new { success = false, message = $"Ошибка: {ex.Message}" });
             }
-
-            if (success)
-            {
-                // Сохраняем корзину
-                var updatedCartJson = JsonSerializer.Serialize(cart);
-                HttpContext.Session.SetString(CartSessionKey, updatedCartJson);
-
-                TempData["SuccessMessage"] = $"\"{productName}\" добавлен в корзину!";
-            }
-
-            // Возвращаем обратно на страницу, откуда пришли
-            return RedirectToAction("Catalog", "Home");
         }
 
+        // Сделайте эти методы приватными в контроллере:
+        private async Task<bool> AddComputerToCart(int computerId, int quantity, Cart cart)
+        {
+            var computer = await _context.Computers.FindAsync(computerId);
+            if (computer == null || computer.Quantity < quantity)
+            {
+                return false;
+            }
+
+            var existingItem = cart.Items.FirstOrDefault(x => x.ComputerId == computerId && x.IsComputer);
+
+            if (existingItem != null)
+            {
+                if (computer.Quantity < existingItem.Quantity + quantity)
+                {
+                    return false;
+                }
+                existingItem.Quantity += quantity;
+            }
+            else
+            {
+                cart.Items.Add(new CartItem
+                {
+                    ComputerId = computerId,
+                    Name = computer.Name,
+                    Price = computer.Price,
+                    Quantity = quantity,
+                    ImageUrl = computer.ImageUrl
+                });
+            }
+
+            return true;
+        }
+
+        private async Task<bool> AddComponentToCart(int componentId, int quantity, Cart cart)
+        {
+            var component = await _context.Components.FindAsync(componentId);
+            if (component == null || component.Quantity < quantity)
+            {
+                return false;
+            }
+
+            var existingItem = cart.Items.FirstOrDefault(x => x.ComponentId == componentId && x.IsComponent);
+
+            if (existingItem != null)
+            {
+                if (component.Quantity < existingItem.Quantity + quantity)
+                {
+                    return false;
+                }
+                existingItem.Quantity += quantity;
+            }
+            else
+            {
+                cart.Items.Add(new CartItem
+                {
+                    ComponentId = componentId,
+                    Name = component.Name,
+                    Price = component.Price,
+                    Quantity = quantity,
+                    ImageUrl = component.ImageUrl
+                });
+            }
+
+            return true;
+        }
 
         // POST: Cart/UpdateQuantity
         [HttpPost]
@@ -164,21 +176,6 @@ namespace ComputerShop.Controllers
             if (quantity <= 0)
             {
                 return RemoveFromCart(computerId, componentId);
-            }
-
-            object itemToCheck = null;
-            if (computerId.HasValue)
-            {
-                itemToCheck = await _context.Computers.FindAsync(computerId.Value);
-            }
-            else if (componentId.HasValue)
-            {
-                itemToCheck = await _context.Components.FindAsync(componentId.Value);
-            }
-
-            if (itemToCheck == null)
-            {
-                return Json(new { success = false, message = "Товар не найден" });
             }
 
             var cartJson = HttpContext.Session.GetString(CartSessionKey);
@@ -202,7 +199,7 @@ namespace ComputerShop.Controllers
                 if (computerId.HasValue)
                 {
                     var computer = await _context.Computers.FindAsync(computerId.Value);
-                    if (computer.Quantity < quantity)
+                    if (computer == null || computer.Quantity < quantity)
                     {
                         return Json(new { success = false, message = "Недостаточно товара в наличии" });
                     }
@@ -210,7 +207,7 @@ namespace ComputerShop.Controllers
                 else if (componentId.HasValue)
                 {
                     var component = await _context.Components.FindAsync(componentId.Value);
-                    if (component.Quantity < quantity)
+                    if (component == null || component.Quantity < quantity)
                     {
                         return Json(new { success = false, message = "Недостаточно товара в наличии" });
                     }
@@ -230,10 +227,52 @@ namespace ComputerShop.Controllers
                 });
             }
 
-            else
+            return Json(new { success = false, message = "Товар не найден в корзине" });
+        }
+
+        // POST: Cart/RemoveFromCart
+        [HttpPost]
+        public IActionResult RemoveFromCart(int? computerId, int? componentId)
+        {
+            var cartJson = HttpContext.Session.GetString(CartSessionKey);
+            var cart = string.IsNullOrEmpty(cartJson)
+                ? new Cart()
+                : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
+
+            CartItem item = null;
+            if (computerId.HasValue)
             {
-                return Json(new { success = false, message = "Товар не найден в корзине" });
+                item = cart.Items.FirstOrDefault(x => x.ComputerId == computerId && x.IsComputer);
             }
+            else if (componentId.HasValue)
+            {
+                item = cart.Items.FirstOrDefault(x => x.ComponentId == componentId && x.IsComponent);
+            }
+
+            if (item != null)
+            {
+                cart.Items.Remove(item);
+                var updatedCartJson = JsonSerializer.Serialize(cart);
+                HttpContext.Session.SetString(CartSessionKey, updatedCartJson);
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Товар удален из корзины",
+                    totalItems = cart.TotalItems,
+                    totalAmount = cart.TotalAmount
+                });
+            }
+
+            return Json(new { success = false, message = "Товар не найден в корзине" });
+        }
+
+        // POST: Cart/Clear
+        [HttpPost]
+        public IActionResult Clear()
+        {
+            HttpContext.Session.Remove(CartSessionKey);
+            return Json(new { success = true, message = "Корзина очищена" });
         }
 
         // GET: Cart/GetSimilarComputers
@@ -315,8 +354,7 @@ namespace ComputerShop.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in GetSimilarComputers: {ex.Message}");
-                // Возвращаем пустой массив при ошибке
+                _logger.LogError(ex, "Error in GetSimilarComputers");
                 return Json(new
                 {
                     success = true,
@@ -325,52 +363,7 @@ namespace ComputerShop.Controllers
             }
         }
 
-        // POST: Cart/RemoveFromCart - универсальный метод
-        [HttpPost]
-        public IActionResult RemoveFromCart(int? computerId, int? componentId)
-        {
-            var cartJson = HttpContext.Session.GetString(CartSessionKey);
-            var cart = string.IsNullOrEmpty(cartJson)
-                ? new Cart()
-                : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
-
-            CartItem item = null;
-            if (computerId.HasValue)
-            {
-                item = cart.Items.FirstOrDefault(x => x.ComputerId == computerId && x.IsComputer);
-            }
-            else if (componentId.HasValue)
-            {
-                item = cart.Items.FirstOrDefault(x => x.ComponentId == componentId && x.IsComponent);
-            }
-
-            if (item != null)
-            {
-                cart.Items.Remove(item);
-
-                var updatedCartJson = JsonSerializer.Serialize(cart);
-                HttpContext.Session.SetString(CartSessionKey, updatedCartJson);
-
-                return Json(new
-                {
-                    success = true,
-                    message = "Товар удален из корзины",
-                    totalItems = cart.TotalItems,
-                    totalAmount = cart.TotalAmount
-                });
-            }
-
-            return Json(new { success = false, message = "Товар не найден в корзине" });
-        }
-
-        // POST: Cart/Clear
-        [HttpPost]
-        public IActionResult Clear()
-        {
-            HttpContext.Session.Remove(CartSessionKey);
-            return Json(new { success = true, message = "Корзина очищена" });
-        }
-
+        // GET: Cart/Checkout
         public async Task<IActionResult> Checkout()
         {
             if (!User.Identity.IsAuthenticated)
@@ -390,433 +383,45 @@ namespace ComputerShop.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Проверяем наличие всех товаров в корзине
+            // Проверяем наличие всех товаров
             foreach (var item in cart.Items)
             {
                 if (item.IsComputer)
                 {
-                    // Проверяем компьютер
                     var computer = await _context.Computers.FindAsync(item.ComputerId);
-                    if (computer == null)
+                    if (computer == null || computer.Quantity < item.Quantity)
                     {
-                        TempData["ErrorMessage"] = $"Компьютер '{item.Name}' не найден";
-                        return RedirectToAction("Index");
-                    }
-                    if (computer.Quantity < item.Quantity)
-                    {
-                        TempData["ErrorMessage"] = $"Недостаточно компьютеров '{item.Name}' в наличии. Доступно: {computer.Quantity}, Заказано: {item.Quantity}";
+                        TempData["ErrorMessage"] = $"Недостаточно компьютеров '{item.Name}' в наличии. Доступно: {computer?.Quantity ?? 0}";
                         return RedirectToAction("Index");
                     }
                 }
                 else if (item.IsComponent)
                 {
-                    // Проверяем компонент
                     var component = await _context.Components.FindAsync(item.ComponentId);
-                    if (component == null)
+                    if (component == null || component.Quantity < item.Quantity)
                     {
-                        TempData["ErrorMessage"] = $"Комплектующее '{item.Name}' не найдено";
-                        return RedirectToAction("Index");
-                    }
-                    if (component.Quantity < item.Quantity)
-                    {
-                        TempData["ErrorMessage"] = $"Недостаточно комплектующих '{item.Name}' в наличии. Доступно: {component.Quantity}, Заказано: {item.Quantity}";
+                        TempData["ErrorMessage"] = $"Недостаточно комплектующих '{item.Name}' в наличии. Доступно: {component?.Quantity ?? 0}";
                         return RedirectToAction("Index");
                     }
                 }
             }
 
-            // Получаем данные текущего пользователя
+            // Получаем данные пользователя
             var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-            var user = await _context.Users
-                .Include(u => u.UserType)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user == null)
-            {
-                TempData["ErrorMessage"] = "Пользователь не найден";
-                return RedirectToAction("Index");
-            }
+            var user = await _context.Users.FindAsync(userId);
 
             ViewBag.UserData = new
             {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Phone = user.Phone
+                FirstName = user?.FirstName,
+                LastName = user?.LastName,
+                Email = user?.Email,
+                Phone = user?.Phone
             };
 
             return View(cart);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateOrderForPayment(string firstName, string lastName, string email, string phone, string address, string comment)
-        {
-            if (!User.Identity.IsAuthenticated)
-            {
-                return Json(new { success = false, message = "Для оформления заказа необходимо войти в систему" });
-            }
-
-            var cartJson = HttpContext.Session.GetString(CartSessionKey);
-            var cart = string.IsNullOrEmpty(cartJson)
-                ? new Cart()
-                : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
-
-            if (!cart.Items.Any())
-            {
-                return Json(new { success = false, message = "Корзина пуста" });
-            }
-
-            try
-            {
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-
-                foreach (var item in cart.Items)
-                {
-                    if (item.IsComputer)
-                    {
-                        var computer = await _context.Computers.FindAsync(item.ComputerId);
-                        if (computer == null || computer.Quantity < item.Quantity)
-                        {
-                            return Json(new { success = false, message = $"Недостаточно компьютеров '{item.Name}' в наличии" });
-                        }
-                    }
-                    else if (item.IsComponent)
-                    {
-                        var component = await _context.Components.FindAsync(item.ComponentId);
-                        if (component == null || component.Quantity < item.Quantity)
-                        {
-                            return Json(new { success = false, message = $"Недостаточно комплектующих '{item.Name}' в наличии" });
-                        }
-                    }
-                }
-
-                var user = await _context.Users.FindAsync(userId);
-                if (user != null)
-                {
-                    if (!string.IsNullOrEmpty(firstName)) user.FirstName = firstName;
-                    if (!string.IsNullOrEmpty(lastName)) user.LastName = lastName;
-                    if (!string.IsNullOrEmpty(email)) user.Email = email;
-                    if (!string.IsNullOrEmpty(phone)) user.Phone = phone;
-                    _context.Users.Update(user);
-                    await _context.SaveChangesAsync();
-                }
-
-                var order = new Order
-                {
-                    UserId = userId,
-                    OrderDate = DateTime.Now,
-                    OrderTypeId = 3, // Продажа
-                    StatusId = 5, // Создайте статус "Ожидает оплаты"
-                    TotalAmount = cart.TotalAmount,
-                    Description = $"Адрес доставки: {address}. {(string.IsNullOrEmpty(comment) ? "" : $"Комментарий: {comment}")}"
-                };
-
-                _context.Orders.Add(order);
-                await _context.SaveChangesAsync();
-
-                foreach (var item in cart.Items)
-                {
-                    if (item.IsComputer)
-                    {
-                        var computerOrder = new ComputerOrder
-                        {
-                            OrderId = order.Id,
-                            ComputerId = item.ComputerId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.Price
-                        };
-                        _context.ComputerOrders.Add(computerOrder);
-                    }
-                    else if (item.IsComponent)
-                    {
-                        var componentOrder = new ComponentOrder
-                        {
-                            OrderId = order.Id,
-                            ComponentId = item.ComponentId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.Price
-                        };
-                        _context.ComponentOrders.Add(componentOrder);
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-
-                return Json(new { success = true, orderId = order.Id, amount = cart.TotalAmount });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = $"Ошибка при создании заказа: {ex.Message}" });
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> CreateYookassaOrder()
-        {
-            TempData["ErrorMessage"] = "Для оплаты через ЮКассу необходимо заполнить форму на странице оформления заказа";
-            return RedirectToAction("Checkout");
-        }
-
-        // POST: Cart/CreateYookassaOrder
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateYookassaOrder(string firstName, string lastName, string email, string phone, string address, string comment)
-        {
-            if (!User.Identity.IsAuthenticated)
-            {
-                TempData["ErrorMessage"] = "Для оформления заказа необходимо войти в систему";
-                return RedirectToAction("Login", "Auth");
-            }
-
-            var cartJson = HttpContext.Session.GetString(CartSessionKey);
-            var cart = string.IsNullOrEmpty(cartJson)
-                ? new Cart()
-                : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
-
-            if (!cart.Items.Any())
-            {
-                TempData["ErrorMessage"] = "Корзина пуста";
-                return RedirectToAction("Index");
-            }
-
-            try
-            {
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-
-                // ПРОВЕРЯЕМ НАЛИЧИЕ
-                foreach (var item in cart.Items)
-                {
-                    if (item.IsComputer)
-                    {
-                        var computer = await _context.Computers.FindAsync(item.ComputerId);
-                        if (computer == null || computer.Quantity < item.Quantity)
-                        {
-                            TempData["ErrorMessage"] = $"Недостаточно компьютеров '{item.Name}' в наличии. Доступно: {computer?.Quantity ?? 0}, Заказано: {item.Quantity}";
-                            return RedirectToAction("Checkout");
-                        }
-                    }
-                    else if (item.IsComponent)
-                    {
-                        var component = await _context.Components.FindAsync(item.ComponentId);
-                        if (component == null || component.Quantity < item.Quantity)
-                        {
-                            TempData["ErrorMessage"] = $"Недостаточно комплектующих '{item.Name}' в наличии. Доступно: {component?.Quantity ?? 0}, Заказано: {item.Quantity}";
-                            return RedirectToAction("Checkout");
-                        }
-                    }
-                }
-
-                var user = await _context.Users.FindAsync(userId);
-                if (user != null)
-                {
-                    if (!string.IsNullOrEmpty(firstName)) user.FirstName = firstName;
-                    if (!string.IsNullOrEmpty(lastName)) user.LastName = lastName;
-                    if (!string.IsNullOrEmpty(email)) user.Email = email;
-                    if (!string.IsNullOrEmpty(phone)) user.Phone = phone;
-                    _context.Users.Update(user);
-                    await _context.SaveChangesAsync();
-                }
-
-                // ДЛЯ ОНЛАЙН-ОПЛАТЫ: создаем заказ со статусом "В ожидании" и списываем товары
-                var order = new Order
-                {
-                    UserId = userId,
-                    OrderDate = DateTime.Now,
-                    OrderTypeId = 3, // Продажа
-                    StatusId = 5, // В ожидании оплаты
-                    TotalAmount = cart.TotalAmount,
-                    Description = $"Адрес доставки: {address}. {(string.IsNullOrEmpty(comment) ? "" : $"Комментарий: {comment}")}"
-                };
-
-                _context.Orders.Add(order);
-                await _context.SaveChangesAsync();
-
-                // СПИСЫВАЕМ ТОВАРЫ ПРИ СОЗДАНИИ ЗАКАЗА (забронируем)
-                foreach (var item in cart.Items)
-                {
-                    if (item.IsComputer)
-                    {
-                        var computer = await _context.Computers.FindAsync(item.ComputerId);
-                        if (computer != null)
-                        {
-                            // Списываем товары сразу - они "забронированы"
-                            computer.Quantity -= item.Quantity;
-                            _context.Computers.Update(computer);
-
-                            var computerOrder = new ComputerOrder
-                            {
-                                OrderId = order.Id,
-                                ComputerId = item.ComputerId,
-                                Quantity = item.Quantity,
-                                UnitPrice = item.Price
-                            };
-                            _context.ComputerOrders.Add(computerOrder);
-                        }
-                    }
-                    else if (item.IsComponent)
-                    {
-                        var component = await _context.Components.FindAsync(item.ComponentId);
-                        if (component != null)
-                        {
-                            // Списываем товары сразу - они "забронированы"
-                            component.Quantity -= item.Quantity;
-                            _context.Components.Update(component);
-
-                            var componentOrder = new ComponentOrder
-                            {
-                                OrderId = order.Id,
-                                ComponentId = item.ComponentId,
-                                Quantity = item.Quantity,
-                                UnitPrice = item.Price
-                            };
-                            _context.ComponentOrders.Add(componentOrder);
-                        }
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-
-                var paymentRequest = new PaymentRequest
-                {
-                    Amount = cart.TotalAmount,
-                    Description = $"Оплата заказа #{order.Id}",
-                    OrderId = order.Id,
-                    ReturnUrl = Url.Action("Success", "Payment", new { orderId = order.Id }, Request.Scheme) ??
-                               $"{Request.Scheme}://{Request.Host}/Payment/Success?orderId={order.Id}"
-                };
-
-                var paymentResponse = await _yookassaService.CreatePaymentAsync(paymentRequest);
-
-                // Перенаправляем пользователя на страницу оплаты ЮКассы
-                return Redirect(paymentResponse.ConfirmationUrl);
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"Ошибка при создании платежа: {ex.Message}";
-                return RedirectToAction("Checkout");
-            }
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcessYookassaPayment(string firstName, string lastName, string email, string phone, string address, string comment)
-        {
-            if (!User.Identity.IsAuthenticated)
-            {
-                TempData["ErrorMessage"] = "Для оформления заказа необходимо войти в систему";
-                return RedirectToAction("Login", "Auth");
-            }
-
-            var cartJson = HttpContext.Session.GetString(CartSessionKey);
-            var cart = string.IsNullOrEmpty(cartJson)
-                ? new Cart()
-                : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
-
-            if (!cart.Items.Any())
-            {
-                TempData["ErrorMessage"] = "Корзина пуста";
-                return RedirectToAction("Index");
-            }
-
-            try
-            {
-                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-
-                foreach (var item in cart.Items)
-                {
-                    if (item.IsComputer)
-                    {
-                        var computer = await _context.Computers.FindAsync(item.ComputerId);
-                        if (computer == null || computer.Quantity < item.Quantity)
-                        {
-                            TempData["ErrorMessage"] = $"Недостаточно компьютеров '{item.Name}' в наличии";
-                            return RedirectToAction("Checkout");
-                        }
-                    }
-                    else if (item.IsComponent)
-                    {
-                        var component = await _context.Components.FindAsync(item.ComponentId);
-                        if (component == null || component.Quantity < item.Quantity)
-                        {
-                            TempData["ErrorMessage"] = $"Недостаточно комплектующих '{item.Name}' в наличии";
-                            return RedirectToAction("Checkout");
-                        }
-                    }
-                }
-
-                var user = await _context.Users.FindAsync(userId);
-                if (user != null)
-                {
-                    if (!string.IsNullOrEmpty(firstName)) user.FirstName = firstName;
-                    if (!string.IsNullOrEmpty(lastName)) user.LastName = lastName;
-                    if (!string.IsNullOrEmpty(email)) user.Email = email;
-                    if (!string.IsNullOrEmpty(phone)) user.Phone = phone;
-                    _context.Users.Update(user);
-                    await _context.SaveChangesAsync();
-                }
-
-                var order = new Order
-                {
-                    UserId = userId,
-                    OrderDate = DateTime.Now,
-                    OrderTypeId = 3,
-                    StatusId = 5,
-                    TotalAmount = cart.TotalAmount,
-                    Description = $"Адрес доставки: {address}. {(string.IsNullOrEmpty(comment) ? "" : $"Комментарий: {comment}")}"
-                };
-
-                _context.Orders.Add(order);
-                await _context.SaveChangesAsync();
-
-                foreach (var item in cart.Items)
-                {
-                    if (item.IsComputer)
-                    {
-                        var computerOrder = new ComputerOrder
-                        {
-                            OrderId = order.Id,
-                            ComputerId = item.ComputerId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.Price
-                        };
-                        _context.ComputerOrders.Add(computerOrder);
-                    }
-                    else if (item.IsComponent)
-                    {
-                        var componentOrder = new ComponentOrder
-                        {
-                            OrderId = order.Id,
-                            ComponentId = item.ComponentId,
-                            Quantity = item.Quantity,
-                            UnitPrice = item.Price
-                        };
-                        _context.ComponentOrders.Add(componentOrder);
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-
-                var paymentRequest = new PaymentRequest
-                {
-                    Amount = cart.TotalAmount,
-                    Description = $"Оплата заказа #{order.Id}",
-                    OrderId = order.Id,
-                    ReturnUrl = Url.Action("Success", "Payment", new { orderId = order.Id }, Request.Scheme) ??
-                               $"{Request.Scheme}://{Request.Host}/Payment/Success?orderId={order.Id}"
-                };
-
-                var paymentResponse = await _yookassaService.CreatePaymentAsync(paymentRequest);
-
-                // Перенаправляем пользователя на страницу оплаты ЮКассы
-                return Redirect(paymentResponse.ConfirmationUrl);
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"Ошибка при создании платежа: {ex.Message}";
-                return RedirectToAction("Checkout");
-            }
-        }
-
+        // POST: Cart/CompleteOrder - для оффлайн заказов (БЕЗ онлайн оплаты)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CompleteOrder(string firstName, string lastName, string email, string phone, string address, string comment)
@@ -842,92 +447,33 @@ namespace ComputerShop.Controllers
             {
                 var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 
-                // ПРЕДВАРИТЕЛЬНАЯ ПРОВЕРКА НАЛИЧИЯ ТОВАРОВ
-                foreach (var item in cart.Items)
+                // Проверка наличия товаров
+                var stockErrors = await CheckStockAvailability(cart);
+                if (stockErrors.Any())
                 {
-                    if (item.IsComputer)
-                    {
-                        var computer = await _context.Computers.FindAsync(item.ComputerId);
-                        if (computer == null || computer.Quantity < item.Quantity)
-                        {
-                            throw new Exception($"Недостаточно компьютеров '{item.Name}' в наличии");
-                        }
-                    }
-                    else if (item.IsComponent)
-                    {
-                        var component = await _context.Components.FindAsync(item.ComponentId);
-                        if (component == null || component.Quantity < item.Quantity)
-                        {
-                            throw new Exception($"Недостаточно комплектующих '{item.Name}' в наличии");
-                        }
-                    }
+                    TempData["ErrorMessage"] = string.Join("<br>", stockErrors);
+                    return RedirectToAction("Checkout");
                 }
 
-                var user = await _context.Users.FindAsync(userId);
-                if (user != null)
-                {
-                    if (!string.IsNullOrEmpty(firstName)) user.FirstName = firstName;
-                    if (!string.IsNullOrEmpty(lastName)) user.LastName = lastName;
-                    if (!string.IsNullOrEmpty(email)) user.Email = email;
-                    if (!string.IsNullOrEmpty(phone)) user.Phone = phone;
-                    _context.Users.Update(user);
-                    await _context.SaveChangesAsync();
-                }
+                // Обновляем данные пользователя
+                await UpdateUserInfo(userId, firstName, lastName, email, phone);
 
-                // ЗАКАЗ БЕЗ ОНЛАЙН-ОПЛАТЫ - статус "Завершен" сразу
+                // Создаем заказ со статусом "Завершен" сразу (для оффлайн заказов)
                 var order = new Order
                 {
                     UserId = userId,
                     OrderDate = DateTime.Now,
                     OrderTypeId = 3, // Продажа
-                    StatusId = 4, // Изменяем на "Завершен" (не "В ожидании")
+                    StatusId = 4, // Завершен (для оффлайн заказов)
                     TotalAmount = cart.TotalAmount,
-                    Description = $"Адрес доставки: {address}. {(string.IsNullOrEmpty(comment) ? "" : $"Комментарий: {comment}")}"
+                    Description = GenerateOrderDescription(address, comment)
                 };
 
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                // СПИСЫВАЕМ ТОВАРЫ ТОЛЬКО ЗДЕСЬ - для заказов без онлайн-оплаты
-                foreach (var item in cart.Items)
-                {
-                    if (item.IsComputer)
-                    {
-                        var computer = await _context.Computers.FindAsync(item.ComputerId);
-                        if (computer != null)
-                        {
-                            computer.Quantity -= item.Quantity;
-                            _context.Computers.Update(computer);
-
-                            var computerOrder = new ComputerOrder
-                            {
-                                OrderId = order.Id,
-                                ComputerId = item.ComputerId,
-                                Quantity = item.Quantity,
-                                UnitPrice = item.Price
-                            };
-                            _context.ComputerOrders.Add(computerOrder);
-                        }
-                    }
-                    else if (item.IsComponent)
-                    {
-                        var component = await _context.Components.FindAsync(item.ComponentId);
-                        if (component != null)
-                        {
-                            component.Quantity -= item.Quantity;
-                            _context.Components.Update(component);
-
-                            var componentOrder = new ComponentOrder
-                            {
-                                OrderId = order.Id,
-                                ComponentId = item.ComponentId,
-                                Quantity = item.Quantity,
-                                UnitPrice = item.Price
-                            };
-                            _context.ComponentOrders.Add(componentOrder);
-                        }
-                    }
-                }
+                // СПИСЫВАЕМ ТОВАРЫ И создаем записи о заказе
+                await ProcessOrderItems(cart, order.Id);
 
                 await _context.SaveChangesAsync();
 
@@ -939,8 +485,246 @@ namespace ComputerShop.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error in CompleteOrder");
                 TempData["ErrorMessage"] = $"Ошибка при оформлении заказа: {ex.Message}";
                 return RedirectToAction("Checkout");
+            }
+        }
+
+        // POST: Cart/ProcessYookassaPayment - для онлайн оплаты через ЮКассу
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcessYookassaPayment(string firstName, string lastName, string email, string phone, string address, string comment)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                TempData["ErrorMessage"] = "Для оформления заказа необходимо войти в систему";
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var cartJson = HttpContext.Session.GetString(CartSessionKey);
+            var cart = string.IsNullOrEmpty(cartJson)
+                ? new Cart()
+                : JsonSerializer.Deserialize<Cart>(cartJson) ?? new Cart();
+
+            if (!cart.Items.Any())
+            {
+                TempData["ErrorMessage"] = "Корзина пуста";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+
+                // Проверка наличия товаров
+                var stockErrors = await CheckStockAvailability(cart);
+                if (stockErrors.Any())
+                {
+                    TempData["ErrorMessage"] = string.Join("<br>", stockErrors);
+                    return RedirectToAction("Checkout");
+                }
+
+                // РЕЗЕРВИРУЕМ товары сразу (уменьшаем количество)
+                await ReserveItems(cart);
+
+                // Обновляем данные пользователя
+                await UpdateUserInfo(userId, firstName, lastName, email, phone);
+
+                // Создаем заказ со статусом "В ожидании оплаты"
+                var order = new Order
+                {
+                    UserId = userId,
+                    OrderDate = DateTime.Now,
+                    OrderTypeId = 3, // Продажа
+                    StatusId = 5, // В ожидании оплаты
+                    TotalAmount = cart.TotalAmount,
+                    Description = GenerateOrderDescription(address, comment)
+                };
+
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                // Создаем записи о товарах в заказе (без повторного списания)
+                await CreateOrderItems(cart, order.Id);
+
+                await _context.SaveChangesAsync();
+
+                // Создаем платеж в ЮКассе
+                var paymentRequest = new PaymentRequest
+                {
+                    Amount = cart.TotalAmount,
+                    Description = $"Оплата заказа #{order.Id}",
+                    OrderId = order.Id,
+                    ReturnUrl = Url.Action("Success", "Payment", new { orderId = order.Id }, Request.Scheme) ??
+                               $"{Request.Scheme}://{Request.Host}/Payment/Success?orderId={order.Id}"
+                };
+
+                var paymentResponse = await _yookassaService.CreatePaymentAsync(paymentRequest);
+
+                _context.Orders.Update(order);
+                await _context.SaveChangesAsync();
+
+                // Перенаправляем пользователя на страницу оплаты ЮКассы
+                return Redirect(paymentResponse.ConfirmationUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in ProcessYookassaPayment");
+                TempData["ErrorMessage"] = $"Ошибка при создании платежа: {ex.Message}";
+                return RedirectToAction("Checkout");
+            }
+        }
+
+        // Вспомогательные методы
+        private async Task<List<string>> CheckStockAvailability(Cart cart)
+        {
+            var errors = new List<string>();
+
+            foreach (var item in cart.Items)
+            {
+                if (item.IsComputer)
+                {
+                    var computer = await _context.Computers.FindAsync(item.ComputerId);
+                    if (computer == null || computer.Quantity < item.Quantity)
+                    {
+                        errors.Add($"Недостаточно компьютеров '{item.Name}' в наличии");
+                    }
+                }
+                else if (item.IsComponent)
+                {
+                    var component = await _context.Components.FindAsync(item.ComponentId);
+                    if (component == null || component.Quantity < item.Quantity)
+                    {
+                        errors.Add($"Недостаточно комплектующих '{item.Name}' в наличии");
+                    }
+                }
+            }
+
+            return errors;
+        }
+
+        private async Task ReserveItems(Cart cart)
+        {
+            foreach (var item in cart.Items)
+            {
+                if (item.IsComputer)
+                {
+                    var computer = await _context.Computers.FindAsync(item.ComputerId);
+                    if (computer != null)
+                    {
+                        computer.Quantity -= item.Quantity;
+                        _context.Computers.Update(computer);
+                    }
+                }
+                else if (item.IsComponent)
+                {
+                    var component = await _context.Components.FindAsync(item.ComponentId);
+                    if (component != null)
+                    {
+                        component.Quantity -= item.Quantity;
+                        _context.Components.Update(component);
+                    }
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task UpdateUserInfo(int userId, string firstName, string lastName, string email, string phone)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                if (!string.IsNullOrEmpty(firstName)) user.FirstName = firstName;
+                if (!string.IsNullOrEmpty(lastName)) user.LastName = lastName;
+                if (!string.IsNullOrEmpty(email)) user.Email = email;
+                if (!string.IsNullOrEmpty(phone)) user.Phone = phone;
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private string GenerateOrderDescription(string address, string comment)
+        {
+            var description = $"Адрес доставки: {address}";
+            if (!string.IsNullOrEmpty(comment))
+            {
+                description += $". Комментарий: {comment}";
+            }
+            return description;
+        }
+
+        private async Task ProcessOrderItems(Cart cart, int orderId)
+        {
+            // Для оффлайн заказов: списываем и создаем записи
+            foreach (var item in cart.Items)
+            {
+                if (item.IsComputer)
+                {
+                    var computer = await _context.Computers.FindAsync(item.ComputerId);
+                    if (computer != null)
+                    {
+                        computer.Quantity -= item.Quantity;
+                        _context.Computers.Update(computer);
+
+                        var computerOrder = new ComputerOrder
+                        {
+                            OrderId = orderId,
+                            ComputerId = item.ComputerId,
+                            Quantity = item.Quantity,
+                            UnitPrice = item.Price
+                        };
+                        _context.ComputerOrders.Add(computerOrder);
+                    }
+                }
+                else if (item.IsComponent)
+                {
+                    var component = await _context.Components.FindAsync(item.ComponentId);
+                    if (component != null)
+                    {
+                        component.Quantity -= item.Quantity;
+                        _context.Components.Update(component);
+
+                        var componentOrder = new ComponentOrder
+                        {
+                            OrderId = orderId,
+                            ComponentId = item.ComponentId,
+                            Quantity = item.Quantity,
+                            UnitPrice = item.Price
+                        };
+                        _context.ComponentOrders.Add(componentOrder);
+                    }
+                }
+            }
+        }
+
+        private async Task CreateOrderItems(Cart cart, int orderId)
+        {
+            // Для онлайн заказов: только создаем записи (товары уже списаны)
+            foreach (var item in cart.Items)
+            {
+                if (item.IsComputer)
+                {
+                    var computerOrder = new ComputerOrder
+                    {
+                        OrderId = orderId,
+                        ComputerId = item.ComputerId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.Price
+                    };
+                    _context.ComputerOrders.Add(computerOrder);
+                }
+                else if (item.IsComponent)
+                {
+                    var componentOrder = new ComponentOrder
+                    {
+                        OrderId = orderId,
+                        ComponentId = item.ComponentId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.Price
+                    };
+                    _context.ComponentOrders.Add(componentOrder);
+                }
             }
         }
 

@@ -1,0 +1,36 @@
+﻿@model WebShopV3.Models.Cart
+
+<div class="bg-dark-card rounded-2xl p-6 border border-gray-800 sticky top-24 cart-summary">
+    <h3 class="text-xl font-bold text-white mb-6">Итоги заказа</h3>
+
+    <div class="space-y-4 mb-6">
+        <div class="flex justify-between text-gray-400">
+            <span>Товары (@Model.TotalItems шт.)</span>
+            <span id="subtotal">@Model.TotalAmount.ToString("N0") ₽</span>
+        </div>
+        <div class="flex justify-between text-gray-400">
+            <span>Доп. услуги</span>
+            <span id="servicesTotal">0₽</span>
+        </div>
+        <div class="flex justify-between text-gray-400">
+            <span>Доставка</span>
+            <span class="text-green-400">Бесплатно</span>
+        </div>
+
+        <div class="border-t border-gray-700 pt-4">
+            <div class="flex justify-between items-center text-lg">
+                <span class="text-white font-semibold">Итого</span>
+                <span id="total" class="text-2xl font-bold text-primary">@Model.TotalAmount.ToString("N0") ₽</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Промокод -->
+    <partial name="Partials/_PromoCode" />
+
+    <!-- Кнопки оформления -->
+    <partial name="Partials/_CheckoutButtons" />
+
+    <!-- Доверительные знаки -->
+    <partial name="Partials/_TrustBadges" />
+</div>

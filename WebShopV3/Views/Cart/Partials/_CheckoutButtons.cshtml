@@ -1,0 +1,21 @@
+﻿<!-- Кнопки оформления -->
+<div class="space-y-3 checkout-buttons">
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <a href="@Url.Action("Checkout", "Cart")"
+           id="checkoutBtn"
+           class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 text-center block">
+            Оформить заказ
+        </a>
+    }
+    else
+    {
+        <div class="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 mb-4 auth-notification">
+            <p class="text-yellow-400 text-sm mb-3">Для оформления заказа необходимо войти в систему</p>
+            <a href="@Url.Action("Login", "Account", new { returnUrl = Url.Action("Index", "Cart") })"
+               class="w-full bg-primary text-dark py-3 rounded-lg font-bold text-center block hover:bg-green-400 transition duration-300">
+                Войти
+            </a>
+        </div>
+    }
+</div>

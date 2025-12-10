@@ -245,26 +245,45 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-        // Функции для работы с корзиной
+        // Функция для добавления компьютера в корзину
         function addToCart(computerId, quantity = 1, computerName = '') {
             $.post('/Cart/AddToCart', { computerId, quantity })
                 .done(function(response) {
                     if (response.success) {
                         showNotification('success', `Товар "${computerName}" добавлен в корзину`);
-                        updateCartCounter(response.totalItems);
+                        updateCartCounter(response.totalItems || response.cartItems);
                     } else {
                         showNotification('error', response.message);
                     }
                 })
-                .fail(function() {
+                .fail(function(xhr, status, error) {
+                    console.error('Error adding computer to cart:', error);
                     showNotification('error', 'Ошибка при добавлении в корзину');
                 });
         }
 
+        // Функция для добавления компонента в корзину (ДОБАВЬТЕ ЭТУ ФУНКЦИЮ!)
+        function addComponentToCart(componentId, quantity = 1, componentName = '') {
+            $.post('/Cart/AddToCart', { componentId, quantity })
+                .done(function(response) {
+                    if (response.success) {
+                        showNotification('success', `Товар "${componentName}" добавлен в корзину`);
+                        updateCartCounter(response.totalItems || response.cartItems);
+                    } else {
+                        showNotification('error', response.message);
+                    }
+                })
+                .fail(function(xhr, status, error) {
+                    console.error('Error adding component to cart:', error);
+                    showNotification('error', 'Ошибка при добавлении в корзину');
+                });
+        }
+
+        // Обновляем счетчик корзины
         function updateCartCounter(count) {
             const cartCounter = $('#cart-counter');
             const cartCounterMobile = $('#cart-counter-mobile');
-            
+
             [cartCounter, cartCounterMobile].forEach(counter => {
                 if (counter.length) {
                     counter.text(count);
@@ -277,35 +296,75 @@
             });
         }
 
+        // Показываем уведомления
+                // В файле site.js замените функцию showNotification:
+
         function showNotification(type, message) {
-            const alertClass = type === 'success' ? 'bg-green-500/20 border-green-500/30 text-green-500' : 'bg-red-500/20 border-red-500/30 text-red-500';
-            const icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
-            
+            // Удаляем старые уведомления
+            $('.site-notification').remove();
+
+            const alertClass = type === 'success'
+                ? 'bg-green-500/20 border-green-500/30 text-green-500'
+                : 'bg-red-500/20 border-red-500/30 text-red-500';
+
+            // Простые иконки без Bootstrap Icons
+            const iconSvg = type === 'success'
+                ? '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
+                : '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+
             const notification = $(`
-                <div class="${alertClass} border px-6 py-4 rounded-lg backdrop-blur-sm position-fixed flex items-center" 
+                <div class="site-notification ${alertClass} border px-6 py-4 rounded-lg backdrop-blur-sm fixed flex items-center"
                      style="top: 20px; right: 20px; z-index: 1050; min-width: 300px;">
-                    <i class="bi ${icon} mr-3"></i> 
+                    ${iconSvg}
                     <span class="flex-1">${message}</span>
-                    <button type="button" class="text-current hover:opacity-70 ml-4">
-                        <i class="bi bi-x"></i>
+                    <button type="button" class="text-current hover:opacity-70 ml-4 close-notification">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
                     </button>
                 </div>
             `);
-            
+
             $('body').append(notification);
-            
-            notification.find('button').on('click', function() {
-                notification.remove();
+
+            // Анимация появления
+            notification.css({
+                'transform': 'translateX(100%)',
+                'opacity': '0'
             });
-            
+
             setTimeout(() => {
-                notification.fadeOut(300, function() {
-                    $(this).remove();
+                notification.css({
+                    'transform': 'translateX(0)',
+                    'opacity': '1',
+                    'transition': 'all 0.3s ease-out'
                 });
+            }, 10);
+
+            // Закрытие по клику
+            notification.find('.close-notification').on('click', function() {
+                closeNotification(notification);
+            });
+
+            // Автоматическое закрытие через 3 секунды
+            setTimeout(() => {
+                closeNotification(notification);
             }, 3000);
         }
 
-        // Обновляем счетчик корзины при загрузке страницы
+        function closeNotification(notification) {
+            notification.css({
+                'transform': 'translateX(100%)',
+                'opacity': '0',
+                'transition': 'all 0.3s ease-out'
+            });
+
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }
+
+        // Загружаем количество товаров в корзине
         function loadCartCount() {
             $.get('/Cart/GetCartCount')
                 .done(function(data) {
@@ -316,14 +375,50 @@
                 });
         }
 
-        // Обработчики для кнопок "В корзину"
+        // Обработчики для кнопок "В корзину" (ОБНОВЛЕНО!)
         $(document).ready(function() {
             loadCartCount();
-            
+
+            // Обработчик для компьютеров
             $(document).on('click', '.add-to-cart', function() {
                 const computerId = $(this).data('computer-id');
-                const computerName = $(this).data('computer-name');
-                addToCart(computerId, 1, computerName);
+                const computerName = $(this).data('computer-name') || 'Компьютер';
+
+                console.log('Adding computer:', computerId, computerName);
+
+                if (computerId) {
+                    addToCart(computerId, 1, computerName);
+                } else {
+                    showNotification('error', 'Не указан ID компьютера');
+                }
+            });
+
+            // Обработчик для компонентов (ДОБАВЬТЕ ЭТО!)
+            $(document).on('click', '.add-to-cart-component', function() {
+                const componentId = $(this).data('component-id');
+                const componentName = $(this).data('component-name') || 'Комплектующее';
+
+                console.log('Adding component:', componentId, componentName);
+
+                if (componentId) {
+                    addComponentToCart(componentId, 1, componentName);
+                } else {
+                    showNotification('error', 'Не указан ID компонента');
+                }
+            });
+
+            // Универсальный обработчик (альтернативный вариант)
+            $(document).on('click', '[data-add-to-cart]', function() {
+                const $btn = $(this);
+                const computerId = $btn.data('computer-id');
+                const componentId = $btn.data('component-id');
+                const productName = $btn.data('product-name') || $btn.data('computer-name') || $btn.data('component-name') || 'Товар';
+
+                if (computerId) {
+                    addToCart(computerId, 1, productName);
+                } else if (componentId) {
+                    addComponentToCart(componentId, 1, productName);
+                }
             });
         });
     </script>

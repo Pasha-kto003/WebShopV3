@@ -1,0 +1,17 @@
+﻿@model IEnumerable<WebShopV3.Models.CartItem>
+@using System.Web
+
+<!-- Список товаров -->
+<div class="space-y-6">
+    @foreach (var item in Model)
+    {
+        <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 cart-item"
+             data-computer-id="@(item.ComputerId > 0 ? item.ComputerId.ToString() : "")"
+             data-component-id="@(item.ComponentId > 0 ? item.ComponentId.ToString() : "")"
+             data-price="@item.Price">
+
+            <partial name="Partials/_CartItem" model="item" />
+
+        </div>
+    }
+</div>
