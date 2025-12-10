@@ -1,0 +1,103 @@
+﻿<!-- Views/Favorites/_FavoriteDropdownItems.cshtml -->
+@model List<FavoriteWithProduct>
+
+@if (Model != null && Model.Any())
+{
+    <div class="space-y-2">
+        @foreach (var item in Model)
+        {
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 transition-colors group">
+                <!-- Изображение -->
+                <div class="w-10 h-10 flex-shrink-0 bg-gray-800 rounded-lg overflow-hidden">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="/Images/@(item.Favorite.ProductType.ToLower() + "s")/@item.ImageUrl" 
+                             alt="@item.Name" 
+                             class="w-full h-full object-cover">
+                    }
+                    else
+                    {
+                        <div class="w-full h-full flex items-center justify-center text-gray-600">
+                            @if (item.Favorite.ProductType == "Computer")
+                            {
+                                <span class="text-sm">🖥️</span>
+                            }
+                            else
+                            {
+                                <span class="text-sm">⚙️</span>
+                            }
+                        </div>
+                    }
+                </div>
+                
+                <!-- Информация -->
+                <div class="flex-1 min-w-0">
+                    <p class="text-white text-xs font-medium truncate" title="@item.Name">
+                        @item.Name
+                    </p>
+                    <p class="text-blue-400 text-xs font-bold">
+                        @item.Price.ToString("N0") ₽
+                    </p>
+                </div>
+                
+                <!-- Кнопка удаления -->
+                <button class="p-1 text-gray-400 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 remove-favorite-dropdown"
+                        data-favorite-id="@item.Favorite.Id"
+                        title="Удалить">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-gray-400 text-xs text-center py-4">
+        Пока ничего нет
+    </p>
+}
+
+<script>
+// Обработка удаления в выпадающем списке
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.remove-favorite-dropdown')) {
+        e.preventDefault();
+        const button = e.target.closest('.remove-favorite-dropdown');
+        const favoriteId = button.dataset.favoriteId;
+        
+        if (confirm('Удалить из избранного?')) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            
+            fetch('/Favorites/Remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `favoriteId=${favoriteId}&__RequestVerificationToken=${token}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Удаляем элемент
+                    button.closest('.flex').remove();
+                    
+                    // Обновляем счетчик в шапке
+                    const badge = document.getElementById('favorite-counter');
+                    if (badge) {
+                        badge.textContent = data.count;
+                        badge.dataset.count = data.count;
+                        if (data.count === 0) {
+                            badge.classList.add('hidden');
+                        }
+                    }
+                    
+                    // Показываем уведомление
+                    console.log('Товар удален из избранного');
+                }
+            });
+        }
+    }
+});
+</script>

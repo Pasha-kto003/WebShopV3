@@ -7,13 +7,24 @@
     <!-- Компьютеры -->
     @foreach (var computer in Model.Computers)
     {
-        <div class="computer-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-primary/50 transition duration-300 group">
+        <div class="computer-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-primary/50 transition duration-300 group relative">
+            <!-- Кнопка избранного в правом верхнем углу -->
+            <button class="absolute top-4 left-4 z-10 favorite-btn p-2 bg-gray-900/80 hover:bg-red-600 text-gray-300 hover:text-white rounded-full transition-all duration-200"
+                    data-product-id="@computer.Id"
+                    data-product-type="Computer"
+                    title="Добавить в избранное">
+                <svg class="w-4 h-4 favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            </button>
+
             <div class="relative overflow-hidden rounded-xl mb-4">
                 @if (!string.IsNullOrEmpty(computer.ImageUrl))
                 {
                     <div class="w-full h-48 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
-                        <img src="/Images/computers/@computer.ImageUrl" alt="@computer.Name" 
-                             class="w-full max-h-48 object-contain rounded-xl transition-transform duration-500 group-hover:scale-105"/>
+                        <img src="/Images/computers/@computer.ImageUrl" alt="@computer.Name"
+                             class="w-full max-h-48 object-contain rounded-xl transition-transform duration-500 group-hover:scale-105" />
                     </div>
                 }
                 else
@@ -29,27 +40,27 @@
                     </div>
                 }
             </div>
-            
+
             <h3 class="text-xl font-bold text-white mb-2">
                 <a href="@Url.Action("ComputerDetails", "Home", new { id = computer.Id })" class="hover:text-primary transition duration-200">
                     @computer.Name
                 </a>
             </h3>
             <p class="text-gray-400 text-sm mb-4 line-clamp-2">@computer.Description</p>
-            
+
             <div class="space-y-2 mb-4">
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-400">В наличии:</span>
                     <span class="text-white">@computer.Quantity шт.</span>
                 </div>
             </div>
-            
+
             <div class="flex items-center justify-between mb-4">
                 <div class="text-2xl font-bold text-primary">@computer.Price.ToString("C")</div>
             </div>
-            
+
             <button class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300 group-hover:scale-105 add-to-cart"
-                    data-computer-id="@computer.Id" 
+                    data-computer-id="@computer.Id"
                     data-computer-name="@computer.Name">
                 В корзину
             </button>
@@ -59,16 +70,27 @@
     <!-- Комплектующие -->
     @foreach (var component in Model.Components)
     {
-        <div class="component-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-blue-400/50 transition duration-300 group">
+        <div class="component-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-blue-400/50 transition duration-300 group relative">
+            <!-- Кнопка избранного в правом верхнем углу -->
+            <button class="absolute top-4 left-4 z-10 favorite-btn p-2 bg-gray-900/80 hover:bg-red-600 text-gray-300 hover:text-white rounded-full transition-all duration-200"
+                    data-product-id="@component.Id"
+                    data-product-type="Component"
+                    title="Добавить в избранное">
+                <svg class="w-4 h-4 favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            </button>
+
             <div class="relative overflow-hidden rounded-xl mb-4">
                 <!-- ИЗМЕНЕНИЕ: Добавляем изображение компонента -->
                 <div class="w-full h-48 bg-gradient-to-br from-blue-400/20 to-blue-400/10 rounded-xl flex items-center justify-center">
                     @if (!string.IsNullOrEmpty(component.ImageUrl))
                     {
-                        <img src="/Images/components/@component.ImageUrl" 
-                             alt="@component.Name" 
+                        <img src="/Images/components/@component.ImageUrl"
+                             alt="@component.Name"
                              class="w-full max-h-48 object-contain rounded-xl transition-transform duration-500 group-hover:scale-105"
-                             onerror="this.onerror=null; this.src='/Images/components/default-component.jpg'"/>
+                             onerror="this.onerror=null; this.src='/Images/components/default-component.jpg'" />
                     }
                     else
                     {
@@ -84,20 +106,20 @@
                     </div>
                 }
             </div>
-    
+
             <div class="mb-2">
                 <span class="inline-block bg-blue-400/20 text-blue-400 px-2 py-1 rounded text-xs font-semibold mb-2">
                     @component.Type
                 </span>
             </div>
-    
+
             <h3 class="text-xl font-bold text-white mb-2">
                 <a href="@Url.Action("ComponentDetails", "Home", new { id = component.Id })" class="hover:text-blue-400 transition duration-200">
                     @component.Name
                 </a>
             </h3>
             <p class="text-gray-400 text-sm mb-4 line-clamp-2">@component.Description</p>
-    
+
             <div class="space-y-2 mb-4">
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-400">В наличии:</span>
@@ -108,7 +130,7 @@
                     <div class="text-xs text-gray-500 line-clamp-1">@component.Specifications</div>
                 }
             </div>
-    
+
             <div class="flex items-center justify-between mb-4">
                 <div class="text-2xl font-bold text-blue-400">@component.Price.ToString("C")</div>
             </div>
@@ -255,7 +277,204 @@
         <p class="text-gray-400">Попробуйте изменить параметры поиска</p>
     </div>
 }
+<script>
+    // Функция для добавления в избранное
+    async function addToFavorite(productId, productType) {
+        try {
+            // Получаем токен из формы
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
+            const response = await fetch('/Favorites/Add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `productType=${productType}&productId=${productId}&__RequestVerificationToken=${token}`
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Находим кнопку и меняем ее состояние
+                const button = document.querySelector(`.favorite-btn[data-product-id="${productId}"][data-product-type="${productType}"]`);
+                if (button) {
+                    const icon = button.querySelector('.favorite-icon');
+                    icon.style.fill = 'currentColor';
+                    button.classList.remove('bg-gray-900/80', 'text-gray-300');
+                    button.classList.add('bg-red-600', 'text-white');
+                    button.title = 'Удалить из избранного';
+                    button.setAttribute('data-is-favorite', 'true');
+                }
+
+                // Обновляем счетчик в шапке
+                updateFavoriteCounter(data.count);
+
+                // Показываем уведомление
+                showNotification(data.message, 'success');
+            } else {
+                showNotification(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error adding to favorites:', error);
+            showNotification('Ошибка при добавлении в избранное', 'error');
+        }
+    }
+
+    // Функция для удаления из избранного
+    async function removeFromFavorite(favoriteId, productId, productType) {
+        try {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const response = await fetch('/Favorites/Remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `favoriteId=${favoriteId}&__RequestVerificationToken=${token}`
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Находим кнопку и меняем ее состояние
+                const button = document.querySelector(`.favorite-btn[data-product-id="${productId}"][data-product-type="${productType}"]`);
+                if (button) {
+                    const icon = button.querySelector('.favorite-icon');
+                    icon.style.fill = 'none';
+                    button.classList.remove('bg-red-600', 'text-white');
+                    button.classList.add('bg-gray-900/80', 'text-gray-300');
+                    button.title = 'Добавить в избранное';
+                    button.removeAttribute('data-is-favorite');
+                }
+
+                // Обновляем счетчик в шапке
+                updateFavoriteCounter(data.count);
+
+                // Показываем уведомление
+                showNotification(data.message, 'success');
+            } else {
+                showNotification(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error removing from favorites:', error);
+            showNotification('Ошибка при удалении из избранного', 'error');
+        }
+    }
+
+    // Функция обновления счетчика в шапке
+    function updateFavoriteCounter(count) {
+        const badge = document.getElementById('favorite-count-badge');
+        if (badge) {
+            badge.textContent = count;
+            if (count === 0) {
+                badge.style.display = 'none';
+            } else {
+                badge.style.display = 'flex';
+            }
+        }
+
+        // Также обновляем в навигации, если есть
+        const navBadge = document.querySelector('[data-favorite-count]');
+        if (navBadge) {
+            navBadge.textContent = count;
+        }
+    }
+
+    // Функция показа уведомления
+    function showNotification(message, type = 'info') {
+        // Создаем элемент уведомления
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg text-white transition-transform transform translate-x-full ${
+            type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        }`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Показываем уведомление
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+            notification.classList.add('translate-x-0');
+        }, 10);
+
+        // Убираем уведомление через 3 секунды
+        setTimeout(() => {
+            notification.classList.remove('translate-x-0');
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // Обработчик кликов на кнопки избранного
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация состояния кнопок избранного
+        initializeFavoriteButtons();
+
+        // Обработчик кликов
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.favorite-btn')) {
+                e.preventDefault();
+                const button = e.target.closest('.favorite-btn');
+                const productId = button.dataset.productId;
+                const productType = button.dataset.productType;
+                const isFavorite = button.hasAttribute('data-is-favorite');
+                const favoriteId = button.dataset.favoriteId;
+
+                if (isFavorite && favoriteId) {
+                    // Если уже в избранном - удаляем
+                    removeFromFavorite(favoriteId, productId, productType);
+                } else {
+                    // Если не в избранном - добавляем
+                    addToFavorite(productId, productType);
+                }
+            }
+        });
+    });
+
+    // Функция инициализации состояния кнопок избранного
+    async function initializeFavoriteButtons() {
+        try {
+            // Собираем все ID товаров на странице
+            const productIds = [];
+            const productTypes = [];
+            const buttons = document.querySelectorAll('.favorite-btn');
+
+            buttons.forEach(button => {
+                productIds.push(button.dataset.productId);
+                productTypes.push(button.dataset.productType);
+            });
+
+            if (productIds.length === 0) return;
+
+            // Проверяем состояние избранного для каждого товара
+            for (let i = 0; i < productIds.length; i++) {
+                const productId = productIds[i];
+                const productType = productTypes[i];
+
+                // Можно сделать массовый запрос или проверять по одному
+                const response = await fetch(`/Favorites/Check?productType=${productType}&productId=${productId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.isFavorite) {
+                        const button = document.querySelector(`.favorite-btn[data-product-id="${productId}"][data-product-type="${productType}"]`);
+                        if (button) {
+                            const icon = button.querySelector('.favorite-icon');
+                            icon.style.fill = 'currentColor';
+                            button.classList.remove('bg-gray-900/80', 'text-gray-300');
+                            button.classList.add('bg-red-600', 'text-white');
+                            button.title = 'Удалить из избранного';
+                            button.setAttribute('data-is-favorite', 'true');
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error initializing favorite buttons:', error);
+        }
+    }
+</script>
 @functions {
     public string GetComponentIcon(string type)
     {

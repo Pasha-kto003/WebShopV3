@@ -43,10 +43,13 @@ namespace WebShopV3.Models
         // Навигационные свойства
         public virtual UserType UserType { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
+        // Навигационные свойства
+        public virtual ICollection<Favorite> Favorites { get; set; } = new HashSet<Favorite>();
 
         public User()
         {
             Orders = new HashSet<Order>();
+            Favorites = new HashSet<Favorite>();
         }
     }
 }

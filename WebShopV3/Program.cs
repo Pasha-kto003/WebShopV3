@@ -65,6 +65,9 @@ builder.Services.AddScoped<CompatibilityService>();
 builder.Services.AddHttpClient<IYookassaService, YookassaService>();
 builder.Services.AddScoped<IYookassaService, YookassaService>();
 builder.Services.AddLogging();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddMemoryCache();
+builder.Services.AddSession();
 
 
 

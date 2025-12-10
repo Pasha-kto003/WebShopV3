@@ -57,6 +57,36 @@
                         <a asp-controller="Home" asp-action="Catalog" class="text-gray-300 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center">
                             <i class="bi bi-grid mr-1"></i> Каталог
                         </a>
+                        <a asp-controller="Favorites" asp-action="Index"
+                           class="text-gray-300 hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center relative group">
+                            <i class="bi bi-heart mr-1"></i> Избранное
+                            <span id="favorite-counter"
+                                  class="favorite-counter ml-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs text-center font-bold hidden"
+                                  data-count="0">
+                                0
+                            </span>
+                            <!-- Выпадающий список при наведении -->
+                            <div class="absolute left-0 top-full mt-2 w-64 bg-gray-900 rounded-xl shadow-2xl border border-gray-800 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 z-50">
+                                <div class="p-4">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="font-bold text-white text-sm">Избранное</h3>
+                                        <span class="text-xs text-gray-400" id="favorite-limit">0/5</span>
+                                    </div>
+                                    <div id="favorite-dropdown-items" class="max-h-48 overflow-y-auto">
+                                        <div class="text-center py-4">
+                                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+                                            <p class="text-gray-400 text-xs mt-2">Загрузка...</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 pt-4 border-t border-gray-800">
+                                        <a asp-controller="Favorites" asp-action="Index"
+                                           class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-xs transition-colors">
+                                            Перейти в избранное
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
                         <a asp-controller="Cart" asp-action="Index" class="text-gray-300 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center">
                             <i class="bi bi-cart3 mr-1"></i> Корзина
                             <span id="cart-counter" class="cart-counter ml-1 bg-primary text-dark rounded-full w-5 h-5 flex items-center justify-center text-xs text-center font-bold @(ViewBag.CartItemsCount > 0 ? "" : "hidden")">
@@ -163,6 +193,11 @@
                 </a>
                 <a asp-controller="Home" asp-action="Catalog" class="flex items-center text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md">
                     <i class="bi bi-grid mr-2"></i> Каталог
+                </a>
+                <a asp-controller="Favorites" asp-action="Index" class="flex items-center text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md">
+                    <i class="bi bi-heart mr-2"></i> Избранное
+                    <span id="favorite-counter-mobile"
+                          class="ml-auto bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold hidden">0</span>
                 </a>
                 <a asp-controller="Cart" asp-action="Index" class="flex items-center text-gray-300 hover:text-white hover:bg-gray-700 px-3 py-2 rounded-md">
                     <i class="bi bi-cart3 mr-2"></i> Корзина

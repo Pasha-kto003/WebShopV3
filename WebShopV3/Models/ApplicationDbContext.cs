@@ -99,6 +99,7 @@ namespace WebShopV3.Models
         public DbSet<Characteristic> Characteristics { get; set; }
         public DbSet<ComponentCharacteristic> ComponentCharacteristics { get; set; }
         public DbSet<ComponentOrder> ComponentOrders { get; set; }
+        public DbSet<Favorite> Favorites { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -156,7 +157,30 @@ namespace WebShopV3.Models
                 .WithMany()
                 .HasForeignKey(co => co.ComponentId);
 
-            
+            modelBuilder.Entity<Favorite>(entity =>
+            {
+                // Связь с User (если UserId не null)
+                entity.HasOne(f => f.User)
+                      .WithMany(u => u.Favorites)
+                      .HasForeignKey(f => f.UserId)
+                      .OnDelete(DeleteBehavior.Cascade)
+                      .IsRequired(false); // Разрешаем NULL для гостей
+
+                // Уникальный индекс для предотвращения дубликатов
+                entity.HasIndex(f => new { f.UserId, f.GuestId, f.ProductType, f.ProductId })
+                      .IsUnique()
+                      .HasFilter("UserId IS NOT NULL OR GuestId IS NOT NULL");
+
+                // Указываем, что ComputerId и ComponentId - это просто числа, не FK
+                entity.Property(f => f.ProductId)
+                      .IsRequired();
+
+                entity.Property(f => f.ProductType)
+                      .IsRequired()
+                      .HasMaxLength(20);
+            });
+
+
         }
     }
 }
