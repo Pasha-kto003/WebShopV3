@@ -2,7 +2,6 @@
 @{
     ViewData["Title"] = "Каталог";
 }
-@Html.AntiForgeryToken()
 
 <div class="min-h-screen bg-gradient-to-b from-gray-900 to-black pt-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -11,45 +10,45 @@
             <div>
                 <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Каталог товаров</h1>
                 <p class="text-gray-400" id="resultsCount">
-                    Найдено @Model.TotalCount товаров 
+                    Найдено @Model.TotalCount товаров
                     (@Model.Computers.Count компьютеров, @Model.Components.Count() комплектующих)
                 </p>
             </div>
-            
+
             <div class="flex flex-col sm:flex-row gap-4 mt-4 lg:mt-0">
                 <!-- Переключение типа товаров -->
                 <div class="flex bg-dark-card rounded-lg p-1 border border-gray-800">
-                    <button data-product-type="all" 
+                    <button data-product-type="all"
                             class="product-type-btn p-2 px-4 rounded-md text-sm font-medium transition duration-200 @(ViewBag.ProductType == "all" ? "bg-primary text-dark" : "text-gray-400 hover:text-white")">
                         Все
                     </button>
-                    <button data-product-type="computers" 
+                    <button data-product-type="computers"
                             class="product-type-btn p-2 px-4 rounded-md text-sm font-medium transition duration-200 @(ViewBag.ProductType == "computers" ? "bg-primary text-dark" : "text-gray-400 hover:text-white")">
                         Компьютеры
                     </button>
-                    <button data-product-type="components" 
+                    <button data-product-type="components"
                             class="product-type-btn p-2 px-4 rounded-md text-sm font-medium transition duration-200 @(ViewBag.ProductType == "components" ? "bg-primary text-dark" : "text-gray-400 hover:text-white")">
                         Комплектующие
                     </button>
                 </div>
-                
+
                 <!-- Переключение вида -->
                 <div class="flex bg-dark-card rounded-lg p-1 border border-gray-800">
-                    <button id="cardViewBtn" class="p-2 rounded-md bg-primary text-dark transition duration-200">
+                    <button id="cardViewBtn" class="p-2 rounded-md transition duration-200 @(ViewBag.ViewMode != "list" ? "bg-primary text-dark" : "text-gray-400 hover:text-white")">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                         </svg>
                     </button>
-                    <button id="listViewBtn" class="p-2 rounded-md text-gray-400 hover:text-white transition duration-200">
+                    <button id="listViewBtn" class="p-2 rounded-md transition duration-200 @(ViewBag.ViewMode == "list" ? "bg-primary text-dark" : "text-gray-400 hover:text-white")">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                         </svg>
                     </button>
                 </div>
-                
+
                 <!-- Сортировка -->
                 <select id="sortSelect" class="bg-dark-card border border-gray-800 rounded-lg px-4 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary"
-                    data-sort-by="@ViewBag.SortBy">
+                        data-sort-by="@ViewBag.SortBy">
                     <option value="default">По умолчанию</option>
                     <option value="price_asc">Цена по возрастанию</option>
                     <option value="price_desc">Цена по убыванию</option>
@@ -65,13 +64,13 @@
             <div class="lg:w-1/4">
                 <div class="bg-dark-card rounded-2xl p-6 border border-gray-800 mb-6">
                     <h3 class="text-lg font-bold text-white mb-4">Фильтры</h3>
-                    
+
                     <!-- Поиск -->
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Поиск</label>
-                        <input type="text" id="searchInput" 
-                               class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary" 
-                               placeholder="Введите название..." 
+                        <input type="text" id="searchInput"
+                               class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary"
+                               placeholder="Введите название..."
                                value="@ViewBag.SearchQuery">
                     </div>
 
@@ -79,7 +78,7 @@
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Тип комплектующих</label>
                         <select id="componentTypeFilter" class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary"
-                        data-component-type="@ViewBag.ComponentType">
+                                data-component-type="@ViewBag.ComponentType">
                             <option value="all">Все типы</option>
                             @foreach (var type in ViewBag.ComponentTypes)
                             {
@@ -92,19 +91,19 @@
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-300 mb-2">Цена</label>
                         <div class="grid grid-cols-2 gap-2">
-                            <input type="number" id="minPrice" 
-                                   class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary" 
-                                   placeholder="От" 
+                            <input type="number" id="minPrice"
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary"
+                                   placeholder="От"
                                    value="@ViewBag.MinPrice">
-                            <input type="number" id="maxPrice" 
-                                   class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary" 
-                                   placeholder="До" 
+                            <input type="number" id="maxPrice"
+                                   class="w-full bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary"
+                                   placeholder="До"
                                    value="@ViewBag.MaxPrice">
                         </div>
                     </div>
 
                     <!-- Кнопка сброса -->
-                    <button type="button" id="resetFilters" 
+                    <button type="button" id="resetFilters"
                             class="w-full border-2 border-gray-600 text-gray-400 px-4 py-2 rounded-lg font-semibold hover:border-gray-500 hover:text-white transition duration-300">
                         Сбросить фильтры
                     </button>
@@ -129,3 +128,6 @@
 </div>
 
 <input type="hidden" id="currentProductType" value="@ViewBag.ProductType" />
+
+@await Html.PartialAsync("_CatalogScriptsPartial")
+@await Html.PartialAsync("_CompareScriptsPartial")

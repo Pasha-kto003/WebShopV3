@@ -1,0 +1,278 @@
+﻿@* _CompareScriptsPartial.cshtml *@
+<script>
+    class CompareManager {
+        constructor() {
+            this.maxItems = 4;
+            this.initializeCompareButtons();
+            this.updateCompareBadge();
+        }
+
+        initializeCompareButtons() {
+            // Обработка кликов на кнопки сравнения
+            document.addEventListener('click', (e) => {
+                const compareBtn = e.target.closest('.compare-btn');
+                if (compareBtn && !compareBtn.closest('#listViewContainer')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const card = compareBtn.closest('.product-card, .list-view-card');
+                    if (card) {
+                        this.toggleCompareItem(card, compareBtn);
+                    }
+                }
+            });
+        }
+
+        async toggleCompareItem(card, button) {
+            console.log('toggleCompareItem вызван');
+
+            // Получаем ID и тип товара
+            let productId, productType;
+
+            const computerBtn = card.querySelector('.add-to-cart');
+            const componentBtn = card.querySelector('.add-to-cart-component');
+
+            if (computerBtn) {
+                productId = computerBtn.dataset.computerId;
+                productType = 'Computer';
+            } else if (componentBtn) {
+                productId = componentBtn.dataset.componentId;
+                productType = 'Component';
+            }
+
+            console.log('Product ID:', productId, 'Type:', productType);
+
+            if (!productId || !productType) {
+                console.error('Не удалось определить ID или тип товара');
+                return;
+            }
+
+            try {
+                const token = this.getAntiForgeryToken();
+                if (!token) {
+                    console.error('Anti-forgery token not found');
+                    this.showNotification('Ошибка безопасности', 'error');
+                    return;
+                }
+
+                console.log('Отправка запроса на добавление/удаление...');
+
+                const response = await fetch('/Compare/Add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `productId=${encodeURIComponent(productId)}&productType=${encodeURIComponent(productType)}&__RequestVerificationToken=${encodeURIComponent(token)}`
+                });
+
+                console.log('Ответ получен:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Данные ответа:', data);
+
+                if (data.success) {
+                    // Обновляем состояние кнопки
+                    if (button.classList.contains('checked')) {
+                        button.classList.remove('checked');
+                        button.innerHTML = `
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        `;
+                    } else {
+                        button.classList.add('checked');
+                        button.innerHTML = `
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        `;
+                    }
+
+                    this.updateCompareBadge(data.count);
+                    this.showNotification(data.message, 'success');
+                } else {
+                    this.showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error toggling compare item:', error);
+                this.showNotification('Товар добавлен на сравнение', 'success');
+            }
+        }
+
+        async clearCompare() {
+            console.log('clearCompare вызван');
+
+            if (!confirm('Вы уверены, что хотите очистить весь список сравнения?')) {
+                return;
+            }
+
+            try {
+                const token = this.getAntiForgeryToken();
+                if (!token) {
+                    console.error('Anti-forgery token not found');
+                    this.showNotification('Ошибка безопасности', 'error');
+                    return;
+                }
+
+                console.log('Отправка запроса на очистку...');
+
+                const response = await fetch('/Compare/Clear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `__RequestVerificationToken=${encodeURIComponent(token)}`
+                });
+
+                console.log('Ответ получен:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Данные ответа:', data);
+
+                if (data.success) {
+                    // Сбрасываем все кнопки сравнения
+                    document.querySelectorAll('.compare-btn.checked').forEach(btn => {
+                        btn.classList.remove('checked');
+                        btn.innerHTML = `
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        `;
+                    });
+
+                    this.updateCompareBadge(data.count);
+                    this.showNotification(data.message, 'success');
+
+                    // Если мы на странице сравнения - перезагружаем
+                    if (window.location.pathname.includes('/Compare')) {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
+                } else {
+                    this.showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error clearing compare:', error);
+                this.showNotification('Ошибка при очистке сравнения', 'error');
+            }
+        }
+
+        getAntiForgeryToken() {
+            // Ищем токен в разных местах
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (tokenInput) return tokenInput.value;
+
+            const metaToken = document.querySelector('meta[name="__RequestVerificationToken"]');
+            if (metaToken) return metaToken.content;
+
+            const formToken = document.querySelector('form input[name="__RequestVerificationToken"]');
+            if (formToken) return formToken.value;
+
+            return null;
+        }
+
+        updateCompareBadge(count = null) {
+            if (count === null) {
+                // Запрашиваем актуальное количество с сервера
+                fetch('/Compare/GetCount')
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        this.updateBadgeUI(data.count);
+                    })
+                    .catch(error => {
+                        console.error('Error getting compare count:', error);
+                    });
+            } else {
+                this.updateBadgeUI(count);
+            }
+        }
+
+        updateBadgeUI(count) {
+            const badge = document.getElementById('compare-count-badge');
+            if (badge) {
+                badge.textContent = count;
+                badge.classList.toggle('hidden', count === 0);
+            }
+
+            // Также обновляем в навигации, если есть
+            const navBadge = document.querySelector('[data-compare-count]');
+            if (navBadge) {
+                navBadge.textContent = count;
+            }
+        }
+
+        showNotification(message, type = 'info') {
+            // Удаляем старые уведомления
+            document.querySelectorAll('.compare-notification').forEach(el => el.remove());
+
+            const notification = document.createElement('div');
+            notification.className = `compare-notification fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg text-white transition-all duration-300 transform translate-x-full ${
+                type === 'success' ? 'bg-green-600' :
+                type === 'warning' ? 'bg-yellow-600' :
+                'bg-red-600'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Анимация появления
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+
+            // Автоудаление через 3 секунды
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    }
+
+    // Инициализация менеджера сравнения
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('CompareManager инициализирован');
+        window.compareManager = new CompareManager();
+
+        // Глобальные функции для кнопок
+        window.clearCompare = function() {
+            if (window.compareManager) {
+                window.compareManager.clearCompare();
+            }
+        };
+
+        window.removeFromCompare = function(itemId) {
+            if (window.compareManager) {
+                // Создаем временную кнопку для удаления
+                const tempBtn = document.createElement('button');
+                tempBtn.dataset.productId = itemId;
+                window.compareManager.toggleCompareItem(null, tempBtn);
+            }
+        };
+    });
+</script>

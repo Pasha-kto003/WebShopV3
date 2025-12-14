@@ -215,7 +215,13 @@ namespace WebShopV3.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Catalog(string search, string sortBy, string componentType, decimal? minPrice, decimal? maxPrice, string productType = "all")
+        public async Task<IActionResult> Catalog(
+    string search = null,
+    string sortBy = "default",
+    string componentType = "all",
+    decimal? minPrice = null,
+    decimal? maxPrice = null,
+    string productType = "all")
         {
             ViewBag.SearchQuery = search;
             ViewBag.SortBy = sortBy;
@@ -229,8 +235,13 @@ namespace WebShopV3.Controllers
                 .Distinct()
                 .ToListAsync();
 
-            var computers = await GetFilteredComputers(search, sortBy, componentType, minPrice, maxPrice);
-            var components = await GetFilteredComponents(search, sortBy, componentType, minPrice, maxPrice);
+            var computers = productType == "components"
+                ? new List<Computer>()
+                : await GetFilteredComputers(search, sortBy, componentType, minPrice, maxPrice);
+
+            var components = productType == "computers"
+                ? new List<Component>()
+                : await GetFilteredComponents(search, sortBy, componentType, minPrice, maxPrice);
 
             var viewModel = new CatalogViewModel
             {
@@ -238,7 +249,6 @@ namespace WebShopV3.Controllers
                 Components = components,
                 ProductType = productType
             };
-
 
             var cartJson = HttpContext.Session.GetString("Cart");
             var cart = string.IsNullOrEmpty(cartJson)
@@ -246,37 +256,109 @@ namespace WebShopV3.Controllers
                 : JsonSerializer.Deserialize<Cart>(cartJson);
 
             ViewBag.CartItemsCount = cart?.TotalItems ?? 0;
+            ViewBag.TotalCount = computers.Count + components.Count;
 
             return View(viewModel);
         }
 
-
+        
         [HttpGet]
-        public async Task<IActionResult> SearchProducts(string search, string sortBy, string componentType, decimal? minPrice, decimal? maxPrice, string productType = "all")
+        public async Task<IActionResult> SearchProducts(
+            string search,
+            string sortBy = "default",
+            string componentType = "all",
+            decimal? minPrice = null,
+            decimal? maxPrice = null,
+            string productType = "all")
         {
-            var computers = await GetFilteredComputers(search, sortBy, componentType, minPrice, maxPrice);
-            var components = await GetFilteredComponents(search, sortBy, componentType, minPrice, maxPrice);
-
-            // ФИЛЬТРАЦИЯ ПО ТИПУ ТОВАРА
-            if (productType == "computers")
+            try
             {
-                components = new List<Component>(); // Очищаем комплектующие
+                // Логируем параметры для отладки
+                Console.WriteLine($"Search: {search}, Type: {productType}, ComponentType: {componentType}");
+
+                // Получаем компьютеры
+                var computers = productType == "components"
+                    ? new List<Computer>()
+                    : await GetFilteredComputers(search, sortBy, componentType, minPrice, maxPrice);
+
+                // Получаем комплектующие
+                var components = productType == "computers"
+                    ? new List<Component>()
+                    : await GetFilteredComponents(search, sortBy, componentType, minPrice, maxPrice);
+
+                // Применяем сортировку к результатам, если нужно
+                if (computers.Any() || components.Any())
+                {
+                    if (sortBy == "price_asc")
+                    {
+                        computers = computers.OrderBy(c => c.Price).ToList();
+                        components = components.OrderBy(c => c.Price).ToList();
+                    }
+                    else if (sortBy == "price_desc")
+                    {
+                        computers = computers.OrderByDescending(c => c.Price).ToList();
+                        components = components.OrderByDescending(c => c.Price).ToList();
+                    }
+                    else if (sortBy == "name_asc")
+                    {
+                        computers = computers.OrderBy(c => c.Name).ToList();
+                        components = components.OrderBy(c => c.Name).ToList();
+                    }
+                    else if (sortBy == "name_desc")
+                    {
+                        computers = computers.OrderByDescending(c => c.Name).ToList();
+                        components = components.OrderByDescending(c => c.Name).ToList();
+                    }
+                    else if (sortBy == "newest")
+                    {
+                        computers = computers.OrderByDescending(c => c.Id).ToList();
+                        components = components.OrderByDescending(c => c.Id).ToList();
+                    }
+                }
+
+                var viewModel = new CatalogViewModel
+                {
+                    Computers = computers,
+                    Components = components,
+                    ProductType = productType
+                };
+
+                ViewBag.SearchQuery = search;
+                ViewBag.SortBy = sortBy;
+                ViewBag.ComponentType = componentType;
+                ViewBag.MinPrice = minPrice;
+                ViewBag.MaxPrice = maxPrice;
+                ViewBag.ProductType = productType;
+                ViewBag.TotalCount = computers.Count + components.Count;
+
+                // Проверяем AJAX запрос
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return PartialView("_ComputerListPartial", viewModel);
+                }
+
+                return View("Catalog", viewModel);
             }
-            else if (productType == "components")
+            catch (Exception ex)
             {
-                computers = new List<Computer>(); // Очищаем компьютеры
+                // Логируем ошибку
+                Console.WriteLine($"Search error: {ex.Message}");
+
+                // Возвращаем пустой результат в случае ошибки
+                var viewModel = new CatalogViewModel
+                {
+                    Computers = new List<Computer>(),
+                    Components = new List<Component>(),
+                    ProductType = productType
+                };
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return PartialView("_ComputerListPartial", viewModel);
+                }
+
+                return View("Catalog", viewModel);
             }
-            
-            // Если "all" - оставляем оба списка
-
-            var viewModel = new CatalogViewModel
-            {
-                Computers = computers,
-                Components = components,
-                ProductType = productType
-            };
-
-            return PartialView("_ComputerListPartial", viewModel);
         }
 
         private async Task<List<Computer>> GetFilteredComputers(string search, string sortBy, string componentType, decimal? minPrice, decimal? maxPrice)
@@ -287,7 +369,6 @@ namespace WebShopV3.Controllers
                 .Where(c => c.Quantity > 0)
                 .AsQueryable();
 
-            // Поиск по названию и описанию
             if (!string.IsNullOrEmpty(search))
             {
                 search = search.ToLower();
@@ -298,7 +379,6 @@ namespace WebShopV3.Controllers
                 );
             }
 
-            // Фильтр по типу комплектующих
             if (!string.IsNullOrEmpty(componentType) && componentType != "all")
             {
                 query = query.Where(c =>
@@ -306,7 +386,6 @@ namespace WebShopV3.Controllers
                 );
             }
 
-            // Фильтр по цене
             if (minPrice.HasValue)
             {
                 query = query.Where(c => c.Price >= minPrice.Value);
@@ -317,57 +396,6 @@ namespace WebShopV3.Controllers
                 query = query.Where(c => c.Price <= maxPrice.Value);
             }
 
-            // Сортировка
-            query = sortBy switch
-            {
-                "price_asc" => query.OrderBy(c => c.Price),
-                "price_desc" => query.OrderByDescending(c => c.Price),
-                "name_asc" => query.OrderBy(c => c.Name),
-                "name_desc" => query.OrderByDescending(c => c.Name),
-                "newest" => query.OrderByDescending(c => c.Id),
-                _ => query.OrderBy(c => c.Id) // по умолчанию
-            };
-
-            return await query.ToListAsync();
-        }
-
-        private async Task<List<Component>> GetFilteredComponents(string search, string sortBy, string componentType, decimal? minPrice, decimal? maxPrice)
-        {
-            var query = _context.Components
-                .Include(c => c.ComponentCharacteristics)
-                    .ThenInclude(cc => cc.Characteristic)
-                .Where(c => c.Quantity > 0)
-                .AsQueryable();
-
-            // Поиск по названию и описанию
-            if (!string.IsNullOrEmpty(search))
-            {
-                search = search.ToLower();
-                query = query.Where(c =>
-                    c.Name.ToLower().Contains(search) ||
-                    c.Description.ToLower().Contains(search) ||
-                    c.Specifications.ToLower().Contains(search)
-                );
-            }
-
-            // Фильтр по типу комплектующих
-            if (!string.IsNullOrEmpty(componentType) && componentType != "all")
-            {
-                query = query.Where(c => c.Type == componentType);
-            }
-
-            // Фильтр по цене
-            if (minPrice.HasValue)
-            {
-                query = query.Where(c => c.Price >= minPrice.Value);
-            }
-
-            if (maxPrice.HasValue)
-            {
-                query = query.Where(c => c.Price <= maxPrice.Value);
-            }
-
-            // Сортировка
             query = sortBy switch
             {
                 "price_asc" => query.OrderBy(c => c.Price),
@@ -381,6 +409,51 @@ namespace WebShopV3.Controllers
             return await query.ToListAsync();
         }
 
+        private async Task<List<Component>> GetFilteredComponents(string search, string sortBy, string componentType, decimal? minPrice, decimal? maxPrice)
+        {
+            var query = _context.Components
+                .Include(c => c.ComponentCharacteristics)
+                    .ThenInclude(cc => cc.Characteristic)
+                .Where(c => c.Quantity > 0)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                query = query.Where(c =>
+                    c.Name.ToLower().Contains(search) ||
+                    c.Description.ToLower().Contains(search) ||
+                    (!string.IsNullOrEmpty(c.Specifications) && c.Specifications.ToLower().Contains(search))
+                );
+            }
+
+            if (!string.IsNullOrEmpty(componentType) && componentType != "all")
+            {
+                query = query.Where(c => c.Type == componentType);
+            }
+
+            if (minPrice.HasValue)
+            {
+                query = query.Where(c => c.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(c => c.Price <= maxPrice.Value);
+            }
+
+            query = sortBy switch
+            {
+                "price_asc" => query.OrderBy(c => c.Price),
+                "price_desc" => query.OrderByDescending(c => c.Price),
+                "name_asc" => query.OrderBy(c => c.Name),
+                "name_desc" => query.OrderByDescending(c => c.Name),
+                "newest" => query.OrderByDescending(c => c.Id),
+                _ => query.OrderBy(c => c.Id)
+            };
+
+            return await query.ToListAsync();
+        }
 
         private class RecentlyViewedItem
         {
@@ -539,6 +612,17 @@ namespace WebShopV3.Controllers
                 return value;
 
             return value.Substring(0, maxLength - 3) + "...";
+        }
+
+        [AllowAnonymous]
+        public IActionResult GetCompareCount()
+        {
+            var compareJson = HttpContext.Session.GetString("CompareItems");
+            var compareItems = string.IsNullOrEmpty(compareJson)
+                ? new List<CompareItem>()
+                : JsonSerializer.Deserialize<List<CompareItem>>(compareJson) ?? new List<CompareItem>();
+
+            return Json(new { count = compareItems.Count });
         }
 
         /// <summary>

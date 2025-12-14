@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using WebShopV3.Models;
 using WebShopV3.Services;
 
-namespace ComputerShop.Controllers
+namespace WebShopV3.Controllers
 {
     public class CartController : Controller
     {
@@ -412,10 +412,10 @@ namespace ComputerShop.Controllers
 
             ViewBag.UserData = new
             {
-                FirstName = user?.FirstName,
-                LastName = user?.LastName,
-                Email = user?.Email,
-                Phone = user?.Phone
+                user?.FirstName,
+                user?.LastName,
+                user?.Email,
+                user?.Phone
             };
 
             return View(cart);

@@ -1,268 +1,1004 @@
-﻿﻿
+﻿@using System.Text.Json
 @model WebShopV3.Models.CatalogViewModel
 
-@Html.AntiForgeryToken()
+@if (!Context.Request.Headers["X-Requested-With"].Contains("XMLHttpRequest"))
+{
+    @Html.AntiForgeryToken()
+}
+
+<style>
+    .card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+    .gradient-border {
+        position: relative;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+        border-radius: 20px;
+    }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #3B82F6, #10B981, #8B5CF6);
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gradient-border:hover::before {
+            opacity: 1;
+        }
+
+    .image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 16px;
+    }
+
+        .image-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(to top, rgba(30, 41, 59, 0.9), transparent);
+        }
+
+    .price-tag {
+        background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        white-space: nowrap;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #3B82F6, #10B981);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-gradient:hover::before {
+            left: 100%;
+        }
+
+    .specs-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .spec-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+
+    .spec-icon {
+        width: 12px;
+        height: 12px;
+        background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+        border-radius: 50%;
+    }
+
+    .stock-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+        display: inline-block;
+    }
+
+    .stock-high {
+        background-color: #10B981;
+    }
+
+    .stock-medium {
+        background-color: #F59E0B;
+    }
+
+    .stock-low {
+        background-color: #EF4444;
+    }
+
+    .rating-stars {
+        display: inline-flex;
+        gap: 2px;
+    }
+
+    .star {
+        color: #F59E0B;
+        font-size: 0.875rem;
+    }
+
+    .discount-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: linear-gradient(135deg, #EF4444, #F59E0B);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.75rem;
+        z-index: 10;
+        animation: bounce 2s infinite;
+    }
+
+    .compare-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #94a3b8;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .compare-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            color: white;
+            border-color: #3B82F6;
+        }
+
+        .compare-btn.checked {
+            background: rgba(59, 130, 246, 0.3);
+            color: white;
+            border-color: #3B82F6;
+        }
+
+    @@keyframes bounce {
+        0%, 100%
+
+    {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+
+    }
+
+    /* Адаптивные стили */
+    .product-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Увеличиваем ширину карточек */
+    .product-card {
+        min-height: 620px;
+    }
+
+    /* Для мобильных устройств делаем карточки нормальной ширины */
+    @@media (max-width: 768px) {
+        .product-card
+
+    {
+        min-height: auto;
+    }
+
+    }
+
+    /* Стили для вид списком */
+    .list-view-card {
+        display: grid;
+        grid-template-columns: 200px 1fr auto;
+        gap: 24px;
+        align-items: center;
+    }
+
+    @@media (max-width: 768px) {
+        .list-view-card
+
+    {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    }
+</style>
+
 <!-- Вид карточками -->
 <div id="cardsView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
     <!-- Компьютеры -->
     @foreach (var computer in Model.Computers)
     {
-        <div class="computer-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-primary/50 transition duration-300 group relative">
-            <!-- Кнопка избранного в правом верхнем углу -->
-            <button class="absolute top-4 left-4 z-10 favorite-btn p-2 bg-gray-900/80 hover:bg-red-600 text-gray-300 hover:text-white rounded-full transition-all duration-200"
-                    data-product-id="@computer.Id"
-                    data-product-type="Computer"
-                    title="Добавить в избранное">
-                <svg class="w-4 h-4 favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-            </button>
+        var stockClass = computer.Quantity > 10 ? "stock-high" : computer.Quantity > 3 ? "stock-medium" : "stock-low";
+        var stockText = computer.Quantity > 10 ? "Много" : computer.Quantity > 3 ? "Мало" : "Заканчивается";
 
-            <div class="relative overflow-hidden rounded-xl mb-4">
-                @if (!string.IsNullOrEmpty(computer.ImageUrl))
-                {
-                    <div class="w-full h-48 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
-                        <img src="/Images/computers/@computer.ImageUrl" alt="@computer.Name"
-                             class="w-full max-h-48 object-contain rounded-xl transition-transform duration-500 group-hover:scale-105" />
-                    </div>
-                }
-                else
-                {
-                    <div class="w-full h-48 bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl flex items-center justify-center">
-                        <span class="text-gray-500 text-lg">🖥️</span>
-                    </div>
-                }
+        <div class="product-card bg-dark-card rounded-2xl border border-gray-800/50 overflow-hidden card-hover gradient-border">
+            <div class="relative">
+                <!-- Бейдж скидки (если есть) -->
                 @if (computer.Price < 150000)
                 {
-                    <div class="absolute top-4 right-4 bg-gradient-to-r from-primary to-green-400 text-dark px-3 py-1 rounded-full text-sm font-bold">
-                        ХИТ
+                    <div class="discount-badge">
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm4.707 3.707a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L8.414 9H10a3 3 0 013 3v1a1 1 0 102 0v-1a5 5 0 00-5-5H8.414l1.293-1.293z" clip-rule="evenodd" />
+                            </svg>
+                            ХИТ ПРОДАЖ
+                        </span>
                     </div>
                 }
-            </div>
 
-            <h3 class="text-xl font-bold text-white mb-2">
-                <a href="@Url.Action("ComputerDetails", "Home", new { id = computer.Id })" class="hover:text-primary transition duration-200">
-                    @computer.Name
-                </a>
-            </h3>
-            <p class="text-gray-400 text-sm mb-4 line-clamp-2">@computer.Description</p>
+                <!-- Кнопка сравнения справа -->
+                <div class="absolute top-4 right-4 z-20">
+                    <!-- Форма для добавления в сравнение -->
+                    <form asp-action="Add" asp-controller="Compare" method="post" class="inline-block">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="productId" value="@computer.Id" />
+                        <input type="hidden" name="productType" value="Computer" />
+                        <button type="submit"
+                                class="compare-btn @(IsInCompare(computer.Id, "Computer") ? "checked" : "")"
+                                title="@(IsInCompare(computer.Id, "Computer") ? "Удалить из сравнения" : "Добавить к сравнению")">
+                            @if (IsInCompare(computer.Id, "Computer"))
+                            {
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            }
+                            else
+                            {
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            }
+                        </button>
+                    </form>
+                </div>
 
-            <div class="space-y-2 mb-4">
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-400">В наличии:</span>
-                    <span class="text-white">@computer.Quantity шт.</span>
+                <!-- Кнопка избранного слева -->
+                <button class="absolute top-12 left-4 z-20 favorite-btn w-10 h-10 flex items-center justify-center bg-gray-900/80 hover:bg-red-600 text-gray-300 hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm"
+                        data-product-id="@computer.Id"
+                        data-product-type="Computer"
+                        title="Добавить в избранное">
+                    <svg class="w-5 h-5 favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </button>
+
+                <!-- Изображение -->
+                <div class="image-container h-56">
+                    @if (!string.IsNullOrEmpty(computer.ImageUrl))
+                    {
+                        <img src="/Images/computers/@computer.ImageUrl" alt="@computer.Name"
+                             class="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                             loading="lazy" />
+                    }
+                    else
+                    {
+                        <div class="w-full h-full bg-gradient-to-br from-primary/20 to-green-400/20 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-5xl mb-2">🖥️</div>
+                                <p class="text-gray-400 text-sm">Изображение отсутствует</p>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Градиентная полоска внизу изображения -->
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-green-400 to-purple-500 z-10"></div>
                 </div>
             </div>
 
-            <div class="flex items-center justify-between mb-4">
-                <div class="text-2xl font-bold text-primary">@computer.Price.ToString("C")</div>
-            </div>
+            <!-- Контент карточки -->
+            <div class="product-content p-6">
+                <!-- Категория и рейтинг -->
+                <div class="flex items-center justify-between mb-3">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                        </svg>
+                        Компьютер
+                    </span>
 
-            <button class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300 group-hover:scale-105 add-to-cart"
-                    data-computer-id="@computer.Id"
-                    data-computer-name="@computer.Name">
-                В корзину
-            </button>
+                    <!-- Рейтинг -->
+                    <div class="rating-stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star text-gray-600">★</span>
+                        <span class="text-xs text-gray-400 ml-1">4.0</span>
+                    </div>
+                </div>
+
+                <!-- Название -->
+                <h3 class="text-lg font-bold text-white mb-2 line-clamp-1">
+                    <a href="@Url.Action("ComputerDetails", "Home", new { id = computer.Id })"
+                       class="hover:text-primary transition-colors duration-200">
+                        @computer.Name
+                    </a>
+                </h3>
+
+                <!-- Краткое описание -->
+                <p class="text-gray-400 text-sm mb-4 line-clamp-2 flex-grow">@computer.Description</p>
+
+                <!-- Основные характеристики -->
+                <div class="specs-grid mb-4">
+                    <div class="spec-item">
+                        <div class="spec-icon"></div>
+                        <span>Процессор: Intel i7</span>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-icon"></div>
+                        <span>Видеокарта: RTX 3070</span>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-icon"></div>
+                        <span>ОЗУ: 16 ГБ</span>
+                    </div>
+                    <div class="spec-item">
+                        <div class="spec-icon"></div>
+                        <span>Память: 1 ТБ SSD</span>
+                    </div>
+                </div>
+
+                <!-- Статус и цена -->
+                <div class="mt-auto pt-4 border-t border-gray-800/50">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center mb-2 sm:mb-1">
+                                <span class="stock-indicator @stockClass flex-shrink-0"></span>
+                                <span class="text-xs text-gray-400 truncate">@stockText (@computer.Quantity шт.)</span>
+                            </div>
+                            <div class="text-2xl font-bold price-tag truncate">
+                                @computer.Price.ToString("C")
+                            </div>
+                        </div>
+
+                        <!-- Старая цена (если есть скидка) -->
+                        @if (computer.Price < 150000)
+                        {
+                            <div class="text-right flex-shrink-0">
+                                <div class="text-sm text-gray-500 line-through">
+                                    @((computer.Price * 1.2m).ToString("C"))
+                                </div>
+                                <div class="text-xs text-green-400 font-semibold">
+                                    Экономия @((computer.Price * 0.2m).ToString("C"))
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="flex gap-2 mt-4">
+                    <button class="add-to-cart flex-1 btn-gradient text-white py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 flex items-center justify-center gap-2"
+                            data-computer-id="@computer.Id"
+                            data-computer-name="@computer.Name">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        В корзину
+                    </button>
+
+                    <button class="w-12 flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all duration-200 flex-shrink-0"
+                            title="Быстрый просмотр"
+                            onclick="window.location.href='@Url.Action("ComputerDetails", "Home", new { id = computer.Id })'">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
     }
 
     <!-- Комплектующие -->
     @foreach (var component in Model.Components)
     {
-        <div class="component-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-blue-400/50 transition duration-300 group relative">
-            <!-- Кнопка избранного в правом верхнем углу -->
-            <button class="absolute top-4 left-4 z-10 favorite-btn p-2 bg-gray-900/80 hover:bg-red-600 text-gray-300 hover:text-white rounded-full transition-all duration-200"
-                    data-product-id="@component.Id"
-                    data-product-type="Component"
-                    title="Добавить в избранное">
-                <svg class="w-4 h-4 favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-            </button>
+        var stockClass = component.Quantity > 10 ? "stock-high" : component.Quantity > 3 ? "stock-medium" : "stock-low";
+        var stockText = component.Quantity > 10 ? "Много" : component.Quantity > 3 ? "Мало" : "Заканчивается";
+        var typeIcon = GetComponentIcon(component.Type);
 
-            <div class="relative overflow-hidden rounded-xl mb-4">
-                <!-- ИЗМЕНЕНИЕ: Добавляем изображение компонента -->
-                <div class="w-full h-48 bg-gradient-to-br from-blue-400/20 to-blue-400/10 rounded-xl flex items-center justify-center">
+        <div class="product-card bg-dark-card rounded-2xl border border-gray-800/50 overflow-hidden card-hover gradient-border">
+            <div class="relative">
+                <!-- Бейдж типа слева -->
+                <div class="absolute top-12 left-4 z-20">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 backdrop-blur-sm">
+                        @component.Type
+                    </span>
+                </div>
+
+                <!-- Кнопка сравнения справа -->
+                <div class="absolute top-4 right-4 z-20">
+                    <!-- Форма для добавления в сравнение -->
+                    <form asp-action="Add" asp-controller="Compare" method="post" class="inline-block">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="productId" value="@component.Id" />
+                        <input type="hidden" name="productType" value="Computer" />
+                        <button type="submit"
+                                class="compare-btn @(IsInCompare(component.Id, "Component") ? "checked" : "")"
+                                title="@(IsInCompare(component.Id, "Component") ? "Удалить из сравнения" : "Добавить к сравнению")">
+                            @if (IsInCompare(component.Id, "Component"))
+                            {
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            }
+                            else
+                            {
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            }
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Кнопка избранного слева под бейджем типа -->
+                <button class="absolute top-24 left-4 z-20 favorite-btn w-10 h-10 flex items-center justify-center bg-gray-900/80 hover:bg-red-600 text-gray-300 hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm"
+                        data-product-id="@component.Id"
+                        data-product-type="Component"
+                        title="Добавить в избранное">
+                    <svg class="w-5 h-5 favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </button>
+
+                <!-- Изображение -->
+                <div class="image-container h-56">
                     @if (!string.IsNullOrEmpty(component.ImageUrl))
                     {
                         <img src="/Images/components/@component.ImageUrl"
                              alt="@component.Name"
-                             class="w-full max-h-48 object-contain rounded-xl transition-transform duration-500 group-hover:scale-105"
+                             class="w-full h-full object-contain p-4 transition-transform duration-700 hover:scale-110"
+                             loading="lazy"
                              onerror="this.onerror=null; this.src='/Images/components/default-component.jpg'" />
                     }
                     else
                     {
-                        <span class="text-4xl text-blue-400">
-                            @GetComponentIcon(component.Type)
-                        </span>
+                        <div class="w-full h-full bg-gradient-to-br from-blue-500/20 to-cyan-400/20 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-5xl mb-2 text-blue-400">
+                                    @typeIcon
+                                </div>
+                                <p class="text-gray-400 text-sm">Изображение отсутствует</p>
+                            </div>
+                        </div>
                     }
+
+                    <!-- Градиентная полоска -->
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-purple-500 z-10"></div>
                 </div>
+            </div>
+
+            <!-- Контент карточки -->
+            <div class="product-content p-6">
+                <!-- Хит продаж -->
                 @if (component.Price < 50000)
                 {
-                    <div class="absolute top-4 right-4 bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-3 py-1 rounded-full text-sm font-bold">
-                        ХИТ
+                    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-400 to-cyan-400 text-dark mb-3">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" />
+                        </svg>
+                        ХИТ ПРОДАЖ
                     </div>
                 }
-            </div>
 
-            <div class="mb-2">
-                <span class="inline-block bg-blue-400/20 text-blue-400 px-2 py-1 rounded text-xs font-semibold mb-2">
-                    @component.Type
-                </span>
-            </div>
+                <!-- Название -->
+                <h3 class="text-lg font-bold text-white mb-2 line-clamp-1">
+                    <a href="@Url.Action("ComponentDetails", "Home", new { id = component.Id })"
+                       class="hover:text-blue-400 transition-colors duration-200">
+                        @component.Name
+                    </a>
+                </h3>
 
-            <h3 class="text-xl font-bold text-white mb-2">
-                <a href="@Url.Action("ComponentDetails", "Home", new { id = component.Id })" class="hover:text-blue-400 transition duration-200">
-                    @component.Name
-                </a>
-            </h3>
-            <p class="text-gray-400 text-sm mb-4 line-clamp-2">@component.Description</p>
+                <!-- Краткое описание -->
+                <p class="text-gray-400 text-sm mb-4 line-clamp-2 flex-grow">@component.Description</p>
 
-            <div class="space-y-2 mb-4">
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-400">В наличии:</span>
-                    <span class="text-white">@component.Quantity шт.</span>
-                </div>
+                <!-- Основные характеристики -->
                 @if (!string.IsNullOrEmpty(component.Specifications))
                 {
-                    <div class="text-xs text-gray-500 line-clamp-1">@component.Specifications</div>
+                    <div class="mb-4">
+                        <div class="text-xs text-gray-500 mb-2">Ключевые характеристики:</div>
+                        <div class="text-sm text-gray-300 line-clamp-2">
+                            @component.Specifications
+                        </div>
+                    </div>
                 }
-            </div>
 
-            <div class="flex items-center justify-between mb-4">
-                <div class="text-2xl font-bold text-blue-400">@component.Price.ToString("C")</div>
-            </div>
+                <!-- Доп. параметры -->
+                <div class="specs-grid mb-4">
+                    @if (!string.IsNullOrEmpty(component.Socket))
+                    {
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Socket: @component.Socket</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(component.MemoryType))
+                    {
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Память: @component.MemoryType</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(component.FormFactor))
+                    {
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Форм-фактор: @component.FormFactor</span>
+                        </div>
+                    }
+                </div>
 
-            <button class="add-to-cart-component w-full bg-gradient-to-r from-primary to-green-400 text-dark py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-primary/25 transition duration-300 group-hover:scale-105"
-                    data-component-id="@component.Id"
-                    data-component-name="@component.Name">
-                В корзину
-            </button>
+                <!-- Статус и цена -->
+                <div class="mt-auto pt-4 border-t border-gray-800/50">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center mb-2 sm:mb-1">
+                                <span class="stock-indicator @stockClass flex-shrink-0"></span>
+                                <span class="text-xs text-gray-400 truncate">@stockText (@component.Quantity шт.)</span>
+                            </div>
+                            <div class="text-2xl font-bold text-blue-400 truncate">
+                                @component.Price.ToString("C")
+                            </div>
+                        </div>
+
+                        <!-- Скидка для хитов -->
+                        @if (component.Price < 50000)
+                        {
+                            <div class="text-right flex-shrink-0">
+                                <div class="text-sm text-gray-500 line-through">
+                                    @((component.Price * 1.15m).ToString("C"))
+                                </div>
+                                <div class="text-xs text-green-400 font-semibold">
+                                    -15%
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="flex gap-2 mt-4">
+                    <button class="add-to-cart-component flex-1 btn-gradient text-white py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 flex items-center justify-center gap-2"
+                            data-component-id="@component.Id"
+                            data-component-name="@component.Name">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        В корзину
+                    </button>
+
+                    <button class="w-12 flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all duration-200 flex-shrink-0"
+                            title="Быстрый просмотр"
+                            onclick="window.location.href='@Url.Action("ComponentDetails", "Home", new { id = component.Id })'">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
     }
 </div>
-
 <!-- Вид списком -->
 <div id="listViewContainer" class="hidden space-y-6">
     <!-- Компьютеры в списке -->
     @foreach (var computer in Model.Computers)
     {
-        <div class="flex flex-col lg:flex-row lg:items-center gap-6">
-                <div class="flex-shrink-0">
-                    <div class="w-32 h-32 bg-gradient-to-br from-blue-400/20 to-blue-400/10 rounded-xl flex items-center justify-center">
-                        <span class="text-3xl text-blue-400">
-                            @computer.ImageUrl;
-                        </span>
+        var stockClass = computer.Quantity > 10 ? "stock-high" : computer.Quantity > 3 ? "stock-medium" : "stock-low";
+        var stockText = computer.Quantity > 10 ? "Много" : computer.Quantity > 3 ? "Мало" : "Заканчивается";
+        
+        <div class="product-card bg-dark-card rounded-2xl border border-gray-800/50 overflow-hidden card-hover gradient-border">
+            <div class="flex flex-col lg:flex-row">
+                <!-- Левая часть с изображением -->
+                <div class="lg:w-1/3 relative">
+                    <!-- Бейдж скидки (если есть) -->
+                    @if (computer.Price < 120000)
+                    {
+                        <div class="discount-badge">
+                            <span class="inline-flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm4.707 3.707a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L8.414 9H10a3 3 0 013 3v1a1 1 0 102 0v-1a5 5 0 00-5-5H8.414l1.293-1.293z" clip-rule="evenodd" />
+                                </svg>
+                                ХИТ ПРОДАЖ
+                            </span>
+                        </div>
+                    }
+                    
+                    <!-- Кнопки управления -->
+                    <div class="absolute top-4 right-4 z-20">
+                        <!-- Форма для добавления в сравнение -->
+                        <form asp-action="Add" asp-controller="Compare" method="post" class="inline-block">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@computer.Id" />
+                            <input type="hidden" name="productType" value="Computer" />
+                            <button type="submit"
+                                    class="compare-btn @(IsInCompare(computer.Id, "Computer") ? "checked" : "")"
+                                    title="@(IsInCompare(computer.Id, "Computer") ? "Удалить из сравнения" : "Добавить к сравнению")">
+                                @if (IsInCompare(computer.Id, "Computer"))
+                                {
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                }
+                                else
+                                {
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                }
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Кнопка избранного -->
+                    <button class="absolute top-12 left-4 z-20 favorite-btn w-10 h-10 flex items-center justify-center bg-gray-900/80 hover:bg-red-600 text-gray-300 hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm"
+                            data-product-id="@computer.Id"
+                            data-product-type="Computer"
+                            title="Добавить в избранное">
+                        <svg class="w-5 h-5 favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </button>
+                    
+                    <!-- Изображение -->
+                    <div class="image-container h-64 lg:h-full">
+                        @if (!string.IsNullOrEmpty(computer.ImageUrl))
+                        {
+                            <img src="/Images/computers/@computer.ImageUrl" alt="@computer.Name"
+                                 class="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                                 loading="lazy" />
+                        }
+                        else
+                        {
+                            <div class="w-full h-full bg-gradient-to-br from-primary/20 to-green-400/20 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="text-5xl mb-2">🖥️</div>
+                                    <p class="text-gray-400 text-sm">Изображение отсутствует</p>
+                                </div>
+                            </div>
+                        }
+                        
+                        <!-- Градиентная полоска -->
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-green-400 to-purple-500 z-10"></div>
                     </div>
                 </div>
-                <div class="flex-grow">
-                    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-3">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="inline-block bg-blue-400/20 text-blue-400 px-2 py-1 rounded text-xs font-semibold">
-                                    @computer.Name
-                                </span>
-                            </div>
-                            <h3 class="text-xl font-bold text-white mb-1">
-                                <a href="@Url.Action("Details", "Computer", new { id = computer.Id })" class="hover:text-blue-400 transition duration-200">
-                                    @computer.Name
-                                </a>
-                            </h3>
-                            <p class="text-gray-400 text-sm line-clamp-1">@computer.Description</p>
-                        </div>
-                        <div class="flex items-center gap-2 mt-2 lg:mt-0">
-                            @if (computer.Price < 120000)
-                            {
-                                <span class="bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-3 py-1 rounded-full text-sm font-bold">ХИТ</span>
-                            }
-                            <div class="text-2xl font-bold text-blue-400">@computer.Price.ToString("C")</div>
+                
+                <!-- Правая часть с контентом -->
+                <div class="lg:w-2/3 p-6">
+                    <!-- Категория и рейтинг -->
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                            Компьютер
+                        </span>
+                        
+                        <!-- Рейтинг -->
+                        <div class="rating-stars">
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star text-gray-600">★</span>
+                            <span class="text-xs text-gray-400 ml-1">4.0</span>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div class="flex items-center text-gray-300">
-                            <span class="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
-                            <span class="text-gray-400">В наличии:</span>
-                            <span class="text-white ml-2">@computer.Quantity шт.</span>
+                    
+                    <!-- Название -->
+                    <h3 class="text-xl font-bold text-white mb-2">
+                        <a href="@Url.Action("ComputerDetails", "Home", new { id = computer.Id })" 
+                           class="hover:text-primary transition-colors duration-200">
+                            @computer.Name
+                        </a>
+                    </h3>
+                    
+                    <!-- Краткое описание -->
+                    <p class="text-gray-400 text-sm mb-4 line-clamp-2">@computer.Description</p>
+                    
+                    <!-- Основные характеристики -->
+                    <div class="specs-grid mb-4">
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Процессор: Intel i7</span>
                         </div>
-                        @if (!string.IsNullOrEmpty(computer.Description))
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Видеокарта: RTX 3070</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>ОЗУ: 16 ГБ</span>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"></div>
+                            <span>Память: 1 ТБ SSD</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Статус и цена -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-800/50">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center mb-2">
+                                <span class="stock-indicator @stockClass flex-shrink-0"></span>
+                                <span class="text-xs text-gray-400 truncate">@stockText (@computer.Quantity шт.)</span>
+                            </div>
+                            <div class="text-2xl font-bold price-tag truncate">
+                                @computer.Price.ToString("C")
+                            </div>
+                        </div>
+                        
+                        <!-- Старая цена (если есть скидка) -->
+                        @if (computer.Price < 120000)
                         {
-                            <div class="flex items-center text-gray-300">
-                                <span class="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
-                                <span class="text-gray-400">Характеристики:</span>
-                                <span class="text-white ml-2 line-clamp-1">@computer.Description</span>
+                            <div class="text-right flex-shrink-0">
+                                <div class="text-sm text-gray-500 line-through">
+                                    @((computer.Price * 1.2m).ToString("C"))
+                                </div>
+                                <div class="text-xs text-green-400 font-semibold">
+                                    Экономия @((computer.Price * 0.2m).ToString("C"))
+                                </div>
                             </div>
                         }
                     </div>
-                </div>
-                <div class="flex-shrink-0">
-                    <button class="w-full lg:w-auto bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-blue-400/25 transition duration-300 add-to-cart"
-                            data-computer-id="@computer.Id" 
-                            data-computer-name="@computer.Name">
-                        В корзину
-                    </button>
+                    
+                    <!-- Кнопки действий -->
+                    <div class="flex gap-2 mt-4">
+                        <button class="add-to-cart flex-1 btn-gradient text-white py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 flex items-center justify-center gap-2"
+                                data-computer-id="@computer.Id"
+                                data-computer-name="@computer.Name">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            В корзину
+                        </button>
+                        
+                        <button class="w-12 flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all duration-200 flex-shrink-0"
+                                title="Быстрый просмотр"
+                                onclick="window.location.href='@Url.Action("ComputerDetails", "Home", new { id = computer.Id })'">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
+        </div>
     }
 
     <!-- Комплектующие в списке -->
     @foreach (var component in Model.Components)
     {
-        <div class="component-card bg-dark-card rounded-2xl p-6 border border-gray-800 hover:border-blue-400/50 transition duration-300">
-            <div class="flex flex-col lg:flex-row lg:items-center gap-6">
-                <div class="flex-shrink-0">
-                    <div class="w-32 h-32 bg-gradient-to-br from-blue-400/20 to-blue-400/10 rounded-xl flex items-center justify-center">
-                        <span class="text-3xl text-blue-400">
-                            @GetComponentIcon(component.Type)
+        var stockClass = component.Quantity > 10 ? "stock-high" : component.Quantity > 3 ? "stock-medium" : "stock-low";
+        var stockText = component.Quantity > 10 ? "Много" : component.Quantity > 3 ? "Мало" : "Заканчивается";
+        var typeIcon = GetComponentIcon(component.Type);
+        
+        <div class="product-card bg-dark-card rounded-2xl border border-gray-800/50 overflow-hidden card-hover gradient-border">
+            <div class="flex flex-col lg:flex-row">
+                <!-- Левая часть с изображением -->
+                <div class="lg:w-1/3 relative">
+                    <!-- Бейдж типа -->
+                    <div class="absolute top-12 left-4 z-20">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 backdrop-blur-sm">
+                            @component.Type
                         </span>
                     </div>
-                </div>
-                <div class="flex-grow">
-                    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-3">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="inline-block bg-blue-400/20 text-blue-400 px-2 py-1 rounded text-xs font-semibold">
-                                    @component.Type
-                                </span>
-                            </div>
-                            <h3 class="text-xl font-bold text-white mb-1">
-                                <a href="@Url.Action("Details", "Component", new { id = component.Id })" class="hover:text-blue-400 transition duration-200">
-                                    @component.Name
-                                </a>
-                            </h3>
-                            <p class="text-gray-400 text-sm line-clamp-1">@component.Description</p>
-                        </div>
-                        <div class="flex items-center gap-2 mt-2 lg:mt-0">
-                            @if (component.Price < 50000)
-                            {
-                                <span class="bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-3 py-1 rounded-full text-sm font-bold">ХИТ</span>
-                            }
-                            <div class="text-2xl font-bold text-blue-400">@component.Price.ToString("C")</div>
-                        </div>
+                    
+                    <!-- Кнопки управления -->
+                    <div class="absolute top-4 right-4 z-20">
+                        <!-- Форма для добавления в сравнение -->
+                        <form asp-action="Add" asp-controller="Compare" method="post" class="inline-block">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@component.Id" />
+                            <input type="hidden" name="productType" value="Component" />
+                            <button type="submit"
+                                    class="compare-btn @(IsInCompare(component.Id, "Component") ? "checked" : "")"
+                                    title="@(IsInCompare(component.Id, "Component") ? "Удалить из сравнения" : "Добавить к сравнению")">
+                                @if (IsInCompare(component.Id, "Component"))
+                                {
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                }
+                                else
+                                {
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                }
+                            </button>
+                        </form>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div class="flex items-center text-gray-300">
-                            <span class="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
-                            <span class="text-gray-400">В наличии:</span>
-                            <span class="text-white ml-2">@component.Quantity шт.</span>
-                        </div>
-                        @if (!string.IsNullOrEmpty(component.Specifications))
+                    
+                    <!-- Кнопка избранного -->
+                    <button class="absolute top-24 left-4 z-20 favorite-btn w-10 h-10 flex items-center justify-center bg-gray-900/80 hover:bg-red-600 text-gray-300 hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm"
+                            data-product-id="@component.Id"
+                            data-product-type="Component"
+                            title="Добавить в избранное">
+                        <svg class="w-5 h-5 favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </button>
+                    
+                    <!-- Изображение -->
+                    <div class="image-container h-64 lg:h-full">
+                        @if (!string.IsNullOrEmpty(component.ImageUrl))
                         {
-                            <div class="flex items-center text-gray-300">
-                                <span class="w-2 h-2 bg-blue-400 rounded-full mr-3"></span>
-                                <span class="text-gray-400">Характеристики:</span>
-                                <span class="text-white ml-2 line-clamp-1">@component.Specifications</span>
+                            <img src="/Images/components/@component.ImageUrl"
+                                 alt="@component.Name"
+                                 class="w-full h-full object-contain p-4 transition-transform duration-700 hover:scale-110"
+                                 loading="lazy"
+                                 onerror="this.onerror=null; this.src='/Images/components/default-component.jpg'" />
+                        }
+                        else
+                        {
+                            <div class="w-full h-full bg-gradient-to-br from-blue-500/20 to-cyan-400/20 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="text-5xl mb-2 text-blue-400">
+                                        @typeIcon
+                                    </div>
+                                    <p class="text-gray-400 text-sm">Изображение отсутствует</p>
+                                </div>
+                            </div>
+                        }
+                        
+                        <!-- Градиентная полоска -->
+                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-purple-500 z-10"></div>
+                    </div>
+                </div>
+                
+                <!-- Правая часть с контентом -->
+                <div class="lg:w-2/3 p-6">
+                    <!-- Хит продаж -->
+                    @if (component.Price < 50000)
+                    {
+                        <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-400 to-cyan-400 text-dark mb-3">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"/>
+                            </svg>
+                            ХИТ ПРОДАЖ
+                        </div>
+                    }
+                    
+                    <!-- Название -->
+                    <h3 class="text-xl font-bold text-white mb-2">
+                        <a href="@Url.Action("ComponentDetails", "Home", new { id = component.Id })" 
+                           class="hover:text-blue-400 transition-colors duration-200">
+                            @component.Name
+                        </a>
+                    </h3>
+                    
+                    <!-- Краткое описание -->
+                    <p class="text-gray-400 text-sm mb-4 line-clamp-2">@component.Description</p>
+                    
+                    <!-- Основные характеристики -->
+                    @if (!string.IsNullOrEmpty(component.Specifications))
+                    {
+                        <div class="mb-4">
+                            <div class="text-xs text-gray-500 mb-2">Ключевые характеристики:</div>
+                            <div class="text-sm text-gray-300 line-clamp-2">
+                                @component.Specifications
+                            </div>
+                        </div>
+                    }
+                    
+                    <!-- Доп. параметры -->
+                    <div class="specs-grid mb-4">
+                        @if (!string.IsNullOrEmpty(component.Socket))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon"></div>
+                                <span>Socket: @component.Socket</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(component.MemoryType))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon"></div>
+                                <span>Память: @component.MemoryType</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(component.FormFactor))
+                        {
+                            <div class="spec-item">
+                                <div class="spec-icon"></div>
+                                <span>Форм-фактор: @component.FormFactor</span>
                             </div>
                         }
                     </div>
-                </div>
-                <div class="flex-shrink-0">
-                    <a href="@Url.Action("AddToCart", "Cart", new { componentId = component.Id, quantity = 1 })"
-                       class="w-full lg:w-auto bg-gradient-to-r from-blue-400 to-cyan-400 text-dark px-6 py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-blue-400/25 transition duration-300 add-to-cart-component text-center block"
-                       data-component-id="@component.Id">
-                        В корзину
-                    </a>
+                    
+                    <!-- Статус и цена -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6 pt-4 border-t border-gray-800/50">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center mb-2">
+                                <span class="stock-indicator @stockClass flex-shrink-0"></span>
+                                <span class="text-xs text-gray-400 truncate">@stockText (@component.Quantity шт.)</span>
+                            </div>
+                            <div class="text-2xl font-bold text-blue-400 truncate">
+                                @component.Price.ToString("C")
+                            </div>
+                        </div>
+                        
+                        <!-- Скидка для хитов -->
+                        @if (component.Price < 50000)
+                        {
+                            <div class="text-right flex-shrink-0">
+                                <div class="text-sm text-gray-500 line-through">
+                                    @((component.Price * 1.15m).ToString("C"))
+                                </div>
+                                <div class="text-xs text-green-400 font-semibold">
+                                    -15%
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Кнопки действий -->
+                    <div class="flex gap-2 mt-4">
+                        <button class="add-to-cart-component flex-1 btn-gradient text-white py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 flex items-center justify-center gap-2"
+                                data-component-id="@component.Id"
+                                data-component-name="@component.Name">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            В корзину
+                        </button>
+                        
+                        <button class="w-12 flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all duration-200 flex-shrink-0"
+                                title="Быстрый просмотр"
+                                onclick="window.location.href='@Url.Action("ComponentDetails", "Home", new { id = component.Id })'">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -271,11 +1007,55 @@
 
 @if (!Model.Computers.Any() && !Model.Components.Any())
 {
-    <div class="text-center py-12">
-        <div class="text-6xl mb-4">🔍</div>
-        <h3 class="text-xl font-bold text-white mb-2">Товары не найдены</h3>
-        <p class="text-gray-400">Попробуйте изменить параметры поиска</p>
+    <div class="text-center py-16">
+        <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full mb-6">
+            <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-3">Товары не найдены</h3>
+        <p class="text-gray-400 mb-6 max-w-md mx-auto">Попробуйте изменить параметры поиска или выбрать другие фильтры</p>
+        <button onclick="window.catalogSearch?.resetFilters()"
+                class="btn-gradient text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300">
+            Сбросить фильтры
+        </button>
     </div>
+}
+
+@functions {
+    public string GetComponentIcon(string type)
+    {
+        return type?.ToLower() switch
+        {
+            "cpu" => "⚡",
+            "gpu" => "🎮",
+            "ram" => "💾",
+            "mb" => "🖥️",
+            "psu" => "🔌",
+            "ssd" => "💿",
+            "hdd" => "💽",
+            "case" => "📦",
+            _ => "⚙️"
+        };
+    }
+
+    private bool IsInCompare(int productId, string productType)
+    {
+        try
+        {
+            var compareJson = Context.Session.GetString("CompareItems");
+            if (!string.IsNullOrEmpty(compareJson))
+            {
+                var compareItems = JsonSerializer.Deserialize<List<CompareItem>>(compareJson);
+                return compareItems?.Any(x => x.Id == productId.ToString() && x.Type == productType) ?? false;
+            }
+        }
+        catch
+        {
+            // Игнорируем ошибки десериализации
+        }
+        return false;
+    }
 }
 <script>
     // Функция для добавления в избранное
@@ -475,20 +1255,3 @@
         }
     }
 </script>
-@functions {
-    public string GetComponentIcon(string type)
-    {
-        return type?.ToLower() switch
-        {
-            "cpu" => "CPU",
-            "gpu" => "GPU", 
-            "ram" => "RAM",
-            "mb" => "MB",
-            "psu" => "PSU",
-            "ssd" => "SSD",
-            "hdd" => "HDD",
-            "case" => "CASE",
-            _ => "⚙️"
-        };
-    }
-}

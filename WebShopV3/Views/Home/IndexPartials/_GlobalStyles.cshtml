@@ -1,0 +1,316 @@
+﻿<style>
+    .card-hover {
+        transform: perspective(1000px) rotateX(0) rotateY(0);
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .card-hover:hover {
+            transform: perspective(1000px) rotateX(2deg) rotateY(2deg) translateY(-12px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(59, 130, 246, 0.2);
+        }
+
+    /* Анимация карточек отзывов */
+    .review-card {
+        transform: perspective(1000px) rotateX(0) rotateY(0);
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .review-card:hover {
+            transform: perspective(1000px) rotateX(2deg) rotateY(2deg) translateY(-16px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(251, 191, 36, 0.15);
+        }
+
+    /* Анимация звезд */
+    .star {
+        transition: transform 0.3s ease;
+    }
+
+    .review-card:hover .star {
+        animation: star-twinkle 0.6s ease infinite alternate;
+    }
+
+        .review-card:hover .star:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .review-card:hover .star:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .review-card:hover .star:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        .review-card:hover .star:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+
+    @@keyframes star-twinkle {
+        from {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        to {
+            transform: scale(1.2);
+            opacity: 0.8;
+        }
+    }
+
+    /* Анимации */
+    @@keyframes gradient-xy {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+
+    .animate-gradient-xy {
+        background-size: 400% 400%;
+        animation: gradient-xy 15s ease infinite;
+    }
+
+    .animate-text-gradient {
+        animation: text-gradient 3s ease infinite;
+        background-size: 200% auto;
+    }
+
+    @@keyframes gradient {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+
+    .animate-gradient {
+        background-size: 400% 400%;
+        animation: gradient 8s ease infinite;
+    }
+
+    @@keyframes pulse-slow {
+        0%, 100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.8;
+        }
+    }
+
+    @@keyframes bounce-slow {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    /* Анимация карточек */
+    .computer-card {
+        transform: perspective(1000px) rotateX(0) rotateY(0);
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .computer-card:hover {
+            transform: perspective(1000px) rotateX(2deg) rotateY(2deg) translateY(-16px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.15);
+        }
+
+    /* Ограничение текста */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+
+    .animate-bounce-slow {
+        animation: bounce-slow 3s ease-in-out infinite;
+    }
+
+    .animate-pulse-slow {
+        animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Анимация появления карточек при загрузке */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .grid > * {
+        animation: fadeInUp 0.5s ease-out forwards;
+        opacity: 0;
+    }
+
+    #configurator > div > div > div {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+        #configurator > div > div > div:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+    .grid > * {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+        /* Задержки для каждой карточки */
+        .grid > *:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .grid > *:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .grid > *:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .grid > *:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .grid > *:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .grid > *:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        /* Задержки для каждой карточки */
+        .grid > *:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .grid > *:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .grid > *:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .grid > *:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .grid > *:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .grid > *:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        .grid > *:nth-child(7) {
+            animation-delay: 0.7s;
+        }
+
+        .grid > *:nth-child(8) {
+            animation-delay: 0.8s;
+        }
+
+    /* Анимация статистики */
+    @@keyframes countUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .text-4xl, .text-5xl {
+        animation: countUp 1s ease-out forwards;
+        opacity: 0;
+    }
+
+        .text-4xl:nth-child(1), .text-5xl:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .text-4xl:nth-child(2), .text-5xl:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .text-4xl:nth-child(3), .text-5xl:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .text-4xl:nth-child(4), .text-5xl:nth-child(4) {
+            animation-delay: 0.8s;
+        }
+
+    /* Анимация карточек статистики */
+    .stats-card {
+        transform: perspective(1000px) rotateX(0) rotateY(0);
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .stats-card:hover {
+            transform: perspective(1000px) rotateX(2deg) rotateY(2deg) translateY(-16px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.15);
+        }
+
+    .stats-counter {
+        animation: countUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+
+    /* Появление элементов */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stats-card {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+
+        .stats-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .stats-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .stats-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .stats-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+</style>

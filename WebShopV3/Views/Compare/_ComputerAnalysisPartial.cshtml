@@ -1,0 +1,124 @@
+﻿@* Views/Compare/_ComputerAnalysisPartial.cshtml *@
+@model WebShopV3.Models.DTO.ComputerComparisonDto
+
+<div class="analysis-card bg-dark-card/50 rounded-xl p-6 border @(Model.IsBest ? "border-green-500/50" : "border-gray-800/50")">
+    <div class="flex items-start justify-between mb-4">
+        <div>
+            <h4 class="text-lg font-bold text-white">@Model.Name</h4>
+            <div class="flex items-center gap-2 mt-1">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold @GetPerformanceClass(Model.PerformanceLevel)">
+                    @Model.PerformanceLevel
+                </span>
+                @if (Model.IsBest)
+                {
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-400">
+                        🏆 Лучший выбор
+                    </span>
+                }
+            </div>
+        </div>
+        <div class="text-right">
+            <div class="text-2xl font-bold text-primary">@Model.TotalScore баллов</div>
+            <div class="text-sm text-gray-400">Общий балл</div>
+        </div>
+    </div>
+    
+    <!-- Детали компонентов -->
+    <div class="space-y-3">
+        @foreach (var component in Model.Components)
+        {
+            <div class="flex items-center justify-between p-3 bg-gray-900/30 rounded-lg">
+                <div>
+                    <div class="text-sm font-semibold text-white">@component.Type</div>
+                    <div class="text-xs text-gray-400">@component.Name</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm font-bold @GetScoreColor(component.PerformanceScore)">
+                        @component.PerformanceScore баллов
+                    </div>
+                    <div class="text-xs text-gray-400">@component.Price.ToString("C")</div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <!-- Ключевые характеристики -->
+    <div class="mt-4 pt-4 border-t border-gray-800/50">
+        <h5 class="text-sm font-semibold text-gray-300 mb-2">Ключевые характеристики:</h5>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+            @if (Model.Components.Any(c => c.Type == "CPU"))
+            {
+                var cpu = Model.Components.First(c => c.Type == "CPU");
+                <div class="text-gray-400">Процессор:</div>
+                <div class="text-white">@cpu.Name</div>
+                
+                if (cpu.CoreCount.HasValue)
+                {
+                    <div class="text-gray-400">Ядра:</div>
+                    <div class="text-white">@cpu.CoreCount ядер</div>
+                }
+            }
+            
+            @if (Model.Components.Any(c => c.Type == "GPU"))
+            {
+                var gpu = Model.Components.First(c => c.Type == "GPU");
+                <div class="text-gray-400">Видеокарта:</div>
+                <div class="text-white">@gpu.Name</div>
+                
+                if (gpu.VRAM.HasValue)
+                {
+                    <div class="text-gray-400">VRAM:</div>
+                    <div class="text-white">@gpu.VRAM ГБ</div>
+                }
+            }
+            
+            @if (Model.Components.Any(c => c.Type == "RAM"))
+            {
+                var ram = Model.Components.First(c => c.Type == "RAM");
+                <div class="text-gray-400">ОЗУ:</div>
+                <div class="text-white">@ram.MemorySize ГБ</div>
+            }
+            
+            @if (Model.Components.Any(c => c.Type == "SSD" || c.Type == "HDD"))
+            {
+                var storage = Model.Components.First(c => c.Type == "SSD" || c.Type == "HDD");
+                <div class="text-gray-400">Накопитель:</div>
+                <div class="text-white">@storage.StorageCapacity ГБ @storage.StorageType</div>
+            }
+        </div>
+    </div>
+    
+    <!-- Рекомендация -->
+    @if (Model.IsBest)
+    {
+        <div class="mt-4 p-3 bg-green-500/10 rounded-lg border border-green-500/30">
+            <div class="flex items-center gap-2 text-green-400 text-sm">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span>Рекомендуем: лучшая производительность в сравнении</span>
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+    string GetPerformanceClass(string level)
+    {
+        return level switch
+        {
+            "Экстрим" => "bg-purple-500/20 text-purple-400",
+            "Высокая" => "bg-primary/20 text-primary",
+            "Средняя" => "bg-yellow-500/20 text-yellow-400",
+            _ => "bg-gray-500/20 text-gray-400"
+        };
+    }
+    
+    string GetScoreColor(int score)
+    {
+        if (score > 500) return "text-green-400";
+        if (score > 300) return "text-yellow-400";
+        if (score > 100) return "text-blue-400";
+        return "text-gray-400";
+    }
+}

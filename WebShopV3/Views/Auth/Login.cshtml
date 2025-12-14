@@ -7,112 +7,381 @@
         <!-- Заголовок -->
         <div class="text-center mb-12">
             <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-6 login-icon">
-                <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                </svg>
+                @if (ViewBag.IsLockedOut == true)
+                {
+                    <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                }
+                else
+                {
+                    <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                }
             </div>
             <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">
-                Вход в систему
+                @if (ViewBag.IsLockedOut == true)
+                {
+                    <span class="text-red-400">Доступ ограничен</span>
+                }
+                else
+                {
+                    <span>Вход в систему</span>
+                }
             </h1>
             <p class="text-xl text-gray-400">
-                Войдите в свой аккаунт GameTech
+                @if (ViewBag.IsLockedOut == true)
+                {
+                    <span>@ViewBag.LockoutMessage</span>
+                }
+                else
+                {
+                    <span>Войдите в свой аккаунт GameTech</span>
+                }
             </p>
         </div>
 
         <!-- Карточка формы -->
         <div class="bg-dark-card rounded-2xl p-8 border border-gray-800 shadow-2xl login-form">
-            <form asp-action="Login" method="post" class="space-y-6" id="loginForm">
-                <!-- Поле имени пользователя -->
-                <div>
-                    <label for="username" class="block text-sm font-semibold text-gray-300 mb-2">
-                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            @if (ViewBag.IsLockedOut == true)
+            {
+                <!-- Блокировка IP -->
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
-                        Имя пользователя *
-                    </label>
-                    <input type="text" id="username" name="username" 
-                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 login-input"
-                           placeholder="Введите ваше имя пользователя"
-                           required>
-                </div>
-
-                <!-- Поле пароля -->
-                <div>
-                    <label for="password" class="block text-sm font-semibold text-gray-300 mb-2">
-                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
-                        Пароль *
-                    </label>
-                    <input type="password" id="password" name="password" 
-                           class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 login-input"
-                           placeholder="Введите ваш пароль"
-                           required>
-                </div>
-
-                <!-- Сообщения об ошибках -->
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Слишком много попыток</h3>
+                    <p class="text-gray-400 mb-6">
+                        @ViewBag.LockoutMessage
+                    </p>
+                    <div class="bg-gray-800/50 rounded-lg p-4 mb-6">
+                        <div class="flex items-center justify-center mb-2">
+                            <svg class="w-5 h-5 text-yellow-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span class="text-red-400 text-sm font-semibold">Ошибка входа</span>
+                            <span class="text-yellow-400">Меры безопасности</span>
                         </div>
-                        <div class="text-red-300 text-sm mt-2">
-                            @Html.ValidationSummary(true)
+                        <p class="text-sm text-gray-400">
+                            Для защиты вашего аккаунта система временно ограничила доступ.
+                        </p>
+                    </div>
+                    <a asp-action="Login" class="inline-flex items-center text-primary hover:text-green-400 transition duration-200">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Обновить страницу
+                    </a>
+                </div>
+            }
+            else
+            {
+                <!-- Форма входа -->
+                <form asp-action="Login" method="post" class="space-y-6" id="loginForm">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Скрытое поле для returnUrl -->
+                    @if (!string.IsNullOrEmpty(Context.Request.Query["returnUrl"]))
+                    {
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Query["returnUrl"]" />
+                    }
+
+                    <!-- Поле имени пользователя -->
+                    <div>
+                        <label for="username" class="block text-sm font-semibold text-gray-300 mb-2">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Имя пользователя или Email *
+                        </label>
+                        <input type="text" id="username" name="username"
+                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 login-input"
+                               placeholder="Введите имя пользователя или email"
+                               required
+                               autocomplete="username">
+                        <div class="text-xs text-gray-500 mt-1 flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Можно использовать email для входа
                         </div>
                     </div>
-                }
 
-                <!-- Кнопка входа -->
-                <button type="submit" 
-                        class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center login-submit">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                    </svg>
-                    Войти в систему
-                </button>
+                    <!-- Поле пароля -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="password" class="block text-sm font-semibold text-gray-300">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                Пароль *
+                            </label>
+                            <button type="button" id="togglePassword" class="text-xs text-gray-400 hover:text-primary transition duration-200">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <input type="password" id="password" name="password"
+                               class="w-full bg-dark border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-primary focus:ring-1 focus:ring-primary transition duration-200 login-input"
+                               placeholder="Введите ваш пароль"
+                               required
+                               autocomplete="current-password">
+                    </div>
 
-                <!-- Ссылка на регистрацию -->
-                <div class="text-center pt-4 border-t border-gray-700">
-                    <p class="text-gray-400">
-                        Нет аккаунта? 
-                        <a asp-action="Register" class="text-primary hover:text-green-400 transition duration-200 font-semibold ml-1">
-                            Зарегистрируйтесь
-                        </a>
-                    </p>
-                </div>
-            </form>
+                    <!-- Запомнить меня -->
+                    <div class="flex items-center">
+                        <input type="checkbox" id="rememberMe" name="rememberMe" value="true"
+                               class="w-4 h-4 text-primary bg-dark border-gray-700 rounded focus:ring-primary focus:ring-2">
+                        <label for="rememberMe" class="ml-2 text-sm text-gray-300">
+                            Запомнить меня на этом устройстве
+                        </label>
+                    </div>
+
+                    <!-- Счетчик попыток (скрытый по умолчанию) -->
+                    <div id="attemptCounter" class="hidden bg-gray-800/50 rounded-lg p-3">
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-yellow-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="text-xs text-yellow-400">
+                                Осталось попыток: <span id="remainingAttempts">5</span>
+                            </span>
+                        </div>
+                        <div class="mt-2">
+                            <div class="w-full bg-gray-700 rounded-full h-1.5">
+                                <div id="attemptsProgress" class="bg-yellow-500 h-1.5 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Сообщения об ошибках -->
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4 animate-pulse">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-red-400 text-sm font-semibold">Ошибка входа</span>
+                            </div>
+                            <div class="text-red-300 text-sm mt-2">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <p>@error.ErrorMessage</p>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Кнопка входа -->
+                    <button type="submit"
+                            id="loginButton"
+                            class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center login-submit disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                        </svg>
+                        <span id="buttonText">Войти в систему</span>
+                        <span id="loadingSpinner" class="hidden ml-2">
+                            <svg class="animate-spin h-5 w-5 text-dark" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                        </span>
+                    </button>
+
+                    <!-- Ссылка на регистрацию -->
+                    <div class="text-center pt-4 border-t border-gray-700">
+                        <p class="text-gray-400">
+                            Нет аккаунта?
+                            <a asp-action="Register" class="text-primary hover:text-green-400 transition duration-200 font-semibold ml-1">
+                                Зарегистрируйтесь
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            }
         </div>
 
-        <!-- Дополнительная информация -->
+        <!-- Информация о безопасности -->
         <div class="mt-8 text-center">
             <div class="grid grid-cols-3 gap-6 text-xs text-gray-400 mb-6">
                 <div class="flex items-center justify-center">
                     <svg class="w-4 h-4 mr-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
-                    Безопасно
+                    Защита от перебора
                 </div>
                 <div class="flex items-center justify-center">
                     <svg class="w-4 h-4 mr-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
-                    Защита данных
+                    Блокировка IP
                 </div>
                 <div class="flex items-center justify-center">
                     <svg class="w-4 h-4 mr-1 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                        Поддержка 24/7
+                    SSL шифрование
                 </div>
             </div>
-            
+
             <p class="text-gray-500 text-sm">
                 © 2024 GameTech PCs. Все права защищены.
             </p>
         </div>
     </div>
 </div>
+
+<!-- Скрипт для улучшения UX -->
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Переключение видимости пароля
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+
+                    // Меняем иконку
+                    const icon = this.querySelector('svg');
+                    if (type === 'text') {
+                        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+                    } else {
+                        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+                    }
+                });
+            }
+
+            // Обработка отправки формы
+            const loginForm = document.getElementById('loginForm');
+            const loginButton = document.getElementById('loginButton');
+            const buttonText = document.getElementById('buttonText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const attemptCounter = document.getElementById('attemptCounter');
+            const remainingAttempts = document.getElementById('remainingAttempts');
+            const attemptsProgress = document.getElementById('attemptsProgress');
+
+            if (loginForm) {
+                let failedAttempts = 0;
+                const maxAttempts = 5;
+
+                // Проверяем localStorage на наличие предыдущих неудачных попыток
+                if (localStorage.getItem('failedLoginAttempts')) {
+                    failedAttempts = parseInt(localStorage.getItem('failedLoginAttempts'));
+                    updateAttemptCounter();
+                }
+
+                loginForm.addEventListener('submit', function(e) {
+                    // Показываем индикатор загрузки
+                    if (loginButton && buttonText && loadingSpinner) {
+                        loginButton.disabled = true;
+                        buttonText.textContent = 'Вход...';
+                        loadingSpinner.classList.remove('hidden');
+                    }
+
+                    // Увеличиваем счетчик попыток при отправке
+                    // (реальное увеличение будет после неудачной попытки с сервера)
+                });
+
+                // Если была ошибка при предыдущей попытке
+                @if (!ViewData.ModelState.IsValid)
+                {
+                        <text>
+                        // Увеличиваем счетчик неудачных попыток
+                        failedAttempts++;
+                        localStorage.setItem('failedLoginAttempts', failedAttempts);
+                        updateAttemptCounter();
+
+                        // Показываем прогрессивную задержку
+                        if (failedAttempts > 0) {
+                            const delay = Math.min(failedAttempts, 10) * 1000; // до 10 секунд
+                            setTimeout(() => {
+                                if (loginButton && buttonText && loadingSpinner) {
+                                    loginButton.disabled = false;
+                                    buttonText.textContent = 'Войти в систему';
+                                    loadingSpinner.classList.add('hidden');
+                                }
+                            }, delay);
+                        }
+                        </text>
+                }
+
+                function updateAttemptCounter() {
+                    if (failedAttempts > 0 && failedAttempts < maxAttempts) {
+                        attemptCounter.classList.remove('hidden');
+                        const attemptsLeft = maxAttempts - failedAttempts;
+                        remainingAttempts.textContent = attemptsLeft;
+                        const progressPercent = (attemptsLeft / maxAttempts) * 100;
+                        attemptsProgress.style.width = `${progressPercent}%`;
+
+                        // Меняем цвет прогресс-бара
+                        if (attemptsLeft <= 2) {
+                            attemptsProgress.classList.remove('bg-yellow-500');
+                            attemptsProgress.classList.add('bg-red-500');
+                        } else if (attemptsLeft <= 3) {
+                            attemptsProgress.classList.remove('bg-yellow-500');
+                            attemptsProgress.classList.add('bg-orange-500');
+                        }
+                    } else if (failedAttempts >= maxAttempts) {
+                        // Показываем сообщение о блокировке
+                        attemptCounter.classList.remove('hidden');
+                        attemptCounter.innerHTML = `
+                            <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-3">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    <span class="text-red-400 font-semibold">Слишком много попыток</span>
+                                </div>
+                                <p class="text-red-300 text-sm mt-1">Попробуйте позже или обратитесь в поддержку</p>
+                            </div>
+                        `;
+
+                        // Блокируем форму
+                        if (loginButton) {
+                            loginButton.disabled = true;
+                        }
+                    }
+                }
+
+                // Сброс счетчика при успешном входе (если страница перезагружена)
+                @if (TempData["SuccessMessage"] != null)
+                {
+                        <text>
+                        localStorage.removeItem('failedLoginAttempts');
+                        </text>
+                }
+            }
+
+            // Анимация при фокусе на поля
+            const inputs = document.querySelectorAll('.login-input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('ring-2', 'ring-primary/30');
+                });
+
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('ring-2', 'ring-primary/30');
+                });
+            });
+
+            // Автофокус на поле username если не заблокирован
+            @if (ViewBag.IsLockedOut != true)
+            {
+                    <text>
+                    const usernameInput = document.getElementById('username');
+                    if (usernameInput) {
+                        setTimeout(() => usernameInput.focus(), 300);
+                    }
+                    </text>
+            }
+        });
+    </script>
+}

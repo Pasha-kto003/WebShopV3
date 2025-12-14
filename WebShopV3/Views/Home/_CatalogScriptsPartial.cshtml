@@ -1,0 +1,480 @@
+﻿@* _CatalogScriptsPartial.cshtml *@
+<script>
+    // Класс для управления поиском в каталоге
+    class CatalogSearch {
+        constructor() {
+            this.currentProductType = document.getElementById('currentProductType')?.value || 'all';
+            this.isLoading = false;
+            this.debounceTimeout = null;
+            this.debounceDelay = 300;
+            this.initializeFromURL();
+            this.initialize();
+        }
+
+        initializeFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Устанавливаем значения из URL
+            const search = urlParams.get('search');
+            const sortBy = urlParams.get('sortBy');
+            const componentType = urlParams.get('componentType');
+            const minPrice = urlParams.get('minPrice');
+            const maxPrice = urlParams.get('maxPrice');
+            const productType = urlParams.get('productType');
+            
+            if (search) document.getElementById('searchInput').value = search;
+            if (sortBy) document.getElementById('sortSelect').value = sortBy;
+            if (componentType) document.getElementById('componentTypeFilter').value = componentType;
+            if (minPrice) document.getElementById('minPrice').value = minPrice;
+            if (maxPrice) document.getElementById('maxPrice').value = maxPrice;
+            if (productType) {
+                this.currentProductType = productType;
+                this.updateProductTypeButtons(productType);
+            }
+        }
+
+        updateProductTypeButtons(productType) {
+            document.querySelectorAll('.product-type-btn').forEach(btn => {
+                const btnType = btn.dataset.productType;
+                if (btnType === productType) {
+                    btn.classList.add('bg-primary', 'text-dark');
+                    btn.classList.remove('text-gray-400');
+                } else {
+                    btn.classList.remove('bg-primary', 'text-dark');
+                    btn.classList.add('text-gray-400');
+                }
+            });
+        }
+
+        initialize() {
+            this.bindEvents();
+            this.initializeViewMode();
+            this.updateSortSelect();
+        }
+
+        bindEvents() {
+            // Кнопки переключения типа товаров
+            document.querySelectorAll('.product-type-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => this.onProductTypeChange(e));
+            });
+
+            // Кнопки переключения вида
+            const cardViewBtn = document.getElementById('cardViewBtn');
+            const listViewBtn = document.getElementById('listViewBtn');
+            
+            if (cardViewBtn) {
+                cardViewBtn.addEventListener('click', () => this.switchViewMode('cards'));
+            }
+            
+            if (listViewBtn) {
+                listViewBtn.addEventListener('click', () => this.switchViewMode('list'));
+            }
+
+            // Сортировка
+            const sortSelect = document.getElementById('sortSelect');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', () => this.searchProducts());
+            }
+
+            // Фильтры с debounce
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    clearTimeout(this.debounceTimeout);
+                    this.debounceTimeout = setTimeout(() => this.searchProducts(), this.debounceDelay);
+                });
+            }
+
+            const componentTypeFilter = document.getElementById('componentTypeFilter');
+            if (componentTypeFilter) {
+                componentTypeFilter.addEventListener('change', () => this.searchProducts());
+            }
+
+            const minPrice = document.getElementById('minPrice');
+            if (minPrice) {
+                minPrice.addEventListener('change', () => this.searchProducts());
+            }
+
+            const maxPrice = document.getElementById('maxPrice');
+            if (maxPrice) {
+                maxPrice.addEventListener('change', () => this.searchProducts());
+            }
+
+            // Кнопка сброса фильтров
+            const resetBtn = document.getElementById('resetFilters');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => this.resetFilters());
+            }
+
+            // Обработка добавления в корзину (делегирование)
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.add-to-cart')) {
+                    this.addToCart(e.target.closest('.add-to-cart'));
+                }
+                if (e.target.closest('.add-to-cart-component')) {
+                    this.addComponentToCart(e.target.closest('.add-to-cart-component'));
+                }
+            });
+        }
+
+        onProductTypeChange(event) {
+            const btn = event.currentTarget;
+            const productType = btn.dataset.productType;
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.product-type-btn').forEach(b => {
+                b.classList.remove('bg-primary', 'text-dark');
+                b.classList.add('text-gray-400');
+            });
+            btn.classList.add('bg-primary', 'text-dark');
+            btn.classList.remove('text-gray-400');
+            
+            this.currentProductType = productType;
+            this.searchProducts();
+        }
+
+        async searchProducts() {
+            if (this.isLoading) return;
+            
+            this.showLoading(true);
+            
+            try {
+                const params = this.getSearchParams();
+                const url = `/Home/SearchProducts?${params}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const html = await response.text();
+                document.getElementById('productList').innerHTML = html;
+                
+                // Обновляем счетчик результатов
+                this.updateResultsCount();
+                
+                // Обновляем вид (карточки/список)
+                this.updateViewMode();
+                
+                // Обновляем URL в браузере (без перезагрузки)
+                this.updateBrowserURL(params);
+                
+                // Инициализируем кнопки избранного в новых элементах
+                if (typeof initializeFavoriteButtons === 'function') {
+                    setTimeout(() => initializeFavoriteButtons(), 100);
+                }
+                
+            } catch (error) {
+                console.error('Error searching products:', error);
+                this.showError('Ошибка при загрузке товаров');
+            } finally {
+                this.showLoading(false);
+            }
+        }
+
+        getSearchParams() {
+            const params = new URLSearchParams();
+            
+            // Основные параметры
+            const searchInput = document.getElementById('searchInput');
+            const sortSelect = document.getElementById('sortSelect');
+            const componentTypeFilter = document.getElementById('componentTypeFilter');
+            const minPriceInput = document.getElementById('minPrice');
+            const maxPriceInput = document.getElementById('maxPrice');
+            
+            const search = searchInput ? searchInput.value.trim() : '';
+            const sortBy = sortSelect ? sortSelect.value : 'default';
+            const componentType = componentTypeFilter ? componentTypeFilter.value : 'all';
+            const minPrice = minPriceInput ? minPriceInput.value : '';
+            const maxPrice = maxPriceInput ? maxPriceInput.value : '';
+            
+            if (search) params.append('search', search);
+            if (sortBy && sortBy !== 'default') params.append('sortBy', sortBy);
+            if (componentType && componentType !== 'all') params.append('componentType', componentType);
+            if (minPrice) params.append('minPrice', minPrice);
+            if (maxPrice) params.append('maxPrice', maxPrice);
+            params.append('productType', this.currentProductType);
+            
+            return params.toString();
+        }
+
+        updateResultsCount() {
+            const computerCards = document.querySelectorAll('.computer-card').length;
+            const componentCards = document.querySelectorAll('.component-card').length;
+            const total = computerCards + componentCards;
+            
+            const resultsElement = document.getElementById('resultsCount');
+            if (resultsElement) {
+                resultsElement.textContent = `Найдено ${total} товаров (${computerCards} компьютеров, ${componentCards} комплектующих)`;
+            }
+        }
+
+        switchViewMode(mode) {
+            localStorage.setItem('catalogViewMode', mode);
+            this.updateViewMode();
+            
+            // Обновляем активную кнопку
+            const cardBtn = document.getElementById('cardViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+            
+            if (mode === 'cards') {
+                if (cardBtn) {
+                    cardBtn.classList.add('bg-primary', 'text-dark');
+                    cardBtn.classList.remove('text-gray-400');
+                }
+                if (listBtn) {
+                    listBtn.classList.remove('bg-primary', 'text-dark');
+                    listBtn.classList.add('text-gray-400');
+                }
+            } else {
+                if (listBtn) {
+                    listBtn.classList.add('bg-primary', 'text-dark');
+                    listBtn.classList.remove('text-gray-400');
+                }
+                if (cardBtn) {
+                    cardBtn.classList.remove('bg-primary', 'text-dark');
+                    cardBtn.classList.add('text-gray-400');
+                }
+            }
+        }
+
+        updateViewMode() {
+            const savedMode = localStorage.getItem('catalogViewMode') || 'cards';
+            const cardsView = document.getElementById('cardsView');
+            const listView = document.getElementById('listViewContainer');
+            
+            if (savedMode === 'cards') {
+                if (cardsView) cardsView.classList.remove('hidden');
+                if (listView) listView.classList.add('hidden');
+            } else {
+                if (cardsView) cardsView.classList.add('hidden');
+                if (listView) listView.classList.remove('hidden');
+            }
+        }
+
+        initializeViewMode() {
+            const savedMode = localStorage.getItem('catalogViewMode') || 'cards';
+            this.switchViewMode(savedMode);
+        }
+
+        updateSortSelect() {
+            const sortSelect = document.getElementById('sortSelect');
+            const currentSort = sortSelect?.dataset.sortBy;
+            
+            if (sortSelect && currentSort) {
+                sortSelect.value = currentSort;
+            }
+        }
+
+        resetFilters() {
+            // Сброс полей ввода
+            const searchInput = document.getElementById('searchInput');
+            const componentTypeFilter = document.getElementById('componentTypeFilter');
+            const minPriceInput = document.getElementById('minPrice');
+            const maxPriceInput = document.getElementById('maxPrice');
+            const sortSelect = document.getElementById('sortSelect');
+            
+            if (searchInput) searchInput.value = '';
+            if (componentTypeFilter) componentTypeFilter.value = 'all';
+            if (minPriceInput) minPriceInput.value = '';
+            if (maxPriceInput) maxPriceInput.value = '';
+            if (sortSelect) sortSelect.value = 'default';
+            
+            // Сброс кнопок типа товаров
+            document.querySelectorAll('.product-type-btn').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-dark');
+                btn.classList.add('text-gray-400');
+            });
+            
+            const allBtn = document.querySelector('[data-product-type="all"]');
+            if (allBtn) {
+                allBtn.classList.add('bg-primary', 'text-dark');
+                allBtn.classList.remove('text-gray-400');
+                this.currentProductType = 'all';
+            }
+            
+            // Выполняем поиск
+            this.searchProducts();
+        }
+
+        updateBrowserURL(params) {
+            const url = new URL(window.location.href);
+            const searchParams = new URLSearchParams(params);
+            
+            // Обновляем все параметры
+            ['search', 'sortBy', 'componentType', 'minPrice', 'maxPrice', 'productType'].forEach(param => {
+                const value = searchParams.get(param);
+                if (value) {
+                    url.searchParams.set(param, value);
+                } else {
+                    url.searchParams.delete(param);
+                }
+            });
+            
+            // Обновляем историю браузера без перезагрузки
+            window.history.replaceState({}, '', url.toString());
+        }
+
+        showLoading(show) {
+            this.isLoading = show;
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const productList = document.getElementById('productList');
+            
+            if (loadingIndicator) {
+                loadingIndicator.classList.toggle('hidden', !show);
+            }
+            
+            if (productList) {
+                productList.classList.toggle('opacity-50', show);
+            }
+        }
+
+        showError(message) {
+            // Создаем уведомление об ошибке
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg bg-red-600 text-white transition-transform transform translate-x-full';
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-xl">✗</span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        async addToCart(button) {
+            const computerId = button.dataset.computerId;
+            const computerName = button.dataset.computerName;
+            
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                if (!token) {
+                    console.error('Anti-forgery token not found');
+                    return;
+                }
+                
+                const response = await fetch('/Cart/AddComputer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
+                    },
+                    body: `computerId=${computerId}&quantity=1`
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.showCartNotification(`${computerName} добавлен в корзину!`, data.cartItemsCount);
+                    this.updateCartCounter(data.cartItemsCount);
+                } else {
+                    this.showCartNotification(data.message, null, 'error');
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                this.showCartNotification('Ошибка при добавлении в корзину', null, 'error');
+            }
+        }
+
+        async addComponentToCart(button) {
+            const componentId = button.dataset.componentId;
+            const componentName = button.dataset.componentName;
+            
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                if (!token) {
+                    console.error('Anti-forgery token not found');
+                    return;
+                }
+                
+                const response = await fetch('/Cart/AddComponent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
+                    },
+                    body: `componentId=${componentId}&quantity=1`
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.showCartNotification(`${componentName} добавлен в корзину!`, data.cartItemsCount);
+                    this.updateCartCounter(data.cartItemsCount);
+                } else {
+                    this.showCartNotification(data.message, null, 'error');
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                this.showCartNotification('Ошибка при добавлении в корзину', null, 'error');
+            }
+        }
+
+        showCartNotification(message, count, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg text-white transition-transform transform translate-x-full ${
+                type === 'success' ? 'bg-green-600' : 'bg-red-600'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-xl">${type === 'success' ? '✓' : '✗'}</span>
+                    <span>${message}</span>
+                    ${count ? `<span class="ml-2 bg-white/20 px-2 py-1 rounded text-xs">${count}</span>` : ''}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        updateCartCounter(count) {
+            // Обновляем счетчик в шапке
+            const counterElements = document.querySelectorAll('[data-cart-count]');
+            counterElements.forEach(el => {
+                el.textContent = count;
+                el.classList.toggle('hidden', count === 0);
+            });
+        }
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        window.catalogSearch = new CatalogSearch();
+        
+        // Инициализация избранного
+        if (typeof initializeFavoriteButtons === 'function') {
+            initializeFavoriteButtons();
+        }
+    });
+</script>

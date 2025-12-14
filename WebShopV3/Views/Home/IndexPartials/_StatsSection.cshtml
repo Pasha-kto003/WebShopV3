@@ -1,0 +1,205 @@
+﻿<section class="py-24 relative overflow-hidden">
+    <!-- Анимированный фон -->
+    <div class="absolute inset-0">
+        <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 via-blue-500/10 to-pink-500/10 animate-gradient-x"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-green-500/5 via-transparent to-pink-500/5"></div>
+
+        <!-- Анимированные частицы -->
+        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div class="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-blue-500/15 to-cyan-500/15 rounded-full blur-3xl animate-pulse-slow delay-1000"></div>
+        <div class="absolute top-1/2 left-1/3 w-96 h-96 bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-full blur-3xl animate-pulse-slow delay-2000"></div>
+
+        <!-- Плавающие элементы -->
+        <div class="absolute top-20 right-1/4 w-4 h-4 bg-green-500 rounded-full animate-bounce-slow opacity-30"></div>
+        <div class="absolute bottom-40 left-1/3 w-3 h-3 bg-blue-500 rounded-full animate-bounce-slow delay-300 opacity-20"></div>
+        <div class="absolute top-1/3 right-1/3 w-2 h-2 bg-pink-500 rounded-full animate-bounce-slow delay-700 opacity-15"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <!-- Статистика 1 -->
+            <div class="group relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 rounded-3xl p-8 transition-all duration-500
+                        hover:-translate-y-4 overflow-hidden border border-gray-700/50 backdrop-blur-xl stats-card">
+                <!-- Анимированный фон -->
+                <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-green-500/5 opacity-0
+                            group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                <!-- Светящаяся рамка -->
+                <div class="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-green-500/30
+                            transition-all duration-500"></div>
+
+                <!-- Иконка -->
+                <div class="relative w-16 h-16 mx-auto mb-6">
+                    <div class="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-xl opacity-30
+                                group-hover:opacity-50 transition duration-500"></div>
+                    <div class="relative w-full h-full bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center
+                                group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg shadow-green-500/30">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Число -->
+                <div class="relative mb-3">
+                    <div class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent
+                                group-hover:scale-105 transition-transform duration-300 stats-counter" data-target="1000">
+                        1000+
+                    </div>
+                </div>
+
+                <!-- Описание -->
+                <div class="text-gray-400 group-hover:text-green-400/80 transition-colors duration-300 font-medium">
+                    Товаров в каталоге
+                </div>
+
+                <!-- Подробности -->
+                <div class="mt-6 pt-6 border-t border-gray-700/50 group-hover:border-green-500/30 transition-colors duration-300">
+                    <div class="text-sm text-gray-500 group-hover:text-green-400/60 transition-colors duration-300">
+                        <div class="flex items-center justify-center gap-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span>+15% за месяц</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Декоративный элемент -->
+                <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                </div>
+            </div>
+
+            <!-- Статистика 2 -->
+            <div class="group relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 rounded-3xl p-8 transition-all duration-500
+                        hover:-translate-y-4 overflow-hidden border border-gray-700/50 backdrop-blur-xl stats-card">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-500/5 opacity-0
+                            group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-blue-500/30
+                            transition-all duration-500"></div>
+
+                <div class="relative w-16 h-16 mx-auto mb-6">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur-xl opacity-30
+                                group-hover:opacity-50 transition duration-500"></div>
+                    <div class="relative w-full h-full bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center
+                                group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg shadow-blue-500/30">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="relative mb-3">
+                    <div class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent
+                                group-hover:scale-105 transition-transform duration-300 stats-counter" data-target="99.8">
+                        99.8%
+                    </div>
+                </div>
+
+                <div class="text-gray-400 group-hover:text-blue-400/80 transition-colors duration-300 font-medium">
+                    Довольных клиентов
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-gray-700/50 group-hover:border-blue-500/30 transition-colors duration-300">
+                    <div class="text-sm text-gray-500 group-hover:text-blue-400/60 transition-colors duration-300">
+                        <div class="flex items-center justify-center gap-2">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse delay-300"></div>
+                            <span>4.9/5 средний рейтинг</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse delay-300"></div>
+                </div>
+            </div>
+
+            <!-- Статистика 3 -->
+            <div class="group relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 rounded-3xl p-8 transition-all duration-500
+                        hover:-translate-y-4 overflow-hidden border border-gray-700/50 backdrop-blur-xl stats-card">
+                <div class="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-pink-500/5 opacity-0
+                            group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-pink-500/30
+                            transition-all duration-500"></div>
+
+                <div class="relative w-16 h-16 mx-auto mb-6">
+                    <div class="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl blur-xl opacity-30
+                                group-hover:opacity-50 transition duration-500"></div>
+                    <div class="relative w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center
+                                group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg shadow-pink-500/30">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="relative mb-3">
+                    <div class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent
+                                group-hover:scale-105 transition-transform duration-300 stats-counter" data-target="3">
+                        1-3
+                    </div>
+                </div>
+
+                <div class="text-gray-400 group-hover:text-pink-400/80 transition-colors duration-300 font-medium">
+                    Дня доставка
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-gray-700/50 group-hover:border-pink-500/30 transition-colors duration-300">
+                    <div class="text-sm text-gray-500 group-hover:text-pink-400/60 transition-colors duration-300">
+                        <div class="flex items-center justify-center gap-2">
+                            <div class="w-2 h-2 bg-pink-500 rounded-full animate-pulse delay-600"></div>
+                            <span>По всей России</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="w-2 h-2 bg-pink-500 rounded-full animate-pulse delay-600"></div>
+                </div>
+            </div>
+
+            <!-- Статистика 4 -->
+            <div class="group relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 rounded-3xl p-8 transition-all duration-500
+                        hover:-translate-y-4 overflow-hidden border border-gray-700/50 backdrop-blur-xl stats-card">
+                <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-500/5 opacity-0
+                            group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-emerald-500/30
+                            transition-all duration-500"></div>
+
+                <div class="relative w-16 h-16 mx-auto mb-6">
+                    <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl blur-xl opacity-30
+                                group-hover:opacity-50 transition duration-500"></div>
+                    <div class="relative w-full h-full bg-gradient-to-br from-emerald-500 to-green-500 rounded-2xl flex items-center justify-center
+                                group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg shadow-emerald-500/30">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="relative mb-3">
+                    <div class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent
+                                group-hover:scale-105 transition-transform duration-300 stats-counter" data-target="3">
+                        3 года
+                    </div>
+                </div>
+
+                <div class="text-gray-400 group-hover:text-emerald-400/80 transition-colors duration-300 font-medium">
+                    Гарантия
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-gray-700/50 group-hover:border-emerald-500/30 transition-colors duration-300">
+                    <div class="text-sm text-gray-500 group-hover:text-emerald-400/60 transition-colors duration-300">
+                        <div class="flex items-center justify-center gap-2">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse delay-900"></div>
+                            <span>На все компоненты</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse delay-900"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

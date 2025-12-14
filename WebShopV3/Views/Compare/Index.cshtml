@@ -1,0 +1,659 @@
+﻿@model WebShopV3.Models.CompareViewModel
+@{
+    ViewData["Title"] = "Сравнение товаров";
+    
+    var analyzedComputers = ViewBag.AnalyzedComputers as List<WebShopV3.Models.DTO.ComputerComparisonDto>;
+    var bestSpecs = ViewBag.BestSpecs as Dictionary<string, (string bestValue, int bestComputerIndex)>;
+    var hasAnalysis = ViewBag.HasAnalysis as bool? ?? false;
+}
+<style>
+    .compare-table {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .compare-header {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+        border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .compare-cell {
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.2s;
+    }
+
+        .compare-cell:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+    .product-card-compare {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+        .product-card-compare:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+
+    .spec-row:nth-child(even) {
+        background: rgba(30, 41, 59, 0.3);
+    }
+
+    .stock-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+    }
+
+    .stock-high {
+        background-color: #10B981;
+    }
+
+    .stock-medium {
+        background-color: #F59E0B;
+    }
+
+    .stock-low {
+        background-color: #EF4444;
+    }
+
+    .empty-state {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+        backdrop-filter: blur(10px);
+        border: 2px dashed rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #3B82F6, #10B981);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+        }
+
+    .remove-btn {
+        transition: all 0.2s;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+        .remove-btn:hover {
+            transform: scale(1.05);
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #EF4444;
+        }
+
+    .spec-highlight {
+        background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent);
+        position: relative;
+    }
+
+        .spec-highlight::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, #3B82F6, #10B981);
+        }
+    .best-value {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), transparent);
+        position: relative;
+        animation: pulse 2s infinite;
+    }
+    
+    .best-value::before {
+        content: '🏆';
+        position: absolute;
+        left: -25px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.75rem;
+    }
+    
+    .performance-badge {
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+    
+    .performance-extreme { background: linear-gradient(135deg, #8B5CF6, #EC4899); }
+    .performance-high { background: linear-gradient(135deg, #3B82F6, #10B981); }
+    .performance-medium { background: linear-gradient(135deg, #F59E0B, #EF4444); }
+    .performance-low { background: linear-gradient(135deg, #6B7280, #4B5563); }
+    
+    .analysis-panel {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        backdrop-filter: blur(10px);
+    }
+    
+    .score-bar {
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+    }
+    
+    .score-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 1s ease-out;
+    }
+    
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+</style>
+
+<div class="min-h-screen bg-gradient-to-b from-gray-900 to-black pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Заголовок -->
+        <div class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Сравнение товаров</h1>
+            <p class="text-gray-400">
+                Сравните характеристики выбранных товаров
+                <span class="text-primary">(@Model.CurrentCount из @Model.MaxItems)</span>
+            </p>
+        </div>
+        @if (hasAnalysis && analyzedComputers != null && analyzedComputers.Count >= 2)
+        {
+            <div class="analysis-panel rounded-2xl p-6 mb-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">Интеллектуальный анализ</h3>
+                        <p class="text-gray-400 text-sm">Сравнение производительности компьютеров</p>
+                    </div>
+                </div>
+                
+                <!-- График сравнения -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-white mb-4">Баллы производительности:</h4>
+                    <div class="space-y-4">
+                        @foreach (var computer in analyzedComputers)
+                        {
+                            var maxScore = analyzedComputers.Max(c => c.TotalScore);
+                            var percentage = maxScore > 0 ? (computer.TotalScore * 100 / maxScore) : 0;
+                            
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-sm font-medium text-white">@computer.Name</span>
+                                    <span class="text-sm font-bold @(computer.IsBest ? "text-green-400" : "text-gray-400")">
+                                        @computer.TotalScore баллов
+                                        @if (computer.IsBest)
+                                        {
+                                            <span class="ml-2 text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">ЛУЧШИЙ</span>
+                                        }
+                                    </span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-fill @(computer.IsBest ? "bg-gradient-to-r from-green-500 to-emerald-400" : "bg-gradient-to-r from-primary to-blue-400")" 
+                                         style="width: @percentage%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>@computer.PerformanceLevel</span>
+                                    <span>Цена: @computer.Price.ToString("C")</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Рекомендации -->
+                <div class="p-4 bg-gradient-to-r from-primary/10 to-green-400/10 rounded-xl border border-primary/20">
+                    <h4 class="text-lg font-semibold text-white mb-2">🏆 Рекомендация системы</h4>
+                    @{
+                        var bestComputer = analyzedComputers.FirstOrDefault(c => c.IsBest);
+                        if (bestComputer != null)
+                        {
+                            <p class="text-gray-300 mb-3">
+                                Система <span class="font-bold text-white">"@bestComputer.Name"</span> показала наилучшую производительность 
+                                (@bestComputer.TotalScore баллов) при цене @bestComputer.Price.ToString("C")
+                            </p>
+                            
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                @if (bestComputer.Components.Any(c => c.Type == "CPU"))
+                                {
+                                    var cpu = bestComputer.Components.First(c => c.Type == "CPU");
+                                    <div class="text-center p-2 bg-gray-900/50 rounded">
+                                        <div class="text-xs text-gray-400">Процессор</div>
+                                        <div class="text-sm font-bold text-white truncate">@cpu.Name</div>
+                                        <div class="text-xs text-green-400">@cpu.PerformanceScore баллов</div>
+                                    </div>
+                                }
+                                
+                                @if (bestComputer.Components.Any(c => c.Type == "GPU"))
+                                {
+                                    var gpu = bestComputer.Components.First(c => c.Type == "GPU");
+                                    <div class="text-center p-2 bg-gray-900/50 rounded">
+                                        <div class="text-xs text-gray-400">Видеокарта</div>
+                                        <div class="text-sm font-bold text-white truncate">@gpu.Name</div>
+                                        <div class="text-xs text-green-400">@gpu.PerformanceScore баллов</div>
+                                    </div>
+                                }
+                                
+                                @if (bestComputer.Components.Any(c => c.Type == "RAM"))
+                                {
+                                    var ram = bestComputer.Components.First(c => c.Type == "RAM");
+                                    <div class="text-center p-2 bg-gray-900/50 rounded">
+                                        <div class="text-xs text-gray-400">ОЗУ</div>
+                                        <div class="text-sm font-bold text-white">@ram.MemorySize ГБ</div>
+                                        <div class="text-xs text-green-400">@ram.PerformanceScore баллов</div>
+                                    </div>
+                                }
+                                
+                                @if (bestComputer.Components.Any(c => c.Type == "SSD" || c.Type == "HDD"))
+                                {
+                                    var storage = bestComputer.Components.First(c => c.Type == "SSD" || c.Type == "HDD");
+                                    <div class="text-center p-2 bg-gray-900/50 rounded">
+                                        <div class="text-xs text-gray-400">Накопитель</div>
+                                        <div class="text-sm font-bold text-white">@storage.StorageCapacity ГБ</div>
+                                        <div class="text-xs text-green-400">@storage.PerformanceScore баллов</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+        <!-- Уведомления -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="mb-6 p-4 bg-green-600/20 border border-green-600/30 rounded-xl text-green-400">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="mb-6 p-4 bg-red-600/20 border border-red-600/30 rounded-xl text-red-400">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        @if (Model.Items.Any())
+        {
+            <!-- Панель управления -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 p-4 bg-dark-card rounded-2xl border border-gray-800/50">
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-6 h-6 bg-primary text-dark text-xs font-bold rounded-full flex items-center justify-center">
+                            @Model.CurrentCount
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-white">Товаров для сравнения</h3>
+                        <p class="text-xs text-gray-400">Максимум @Model.MaxItems товара</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    @if (Model.CanAddMore)
+                    {
+                        <a href="@Url.Action("Catalog", "Home")"
+                           class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition duration-200 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Добавить товар
+                        </a>
+                    }
+
+                    <!-- Форма для очистки -->
+                    <form asp-action="Clear" asp-controller="Compare" method="post"
+                          onsubmit="return confirm('Вы уверены, что хотите очистить весь список сравнения?');">
+                        @Html.AntiForgeryToken()
+                        <button type="submit"
+                                class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg font-semibold transition duration-200 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Очистить всё
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Таблица сравнения -->
+            <div class="overflow-x-auto rounded-2xl compare-table">
+                <table class="w-full">
+                    <thead>
+                        <tr class="compare-header">
+                            <!-- Заголовок характеристик -->
+                            <th class="py-4 px-6 text-left">
+                                <div class="text-sm font-semibold text-gray-300">Характеристики</div>
+                            </th>
+
+                            <!-- Заголовки товаров -->
+                            @foreach (var item in Model.Items)
+                            {
+                                <th class="py-4 px-6 compare-cell">
+                                    <div class="product-card-compare bg-dark-card/50 rounded-xl p-4 relative">
+                                        <!-- Форма для удаления -->
+                                        <form asp-action="Remove" asp-controller="Compare" method="post" class="absolute top-2 right-2">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="itemId" value="@item.Id" />
+                                            <button type="submit"
+                                                    class="remove-btn w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-red-400 transition duration-200"
+                                                    title="Удалить из сравнения">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </form>
+
+                                        <!-- Изображение -->
+                                        <div class="w-24 h-24 mx-auto mb-3 bg-gradient-to-br from-primary/10 to-green-400/10 rounded-xl flex items-center justify-center">
+                                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                            {
+                                                <img src="/images/@(item.Type == "Computer" ? "computers" : "components")/@item.ImageUrl"
+                                                     alt="@item.Name"
+                                                     class="w-full h-full object-contain rounded-xl"
+                                                     onerror="this.src='/images/default-product.png'">
+                                            }
+                                            else
+                                            {
+                                                <span class="text-3xl @(item.Type == "Computer" ? "text-primary" : "text-blue-400")">
+                                                    @if (item.Type == "Computer")
+                                                    {
+                                                        @:🖥️
+                                                    }
+                                                    else
+                                                    {
+                                                        @GetComponentIcon(item.Type)
+                                                    }
+                                                </span>
+                                            }
+                                        </div>
+
+                                        <!-- Название -->
+                                        <h3 class="text-sm font-bold text-white mb-2 text-center line-clamp-2">
+                                            <a href="@item.Url" class="hover:text-primary transition duration-200">
+                                                @item.Name
+                                            </a>
+                                        </h3>
+
+                                        <!-- Цена -->
+                                        <div class="text-lg font-bold @(item.Type == "Computer" ? "text-primary" : "text-blue-400") mb-2 text-center">
+                                            @item.PriceFormatted
+                                        </div>
+
+                                        <!-- Статус -->
+                                        <div class="text-xs text-center">
+                                            <span class="stock-indicator @item.StockClass"></span>
+                                            <span class="text-gray-400">@item.StockStatus</span>
+                                        </div>
+                                    </div>
+                                </th>
+                            }
+
+                            <!-- Пустые ячейки, если товаров меньше максимума -->
+                            @for (int i = Model.Items.Count; i < Model.MaxItems; i++)
+                            {
+                                <th class="py-4 px-6 compare-cell">
+                                    <div class="empty-state h-full min-h-[200px] rounded-xl flex flex-col items-center justify-center p-4 text-center">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl flex items-center justify-center mb-3">
+                                            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                            </svg>
+                                        </div>
+                                        <p class="text-sm text-gray-400 mb-2">Пусто</p>
+                                        @if (Model.CanAddMore)
+                                        {
+                                            <a href="@Url.Action("Catalog", "Home")"
+                                               class="text-xs text-primary hover:text-primary/80 transition duration-200">
+                                                Добавить товар
+                                            </a>
+                                        }
+                                    </div>
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <!-- Общие характеристики -->
+                        @foreach (var spec in Model.AllSpecs)
+                        {
+                            <tr class="spec-row">
+                                <td class="py-3 px-6 text-sm font-semibold text-gray-300 bg-dark-card/30 spec-highlight">
+                                    @spec
+                                </td>
+                    
+                                @for (int i = 0; i < Model.Items.Count; i++)
+                                {
+                                    var item = Model.Items[i];
+                                    var isBest = false;
+                        
+                                    @if (hasAnalysis && bestSpecs != null)
+                                    {
+                                        if (bestSpecs.TryGetValue(spec, out var best))
+                                        {
+                                            isBest = best.bestComputerIndex == i;
+                                        }
+                                    }
+                        
+                                    <td class="py-3 px-6 compare-cell @(isBest ? "best-value" : "")">
+                                        @if (item.Specifications.ContainsKey(spec))
+                                        {
+                                            <div class="text-sm text-white">
+                                                @item.Specifications[spec]
+                                                @if (isBest)
+                                                {
+                                                    <span class="inline-block ml-2 text-xs text-green-400 font-bold">
+                                                        ЛУЧШЕ
+                                                    </span>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-sm text-gray-500">—</div>
+                                        }
+                                    </td>
+                                }
+                    
+                                <!-- Пустые ячейки -->
+                                @for (int i = Model.Items.Count; i < Model.MaxItems; i++)
+                                {
+                                    <td class="py-3 px-6 compare-cell">
+                                        <div class="text-sm text-gray-500">—</div>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                        <!-- Блок с баллами производительности -->
+                        @if (hasAnalysis && analyzedComputers != null)
+                        {
+                            <tr class="spec-row bg-gradient-to-r from-primary/5 to-transparent">
+                                <td class="py-3 px-6 text-sm font-semibold text-gray-300 bg-dark-card/30 spec-highlight">
+                                    🏆 Производительность
+                                </td>
+                    
+                                @foreach (var computer in analyzedComputers)
+                                {
+                                    <td class="py-3 px-6 compare-cell">
+                                        <div class="space-y-2">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-xs text-gray-400">Общий балл:</span>
+                                                <span class="text-sm font-bold @(computer.IsBest ? "text-green-400" : "text-primary")">
+                                                    @computer.TotalScore
+                                                </span>
+                                            </div>
+                                            <div class="text-xs">
+                                                <span class="performance-badge @GetPerformanceBadgeClass(computer.PerformanceLevel)">
+                                                    @computer.PerformanceLevel
+                                                </span>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-1 text-xs">
+                                                @if (computer.ComponentScores.TryGetValue("CPU", out int cpuScore))
+                                                {
+                                                    <div class="text-gray-400">CPU:</div>
+                                                    <div class="text-white">@cpuScore</div>
+                                                }
+                                                @if (computer.ComponentScores.TryGetValue("GPU", out int gpuScore))
+                                                {
+                                                    <div class="text-gray-400">GPU:</div>
+                                                    <div class="text-white">@gpuScore</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                }
+                    
+                                <!-- Пустые ячейки -->
+                                @for (int i = analyzedComputers.Count; i < Model.MaxItems; i++)
+                                {
+                                    <td class="py-3 px-6 compare-cell">
+                                        <div class="text-sm text-gray-500">—</div>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Кнопки действий -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <a href="@Url.Action("Catalog", "Home")"
+                   class="flex-1 btn-gradient text-white py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 text-center">
+                    Вернуться в каталог
+                </a>
+
+                <!-- Форма очистки -->
+                <form asp-action="Clear" asp-controller="Compare" method="post"
+                      onsubmit="return confirm('Вы уверены, что хотите очистить весь список сравнения?');"
+                      class="flex-1">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            class="w-full border-2 border-gray-600 text-gray-400 px-6 py-3 rounded-xl font-bold hover:border-gray-500 hover:text-white transition duration-300">
+                        Очистить сравнение
+                    </button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <!-- Состояние "пусто" -->
+            <div class="empty-state rounded-2xl p-12 text-center">
+                <div class="w-24 h-24 bg-gradient-to-br from-primary/20 to-green-400/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+
+                <h3 class="text-2xl font-bold text-white mb-3">Список сравнения пуст</h3>
+                <p class="text-gray-400 mb-8 max-w-md mx-auto">
+                    Добавьте товары для сравнения, нажимая на кнопку
+                    <span class="inline-flex items-center px-2 py-1 bg-gray-800 rounded text-xs">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                        Сравнить
+                    </span>
+                    в карточках товаров
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="@Url.Action("Catalog", "Home")"
+                       class="btn-gradient text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300">
+                        Перейти в каталог
+                    </a>
+
+                    <a href="@Url.Action("Index", "Home")"
+                       class="border-2 border-gray-600 text-gray-400 px-8 py-3 rounded-xl font-bold hover:border-gray-500 hover:text-white transition duration-300">
+                        На главную
+                    </a>
+                </div>
+            </div>
+        }
+
+        <!-- Подсказки -->
+        @if (Model.Items.Any() && Model.Items.Count >= 2)
+        {
+            <div class="mt-12 p-6 bg-dark-card/50 rounded-2xl border border-gray-800/50">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Как пользоваться сравнением
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 bg-dark-card/30 rounded-xl">
+                        <div class="text-primary font-bold text-sm mb-2">1. Добавление товаров</div>
+                        <p class="text-gray-400 text-sm">
+                            Нажмите кнопку сравнения в карточке товара, чтобы добавить его в список
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-dark-card/30 rounded-xl">
+                        <div class="text-primary font-bold text-sm mb-2">2. Удаление товаров</div>
+                        <p class="text-gray-400 text-sm">
+                            Нажмите на крестик в карточке товара, чтобы удалить его из сравнения
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-dark-card/30 rounded-xl">
+                        <div class="text-primary font-bold text-sm mb-2">3. Особенности</div>
+                        <p class="text-gray-400 text-sm">
+                            Можно сравнивать до 4 товаров одновременно, включая компьютеры и комплектующие
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@functions {
+    public string GetComponentIcon(string type)
+    {
+        return type?.ToLower() switch
+        {
+            "cpu" => "⚡",
+            "gpu" => "🎮",
+            "ram" => "💾",
+            "mb" => "🖥️",
+            "psu" => "🔌",
+            "ssd" => "💿",
+            "hdd" => "💽",
+            "case" => "📦",
+            _ => "⚙️"
+        };
+    }
+
+    string GetPerformanceBadgeClass(string level)
+    {
+        return level switch
+        {
+            "Экстрим" => "performance-extreme",
+            "Высокая" => "performance-high",
+            "Средняя" => "performance-medium",
+            _ => "performance-low"
+        };
+    }
+}
