@@ -14,7 +14,6 @@ namespace WebShopV3.Models
             {
                 context.Characteristics.AddRange(
                     new Characteristic { Id = 1, Name = "Тактовая частота", Unit = "ГГц", Description = "Базовая частота процессора" },
-                    new Characteristic { Id = 1, Name = "Тактовая частота", Unit = "ГГц", Description = "Базовая частота процессора" },
                     new Characteristic { Id = 2, Name = "Количество ядер", Unit = "шт", Description = "Количество физических ядер" },
                     new Characteristic { Id = 3, Name = "Объем памяти", Unit = "ГБ", Description = "Объем оперативной памяти" },
                     new Characteristic { Id = 4, Name = "Частота памяти", Unit = "МГц", Description = "Частота оперативной памяти" },

@@ -62,11 +62,16 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasherService>();
 builder.Services.AddScoped<CompatibilityService>();
+
 builder.Services.AddHttpClient<IYookassaService, YookassaService>();
 builder.Services.AddScoped<IYookassaService, YookassaService>();
+
 builder.Services.AddLogging();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<IComparisonService, ComparisonService>();
+
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+
 builder.Services.AddMemoryCache();
 builder.Services.AddSession();
 

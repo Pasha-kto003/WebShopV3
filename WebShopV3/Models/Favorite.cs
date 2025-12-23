@@ -26,7 +26,6 @@ namespace WebShopV3.Models
 
         public DateTime? LastViewed { get; set; }
 
-        // НАВИГАЦИОННЫЕ СВОЙСТВА БЕЗ ForeignKey!
         [ForeignKey("UserId")]
         public virtual User? User { get; set; }
 

@@ -64,11 +64,7 @@ namespace WebShopV3.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(
-            [FromForm] string username,
-            [FromForm] string password,
-            [FromForm] bool rememberMe = false,
-            string? returnUrl = null)
+        public async Task<IActionResult> Login([FromForm] string username, [FromForm] string password, [FromForm] bool rememberMe = false, string? returnUrl = null)
         {
             try
             {
@@ -353,10 +349,6 @@ namespace WebShopV3.Controllers
                 var cartJson = HttpContext.Session.GetString("Cart");
                 if (!string.IsNullOrEmpty(cartJson))
                 {
-                    // Здесь можно добавить логику слияния корзины гостя с корзиной пользователя в БД
-                    // Например, сохранить корзину пользователя в базе данных
-
-                    // Очищаем сессию после переноса
                     HttpContext.Session.Remove("Cart");
 
                     _logger.LogInformation("Корзина гостя перенесена для пользователя {UserId}", userId);
@@ -368,7 +360,6 @@ namespace WebShopV3.Controllers
             }
         }
 
-        // Остальные методы остаются без изменений...
         // GET: Auth/Logout
         [Authorize]
         [HttpGet]
@@ -499,7 +490,6 @@ namespace WebShopV3.Controllers
             return View(user);
         }
 
-        // DTO класс остается без изменений
         public class UserRegistrationDto
         {
             [Required(ErrorMessage = "Имя пользователя обязательно")]

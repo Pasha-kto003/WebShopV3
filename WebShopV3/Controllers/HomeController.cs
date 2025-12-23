@@ -2,20 +2,25 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.Json;
+using WebShopV3.Helpers;
 using WebShopV3.Models;
 using WebShopV3.Models.DTO;
+using WebShopV3.Services;
 
 namespace WebShopV3.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IRecommendationService _recommendationService;
 
-        public HomeController(ApplicationDbContext context)
+        public HomeController(ApplicationDbContext context, IRecommendationService recommendationService)
         {
             _context = context;
+            _recommendationService = recommendationService;
         }
 
         [AllowAnonymous]
@@ -125,6 +130,24 @@ namespace WebShopV3.Controllers
                 : JsonSerializer.Deserialize<Cart>(cartJson);
             ViewBag.CartItemsCount = cart?.TotalItems ?? 0;
 
+            // Трекинг просмотра
+            await RecommendationHelper.TrackViewAsync(
+                HttpContext,
+                _recommendationService,
+                component.Id,
+                "Component",
+                component.Name);
+
+            // Получение рекомендаций для сайдбара
+            var sidebarRecommendations = await RecommendationHelper.GetSidebarRecommendationsAsync(
+                HttpContext,
+                _recommendationService,
+                component.Id,
+                "Component",
+                4);
+
+            ViewBag.SidebarRecommendations = sidebarRecommendations;
+
             return View(component); // Передаем сам компонент как модель
         }
 
@@ -211,17 +234,29 @@ namespace WebShopV3.Controllers
             ViewBag.CurrentComputerId = id.Value;
             ViewBag.RecentlyViewedCount = recentlyViewed.Count;
 
+            // Трекинг просмотра
+            await RecommendationHelper.TrackViewAsync(
+                HttpContext,
+                _recommendationService,
+                computer.Id,
+                "Computer",
+                computer.Name);
+
+            // Получение рекомендаций для сайдбара
+            var sidebarRecommendations = await RecommendationHelper.GetSidebarRecommendationsAsync(
+                HttpContext,
+                _recommendationService,
+                computer.Id,
+                "Computer",
+                4);
+
+            ViewBag.SidebarRecommendations = sidebarRecommendations;
+
             return View(computer);
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Catalog(
-    string search = null,
-    string sortBy = "default",
-    string componentType = "all",
-    decimal? minPrice = null,
-    decimal? maxPrice = null,
-    string productType = "all")
+        public async Task<IActionResult> Catalog(string search = null, string sortBy = "default", string componentType = "all", decimal? minPrice = null, decimal? maxPrice = null, string productType = "all")
         {
             ViewBag.SearchQuery = search;
             ViewBag.SortBy = sortBy;
@@ -240,7 +275,7 @@ namespace WebShopV3.Controllers
                 : await GetFilteredComputers(search, sortBy, componentType, minPrice, maxPrice);
 
             var components = productType == "computers"
-                ? new List<Component>()
+                ? new List<Models.Component>()
                 : await GetFilteredComponents(search, sortBy, componentType, minPrice, maxPrice);
 
             var viewModel = new CatalogViewModel
@@ -283,7 +318,7 @@ namespace WebShopV3.Controllers
 
                 // Получаем комплектующие
                 var components = productType == "computers"
-                    ? new List<Component>()
+                    ? new List<Models.Component>()
                     : await GetFilteredComponents(search, sortBy, componentType, minPrice, maxPrice);
 
                 // Применяем сортировку к результатам, если нужно
@@ -348,7 +383,7 @@ namespace WebShopV3.Controllers
                 var viewModel = new CatalogViewModel
                 {
                     Computers = new List<Computer>(),
-                    Components = new List<Component>(),
+                    Components = new List<Models.Component>(),
                     ProductType = productType
                 };
 
@@ -409,7 +444,7 @@ namespace WebShopV3.Controllers
             return await query.ToListAsync();
         }
 
-        private async Task<List<Component>> GetFilteredComponents(string search, string sortBy, string componentType, decimal? minPrice, decimal? maxPrice)
+        private async Task<List<Models.Component>> GetFilteredComponents(string search, string sortBy, string componentType, decimal? minPrice, decimal? maxPrice)
         {
             var query = _context.Components
                 .Include(c => c.ComponentCharacteristics)
@@ -662,7 +697,7 @@ namespace WebShopV3.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetBestsellers(string type = "all", int limit = 6)
         {
-            IQueryable<Component> query = _context.Components
+            IQueryable<Models.Component> query = _context.Components
                 .Where(c => c.Quantity > 0);
 
             // Фильтрация по типу
