@@ -106,28 +106,50 @@
                     <!-- Изображение -->
                     <div class="relative overflow-hidden">
                         <a href="@GetProductUrl(item)" class="block">
-                            <div class="aspect-w-16 aspect-h-9 bg-gradient-to-br @(item.ProductType == "Computer" ? "from-primary/20 to-primary/10" : "from-blue-500/20 to-blue-500/10")">
-                                @if (!string.IsNullOrEmpty(item.ImageUrl))
-                                {
-                                    <img src="@item.ImageUrl" alt="@item.Name" 
-                                         class="object-cover w-full h-48 group-hover:scale-105 transition-transform duration-500">
-                                }
-                                else
-                                {
-                                    <div class="flex items-center justify-center h-48">
-                                        <span class="text-5xl">
-                                            @if (item.ProductType == "Computer")
-                                            {
-                                                @:🖥️
-                                            }
-                                            else
-                                            {
+                            @if(item.ProductType == "Computer")
+                            {
+                                <div class="aspect-w-16 aspect-h-9 bg-gradient-to-br @(item.ProductType == "Computer" ? "from-primary/20 to-primary/10" : "from-blue-500/20 to-blue-500/10")">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="~/Images/computers/@item.ImageUrl" alt="@item.Name" 
+                                             class="object-cover w-full h-48 group-hover:scale-105 transition-transform duration-500">
+                                    }
+                                    else
+                                    {
+                                        <div class="flex items-center justify-center h-48">
+                                            <span class="text-5xl">
+                                                @if (item.ProductType == "Computer")
+                                                {
+                                                    @:🖥️
+                                                }
+                                                else
+                                                {
+                                                    @GetComponentIcon(item.ComponentType)
+                                                }
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="aspect-w-16 aspect-h-9 bg-gradient-to-br @(item.ProductType == "Component" ? "from-primary/20 to-primary/10" : "from-blue-500/20 to-blue-500/10")">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="~/Images/components/@item.ImageUrl" alt="@item.Name" 
+                                             class="object-cover w-full h-48 group-hover:scale-105 transition-transform duration-500">
+                                    }
+                                    else
+                                    {
+                                        <div class="flex items-center justify-center h-48">
+                                            <span class="text-5xl">
                                                 @GetComponentIcon(item.ComponentType)
-                                            }
-                                        </span>
-                                    </div>
-                                }
-                            </div>
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            
                         </a>
                         
                         <!-- Бейджи -->

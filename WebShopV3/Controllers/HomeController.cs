@@ -321,7 +321,6 @@ namespace WebShopV3.Controllers
                     ? new List<Models.Component>()
                     : await GetFilteredComponents(search, sortBy, componentType, minPrice, maxPrice);
 
-                // Применяем сортировку к результатам, если нужно
                 if (computers.Any() || components.Any())
                 {
                     if (sortBy == "price_asc")
