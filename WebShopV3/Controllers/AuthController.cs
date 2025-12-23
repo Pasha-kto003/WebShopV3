@@ -170,14 +170,17 @@ namespace WebShopV3.Controllers
                 _logger.LogInformation("Успешный вход пользователя: {Username} (ID: {UserId}) с IP: {IP}",
                     user.Username, user.Id, clientIp);
 
-                // Переносим корзину гостя в корзину пользователя
-                await MergeGuestCartWithUserCart(user.Id);
-
                 TempData["SuccessMessage"] = $"Добро пожаловать, {user.Username}!";
 
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 {
                     return Redirect(returnUrl);
+                }
+
+                var guestCartJson = HttpContext.Session.GetString("Cart");
+                if (!string.IsNullOrEmpty(guestCartJson))
+                {
+                    await MergeGuestCartWithUserCart(user.Id);
                 }
 
                 return RedirectToAction("Index", "Home");

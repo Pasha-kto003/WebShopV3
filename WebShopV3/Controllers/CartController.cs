@@ -463,8 +463,8 @@ namespace WebShopV3.Controllers
                 {
                     UserId = userId,
                     OrderDate = DateTime.Now,
-                    OrderTypeId = 3, // Продажа
-                    StatusId = 4, // Завершен (для оффлайн заказов)
+                    OrderTypeId = _context.OrderTypes.FirstOrDefault(s=> s.Name == "Продажа").Id, // Продажа
+                    StatusId = _context.Statuses.FirstOrDefault(s=> s.Name == "Выполнен").Id, // Завершен (для оффлайн заказов)
                     TotalAmount = cart.TotalAmount,
                     Description = GenerateOrderDescription(address, comment)
                 };
@@ -536,8 +536,8 @@ namespace WebShopV3.Controllers
                 {
                     UserId = userId,
                     OrderDate = DateTime.Now,
-                    OrderTypeId = 3, // Продажа
-                    StatusId = 5, // В ожидании оплаты
+                    OrderTypeId = _context.OrderTypes.FirstOrDefault(s => s.Name == "Продажа").Id, // Продажа
+                    StatusId = _context.Statuses.FirstOrDefault(s=> s.Name == "В ожидании").Id, // В ожидании оплаты
                     TotalAmount = cart.TotalAmount,
                     Description = GenerateOrderDescription(address, comment)
                 };

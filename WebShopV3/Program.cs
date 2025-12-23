@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
+using WebShopV3.Middleware;
 using WebShopV3.Models;
 using WebShopV3.Services;
 
@@ -114,6 +115,8 @@ app.UseRouting();
 app.UseSession();
 
 app.UseAuthorization();
+
+app.UseRecommendationTracking();
 
 app.MapControllerRoute(
     name: "default",
