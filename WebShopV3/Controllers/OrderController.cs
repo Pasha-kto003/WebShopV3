@@ -26,7 +26,7 @@ namespace WebShopV3.Controllers
                 .Include(o => o.Status)
                 .Include(o => o.ComputerOrders)
                     .ThenInclude(co => co.Computer)
-                .Include(o => o.ComponentOrders) // Добавляем загрузку компонентов
+                .Include(o => o.ComponentOrders) // Добавляем загрузку компонентов++
                     .ThenInclude(co => co.Component)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
