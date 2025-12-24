@@ -1,0 +1,17 @@
+﻿@* Views/Shared/ListPartials/_ListView.cshtml *@
+@model WebShopV3.Models.CatalogViewModel
+
+<!-- Вид списком -->
+<div id="listViewContainer" class="space-y-6">
+    <!-- Компьютеры в списке -->
+    @foreach (var computer in Model.Computers)
+    {
+        <partial name="~/Views/Home/ListPartials/_ComputerListItem.cshtml" model="computer" />
+    }
+
+    <!-- Комплектующие в списке -->
+    @foreach (var component in Model.Components)
+    {
+        <partial name="~/Views/Home/ListPartials/_ComponentListItem.cshtml" model="component" />
+    }
+</div>

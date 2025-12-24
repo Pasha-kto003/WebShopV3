@@ -1,0 +1,198 @@
+﻿<script>
+    // Функция для добавления в избранное
+    async function addToFavorite(productId, productType) {
+        try {
+            // Получаем токен из формы
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const response = await fetch('/Favorites/Add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `productType=${productType}&productId=${productId}&__RequestVerificationToken=${token}`
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Находим кнопку и меняем ее состояние
+                const button = document.querySelector(`.favorite-btn[data-product-id="${productId}"][data-product-type="${productType}"]`);
+                if (button) {
+                    const icon = button.querySelector('.favorite-icon');
+                    icon.style.fill = 'currentColor';
+                    button.classList.remove('bg-gray-900/80', 'text-gray-300');
+                    button.classList.add('bg-red-600', 'text-white');
+                    button.title = 'Удалить из избранного';
+                    button.setAttribute('data-is-favorite', 'true');
+                }
+
+                // Обновляем счетчик в шапке
+                updateFavoriteCounter(data.count);
+
+                // Показываем уведомление
+                showNotification(data.message, 'success');
+            } else {
+                showNotification(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error adding to favorites:', error);
+            showNotification('Ошибка при добавлении в избранное', 'error');
+        }
+    }
+
+    // Функция для удаления из избранного
+    async function removeFromFavorite(favoriteId, productId, productType) {
+        try {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            const response = await fetch('/Favorites/Remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `favoriteId=${favoriteId}&__RequestVerificationToken=${token}`
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Находим кнопку и меняем ее состояние
+                const button = document.querySelector(`.favorite-btn[data-product-id="${productId}"][data-product-type="${productType}"]`);
+                if (button) {
+                    const icon = button.querySelector('.favorite-icon');
+                    icon.style.fill = 'none';
+                    button.classList.remove('bg-red-600', 'text-white');
+                    button.classList.add('bg-gray-900/80', 'text-gray-300');
+                    button.title = 'Добавить в избранное';
+                    button.removeAttribute('data-is-favorite');
+                }
+
+                // Обновляем счетчик в шапке
+                updateFavoriteCounter(data.count);
+
+                // Показываем уведомление
+                showNotification(data.message, 'success');
+            } else {
+                showNotification(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error removing from favorites:', error);
+            showNotification('Ошибка при удалении из избранного', 'error');
+        }
+    }
+
+    // Функция обновления счетчика в шапке
+    function updateFavoriteCounter(count) {
+        const badge = document.getElementById('favorite-count-badge');
+        if (badge) {
+            badge.textContent = count;
+            if (count === 0) {
+                badge.style.display = 'none';
+            } else {
+                badge.style.display = 'flex';
+            }
+        }
+
+        // Также обновляем в навигации, если есть
+        const navBadge = document.querySelector('[data-favorite-count]');
+        if (navBadge) {
+            navBadge.textContent = count;
+        }
+    }
+
+    // Функция показа уведомления
+    function showNotification(message, type = 'info') {
+        // Создаем элемент уведомления
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg text-white transition-transform transform translate-x-full ${
+            type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        }`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Показываем уведомление
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+            notification.classList.add('translate-x-0');
+        }, 10);
+
+        // Убираем уведомление через 3 секунды
+        setTimeout(() => {
+            notification.classList.remove('translate-x-0');
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // Обработчик кликов на кнопки избранного
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация состояния кнопок избранного
+        initializeFavoriteButtons();
+
+        // Обработчик кликов
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.favorite-btn')) {
+                e.preventDefault();
+                const button = e.target.closest('.favorite-btn');
+                const productId = button.dataset.productId;
+                const productType = button.dataset.productType;
+                const isFavorite = button.hasAttribute('data-is-favorite');
+                const favoriteId = button.dataset.favoriteId;
+
+                if (isFavorite && favoriteId) {
+                    // Если уже в избранном - удаляем
+                    removeFromFavorite(favoriteId, productId, productType);
+                } else {
+                    // Если не в избранном - добавляем
+                    addToFavorite(productId, productType);
+                }
+            }
+        });
+    });
+
+    // Функция инициализации состояния кнопок избранного
+    async function initializeFavoriteButtons() {
+        try {
+            // Собираем все ID товаров на странице
+            const productIds = [];
+            const productTypes = [];
+            const buttons = document.querySelectorAll('.favorite-btn');
+
+            buttons.forEach(button => {
+                productIds.push(button.dataset.productId);
+                productTypes.push(button.dataset.productType);
+            });
+
+            if (productIds.length === 0) return;
+
+            // Проверяем состояние избранного для каждого товара
+            for (let i = 0; i < productIds.length; i++) {
+                const productId = productIds[i];
+                const productType = productTypes[i];
+
+                // Можно сделать массовый запрос или проверять по одному
+                const response = await fetch(`/Favorites/Check?productType=${productType}&productId=${productId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.isFavorite) {
+                        const button = document.querySelector(`.favorite-btn[data-product-id="${productId}"][data-product-type="${productType}"]`);
+                        if (button) {
+                            const icon = button.querySelector('.favorite-icon');
+                            icon.style.fill = 'currentColor';
+                            button.classList.remove('bg-gray-900/80', 'text-gray-300');
+                            button.classList.add('bg-red-600', 'text-white');
+                            button.title = 'Удалить из избранного';
+                            button.setAttribute('data-is-favorite', 'true');
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error initializing favorite buttons:', error);
+        }
+    }
+</script>

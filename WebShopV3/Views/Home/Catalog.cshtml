@@ -2,9 +2,149 @@
 @{
     ViewData["Title"] = "Каталог";
 }
-
+<style>
+     /* Стили для верхней пагинации */
+    #topPaginationContainer {
+        transition: all 0.3s ease;
+    }
+    
+    .page-btn {
+        min-width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+        border-radius: 8px;
+        color: #94a3b8;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .page-btn:hover:not(.active) {
+        background-color: rgba(30, 41, 59, 0.8);
+        border-color: #3b82f6;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+    
+    .page-btn.active {
+        background: linear-gradient(135deg, #3b82f6, #10b981);
+        border-color: transparent;
+        color: #0f172a;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .nav-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background-color: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+        border-radius: 8px;
+        color: #94a3b8;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .nav-btn:hover:not(:disabled) {
+        background-color: rgba(30, 41, 59, 0.8);
+        border-color: #3b82f6;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+    
+    .nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .nav-btn.prev:hover:not(:disabled) {
+        box-shadow: -2px 0 8px rgba(59, 130, 246, 0.2);
+    }
+    
+    .nav-btn.next:hover:not(:disabled) {
+        box-shadow: 2px 0 8px rgba(59, 130, 246, 0.2);
+    }
+    
+    .page-size-select {
+        min-width: 80px;
+    }
+    
+    .page-size-select:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    
+    /* Анимация при переключении страниц */
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    #topPaginationContainer > div {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    /* Адаптивность */
+    @@media (max-width: 768px) {
+        .page-btn {
+            min-width: 32px;
+            height: 32px;
+            font-size: 0.75rem;
+        }
+        
+        .nav-btn {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+        
+        .nav-btn span {
+            display: none;
+        }
+        
+        .nav-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
+</style>
 <div class="min-h-screen bg-gradient-to-b from-gray-900 to-black pt-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a asp-controller="Home" asp-action="Index"
+                       class="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                        </svg>
+                        Главная
+                    </a>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Каталог</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
         <!-- Заголовок и управление -->
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8">
             <div>
@@ -58,7 +198,6 @@
                 </select>
             </div>
         </div>
-
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Боковая панель с фильтрами -->
             <div class="lg:w-1/4">
@@ -116,8 +255,6 @@
                 <div id="productList">
                     @await Html.PartialAsync("_ComputerListPartial", Model)
                 </div>
-
-                <!-- Индикатор загрузки -->
                 <div id="loadingIndicator" class="text-center hidden">
                     <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                     <p class="mt-2 text-gray-400">Поиск товаров...</p>

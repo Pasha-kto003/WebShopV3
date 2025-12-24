@@ -1,8 +1,6 @@
 ﻿@* _CatalogScriptsPartial.cshtml *@
 <script>
-    // Класс для управления поиском в каталоге
-// Класс для управления поиском в каталоге
-class CatalogSearch {
+ class CatalogSearch {
     constructor() {
         this.currentProductType = document.getElementById('currentProductType')?.value || 'all';
         this.isLoading = false;
@@ -10,6 +8,9 @@ class CatalogSearch {
         this.debounceDelay = 500; // Увеличиваем задержку
         this.lastSearchParams = null; // Добавляем кэш последних параметров
         this.isInitialized = false; // Флаг инициализации
+        this.currentPage = 1; // Текущая страница пагинации
+        this.itemsPerPage = 12; // Количество товаров на странице
+        this.totalItems = 0; // Общее количество товаров
         
         console.log('CatalogSearch constructor called');
         
@@ -17,37 +18,57 @@ class CatalogSearch {
         this.initialize();
     }
 
-    initializeFromURL() {
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        // Устанавливаем значения из URL
-        const search = urlParams.get('search');
-        const sortBy = urlParams.get('sortBy');
-        const componentType = urlParams.get('componentType');
-        const minPrice = urlParams.get('minPrice');
-        const maxPrice = urlParams.get('maxPrice');
-        const productType = urlParams.get('productType');
-        
-        console.log('URL params:', {
-            search, sortBy, componentType, minPrice, maxPrice, productType
-        });
-        
-        const searchInput = document.getElementById('searchInput');
-        const sortSelect = document.getElementById('sortSelect');
-        const componentTypeFilter = document.getElementById('componentTypeFilter');
-        const minPriceInput = document.getElementById('minPrice');
-        const maxPriceInput = document.getElementById('maxPrice');
-        
-        if (search && searchInput) searchInput.value = search;
-        if (sortBy && sortSelect) sortSelect.value = sortBy;
-        if (componentType && componentTypeFilter) componentTypeFilter.value = componentType;
-        if (minPrice && minPriceInput) minPriceInput.value = minPrice;
-        if (maxPrice && maxPriceInput) maxPriceInput.value = maxPrice;
-        if (productType) {
-            this.currentProductType = productType;
-            this.updateProductTypeButtons(productType);
-        }
+initializeFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Устанавливаем значения из URL
+    const search = urlParams.get('search');
+    const sortBy = urlParams.get('sortBy');
+    const componentType = urlParams.get('componentType');
+    const minPrice = urlParams.get('minPrice');
+    const maxPrice = urlParams.get('maxPrice');
+    const productType = urlParams.get('productType');
+    const page = urlParams.get('page');
+    
+    console.log('URL params:', {
+        search, sortBy, componentType, minPrice, maxPrice, productType, page
+    });
+    
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const componentTypeFilter = document.getElementById('componentTypeFilter');
+    const minPriceInput = document.getElementById('minPrice');
+    const maxPriceInput = document.getElementById('maxPrice');
+    
+    if (search && searchInput) searchInput.value = search;
+    if (sortBy && sortSelect) sortSelect.value = sortBy;
+    if (componentType && componentTypeFilter) componentTypeFilter.value = componentType;
+    if (minPrice && minPriceInput) minPriceInput.value = minPrice;
+    if (maxPrice && maxPriceInput) maxPriceInput.value = maxPrice;
+    if (productType) {
+        this.currentProductType = productType;
+        this.updateProductTypeButtons(productType);
     }
+    if (page) {
+        this.currentPage = parseInt(page);
+    }
+    
+    // Также читаем из data-атрибутов, если они есть в HTML
+    const pageElement = document.querySelector('[data-current-page]');
+    if (pageElement && pageElement.dataset.currentPage) {
+        this.currentPage = parseInt(pageElement.dataset.currentPage);
+    }
+    
+    const pageSizeElement = document.querySelector('[data-page-size]');
+    if (pageSizeElement && pageSizeElement.dataset.pageSize) {
+        this.itemsPerPage = parseInt(pageSizeElement.dataset.pageSize);
+    }
+    
+    const totalItemsElement = document.querySelector('[data-total-items]');
+    if (totalItemsElement && totalItemsElement.dataset.totalItems) {
+        this.totalItems = parseInt(totalItemsElement.dataset.totalItems);
+    }
+}
 
     updateProductTypeButtons(productType) {
         document.querySelectorAll('.product-type-btn').forEach(btn => {
@@ -62,27 +83,27 @@ class CatalogSearch {
         });
     }
 
-initialize() {
-    if (this.isInitialized) {
-        console.log('CatalogSearch already initialized, skipping...');
-        return;
+    initialize() {
+        if (this.isInitialized) {
+            console.log('CatalogSearch already initialized, skipping...');
+            return;
+        }
+        
+        console.log('Initializing CatalogSearch...');
+        
+        this.bindAllFilterEvents();
+        this.initializeViewMode();
+        this.updateSortSelect();
+        
+        // Проверяем, есть ли начальные параметры поиска
+        const hasInitialParams = this.hasInitialSearchParams();
+        if (hasInitialParams) {
+            console.log('Found initial search params, performing search...');
+            setTimeout(() => this.searchProducts(), 300);
+        }
+        
+        this.isInitialized = true;
     }
-    
-    console.log('Initializing CatalogSearch...');
-    
-    this.bindAllFilterEvents();
-    this.initializeViewMode();
-    this.updateSortSelect();
-    
-    // Проверяем, есть ли начальные параметры поиска
-    const hasInitialParams = this.hasInitialSearchParams();
-    if (hasInitialParams) {
-        console.log('Found initial search params, performing search...');
-        setTimeout(() => this.searchProducts(), 300);
-    }
-    
-    this.isInitialized = true;
-}
 
     hasInitialSearchParams() {
         const searchInput = document.getElementById('searchInput');
@@ -97,251 +118,253 @@ initialize() {
             (componentTypeFilter && componentTypeFilter.value !== 'all') ||
             (minPriceInput && minPriceInput.value !== '') ||
             (maxPriceInput && maxPriceInput.value !== '') ||
-            this.currentProductType !== 'all'
+            this.currentProductType !== 'all' ||
+            this.currentPage > 1
         );
     }
 
-   bindAllFilterEvents() {
-    console.log('Binding filter events...');
-    
-    // Удаляем старые обработчики перед добавлением новых
-    this.removeAllEventListeners();
-    
-    // Кнопки переключения типа товаров
-    document.querySelectorAll('.product-type-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Останавливаем всплытие
-            e.preventDefault();
-            console.log('Product type button clicked:', e.currentTarget.dataset.productType);
-            this.onProductTypeChange(e);
-        });
-    });
-
-    // Кнопки переключения вида
-    const cardViewBtn = document.getElementById('cardViewBtn');
-    const listViewBtn = document.getElementById('listViewBtn');
-    
-    if (cardViewBtn) {
-        cardViewBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            console.log('Card view button clicked');
-            this.switchViewMode('cards');
-        });
-    }
-    
-    if (listViewBtn) {
-        listViewBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            console.log('List view button clicked');
-            this.switchViewMode('list');
-        });
-    }
-
-    // Сортировка
-    const sortSelect = document.getElementById('sortSelect');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', (e) => {
-            e.stopPropagation();
-            console.log('Sort changed to:', sortSelect.value);
-            this.debouncedSearch();
-        });
-    }
-
-    // Поиск с debounce
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            e.stopPropagation();
-            this.debouncedSearch();
-        });
-    }
-
-    // Фильтр типа комплектующих
-    const componentTypeFilter = document.getElementById('componentTypeFilter');
-    if (componentTypeFilter) {
-        componentTypeFilter.addEventListener('change', (e) => {
-            e.stopPropagation();
-            console.log('Component type changed:', e.target.value);
-            this.debouncedSearch();
-        });
-    }
-
-    // Фильтр цены с debounce
-    const minPrice = document.getElementById('minPrice');
-    if (minPrice) {
-        minPrice.addEventListener('change', (e) => {
-            e.stopPropagation();
-            this.debouncedSearch();
-        });
+    bindAllFilterEvents() {
+        console.log('Binding filter events...');
         
-        minPrice.addEventListener('blur', (e) => {
-            e.stopPropagation();
-            this.debouncedSearch();
-        });
-    }
-
-    const maxPrice = document.getElementById('maxPrice');
-    if (maxPrice) {
-        maxPrice.addEventListener('change', (e) => {
-            e.stopPropagation();
-            this.debouncedSearch();
-        });
+        // Удаляем старые обработчики перед добавлением новых
+        this.removeAllEventListeners();
         
-        maxPrice.addEventListener('blur', (e) => {
-            e.stopPropagation();
-            this.debouncedSearch();
+        // Кнопки переключения типа товаров
+        document.querySelectorAll('.product-type-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Останавливаем всплытие
+                e.preventDefault();
+                console.log('Product type button clicked:', e.currentTarget.dataset.productType);
+                this.onProductTypeChange(e);
+            });
         });
-    }
 
-    // Кнопка сброса фильтров
-    const resetBtn = document.getElementById('resetFilters');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            console.log('Reset filters clicked');
-            this.resetFilters();
-        });
-    }
-}
-
-// Добавьте метод для удаления всех обработчиков
-removeAllEventListeners() {
-    const elements = [
-        '.product-type-btn',
-        '#cardViewBtn',
-        '#listViewBtn',
-        '#sortSelect',
-        '#searchInput',
-        '#componentTypeFilter',
-        '#minPrice',
-        '#maxPrice',
-        '#resetFilters'
-    ];
-    
-    elements.forEach(selector => {
-        const element = selector.startsWith('#') 
-            ? document.getElementById(selector.substring(1))
-            : document.querySelectorAll(selector);
+        // Кнопки переключения вида
+        const cardViewBtn = document.getElementById('cardViewBtn');
+        const listViewBtn = document.getElementById('listViewBtn');
         
-        if (element) {
-            if (element instanceof NodeList) {
-                element.forEach(el => {
-                    const newEl = el.cloneNode(true);
-                    el.parentNode.replaceChild(newEl, el);
-                });
-            } else {
-                const newEl = element.cloneNode(true);
-                element.parentNode.replaceChild(newEl, element);
+        if (cardViewBtn) {
+            cardViewBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                console.log('Card view button clicked');
+                this.switchViewMode('cards');
+            });
+        }
+        
+        if (listViewBtn) {
+            listViewBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                console.log('List view button clicked');
+                this.switchViewMode('list');
+            });
+        }
+
+        // Сортировка
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', (e) => {
+                e.stopPropagation();
+                console.log('Sort changed to:', sortSelect.value);
+                this.debouncedSearch();
+            });
+        }
+
+        // Поиск с debounce
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                e.stopPropagation();
+                this.debouncedSearch();
+            });
+        }
+
+        // Фильтр типа комплектующих
+        const componentTypeFilter = document.getElementById('componentTypeFilter');
+        if (componentTypeFilter) {
+            componentTypeFilter.addEventListener('change', (e) => {
+                e.stopPropagation();
+                console.log('Component type changed:', e.target.value);
+                this.debouncedSearch();
+            });
+        }
+
+        // Фильтр цены с debounce
+        const minPrice = document.getElementById('minPrice');
+        if (minPrice) {
+            minPrice.addEventListener('change', (e) => {
+                e.stopPropagation();
+                this.debouncedSearch();
+            });
+            
+            minPrice.addEventListener('blur', (e) => {
+                e.stopPropagation();
+                this.debouncedSearch();
+            });
+        }
+
+        const maxPrice = document.getElementById('maxPrice');
+        if (maxPrice) {
+            maxPrice.addEventListener('change', (e) => {
+                e.stopPropagation();
+                this.debouncedSearch();
+            });
+            
+            maxPrice.addEventListener('blur', (e) => {
+                e.stopPropagation();
+                this.debouncedSearch();
+            });
+        }
+
+        // Кнопка сброса фильтров
+        const resetBtn = document.getElementById('resetFilters');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                console.log('Reset filters clicked');
+                this.resetFilters();
+            });
+        }
+    }
+
+    // Метод для удаления всех обработчиков
+    removeAllEventListeners() {
+        const elements = [
+            '.product-type-btn',
+            '#cardViewBtn',
+            '#listViewBtn',
+            '#sortSelect',
+            '#searchInput',
+            '#componentTypeFilter',
+            '#minPrice',
+            '#maxPrice',
+            '#resetFilters'
+        ];
+        
+        elements.forEach(selector => {
+            const element = selector.startsWith('#') 
+                ? document.getElementById(selector.substring(1))
+                : document.querySelectorAll(selector);
+            
+            if (element) {
+                if (element instanceof NodeList) {
+                    element.forEach(el => {
+                        const newEl = el.cloneNode(true);
+                        el.parentNode.replaceChild(newEl, el);
+                    });
+                } else {
+                    const newEl = element.cloneNode(true);
+                    element.parentNode.replaceChild(newEl, element);
+                }
+            }
+        });
+    }
+
+    // Метод debouncedSearch для централизованного debounce
+    debouncedSearch() {
+        clearTimeout(this.debounceTimeout);
+        this.debounceTimeout = setTimeout(() => {
+            console.log('Debounced search triggered');
+            this.searchProducts();
+        }, this.debounceDelay);
+    }
+
+    onProductTypeChange(event) {
+        const btn = event.currentTarget;
+        const productType = btn.dataset.productType;
+        
+        console.log('Changing product type to:', productType);
+        
+        // Если уже выбран этот тип - не делаем ничего
+        if (this.currentProductType === productType) {
+            console.log('Product type already selected, skipping');
+            return;
+        }
+        
+        // Обновляем активную кнопку
+        document.querySelectorAll('.product-type-btn').forEach(b => {
+            b.classList.remove('bg-primary', 'text-dark');
+            b.classList.add('text-gray-400');
+        });
+        btn.classList.add('bg-primary', 'text-dark');
+        btn.classList.remove('text-gray-400');
+        
+        this.currentProductType = productType;
+        this.currentPage = 1; // Сбрасываем пагинацию при смене типа
+        
+        // Используем debounce для поиска
+        this.debouncedSearch();
+    }
+
+    switchViewMode(mode) {
+        console.log('Switching view mode to:', mode);
+        
+        // Если уже выбран этот режим - не делаем ничего
+        const currentMode = localStorage.getItem('catalogViewMode') || 'cards';
+        if (currentMode === mode) {
+            console.log('View mode already selected, skipping');
+            return;
+        }
+        
+        // Сохраняем в localStorage
+        localStorage.setItem('catalogViewMode', mode);
+        
+        // Обновляем отображение без вызова searchProducts
+        this.updateViewDisplay(mode);
+    }
+
+    updateViewDisplay(mode) {
+        const cardsView = document.getElementById('cardsView');
+        const listView = document.getElementById('listViewContainer');
+        
+        console.log('Updating view display for mode:', mode);
+        
+        if (mode === 'cards') {
+            if (cardsView) {
+                cardsView.classList.remove('hidden');
+                console.log('Cards view shown');
+            }
+            if (listView) {
+                listView.classList.add('hidden');
+            }
+            
+            // Обновляем активную кнопку
+            const cardBtn = document.getElementById('cardViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+            if (cardBtn) {
+                cardBtn.classList.add('bg-primary', 'text-dark');
+                cardBtn.classList.remove('text-gray-400');
+            }
+            if (listBtn) {
+                listBtn.classList.remove('bg-primary', 'text-dark');
+                listBtn.classList.add('text-gray-400');
+            }
+        } else {
+            if (cardsView) {
+                cardsView.classList.add('hidden');
+            }
+            if (listView) {
+                listView.classList.remove('hidden');
+                console.log('List view shown');
+            }
+            
+            // Обновляем активную кнопку
+            const cardBtn = document.getElementById('cardViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+            if (listBtn) {
+                listBtn.classList.add('bg-primary', 'text-dark');
+                listBtn.classList.remove('text-gray-400');
+            }
+            if (cardBtn) {
+                cardBtn.classList.remove('bg-primary', 'text-dark');
+                cardBtn.classList.add('text-gray-400');
             }
         }
-    });
-}
-
-// Добавьте метод debouncedSearch для централизованного debounce
-debouncedSearch() {
-    clearTimeout(this.debounceTimeout);
-    this.debounceTimeout = setTimeout(() => {
-        console.log('Debounced search triggered');
-        this.searchProducts();
-    }, this.debounceDelay);
-}
-
-onProductTypeChange(event) {
-    const btn = event.currentTarget;
-    const productType = btn.dataset.productType;
-    
-    console.log('Changing product type to:', productType);
-    
-    // Если уже выбран этот тип - не делаем ничего
-    if (this.currentProductType === productType) {
-        console.log('Product type already selected, skipping');
-        return;
     }
-    
-    // Обновляем активную кнопку
-    document.querySelectorAll('.product-type-btn').forEach(b => {
-        b.classList.remove('bg-primary', 'text-dark');
-        b.classList.add('text-gray-400');
-    });
-    btn.classList.add('bg-primary', 'text-dark');
-    btn.classList.remove('text-gray-400');
-    
-    this.currentProductType = productType;
-    
-    // Используем debounce для поиска
-    this.debouncedSearch();
-}
 
-switchViewMode(mode) {
-    console.log('Switching view mode to:', mode);
-    
-    // Если уже выбран этот режим - не делаем ничего
-    const currentMode = localStorage.getItem('catalogViewMode') || 'cards';
-    if (currentMode === mode) {
-        console.log('View mode already selected, skipping');
-        return;
-    }
-    
-    // Сохраняем в localStorage
-    localStorage.setItem('catalogViewMode', mode);
-    
-    // Обновляем отображение без вызова searchProducts
-    this.updateViewDisplay(mode);
-}
-
-updateViewDisplay(mode) {
-    const cardsView = document.getElementById('cardsView');
-    const listView = document.getElementById('listViewContainer');
-    
-    console.log('Updating view display for mode:', mode);
-    
-    if (mode === 'cards') {
-        if (cardsView) {
-            cardsView.classList.remove('hidden');
-            console.log('Cards view shown');
-        }
-        if (listView) {
-            listView.classList.add('hidden');
-        }
-        
-        // Обновляем активную кнопку
-        const cardBtn = document.getElementById('cardViewBtn');
-        const listBtn = document.getElementById('listViewBtn');
-        if (cardBtn) {
-            cardBtn.classList.add('bg-primary', 'text-dark');
-            cardBtn.classList.remove('text-gray-400');
-        }
-        if (listBtn) {
-            listBtn.classList.remove('bg-primary', 'text-dark');
-            listBtn.classList.add('text-gray-400');
-        }
-    } else {
-        if (cardsView) {
-            cardsView.classList.add('hidden');
-        }
-        if (listView) {
-            listView.classList.remove('hidden');
-            console.log('List view shown');
-        }
-        
-        // Обновляем активную кнопку
-        const cardBtn = document.getElementById('cardViewBtn');
-        const listBtn = document.getElementById('listViewBtn');
-        if (listBtn) {
-            listBtn.classList.add('bg-primary', 'text-dark');
-            listBtn.classList.remove('text-gray-400');
-        }
-        if (cardBtn) {
-            cardBtn.classList.remove('bg-primary', 'text-dark');
-            cardBtn.classList.add('text-gray-400');
-        }
-    }
-}
-
-     // Добавьте метод проверки изменились ли параметры
+    // Метод проверки изменились ли параметры
     haveParamsChanged(newParams) {
         if (!this.lastSearchParams) return true;
         
@@ -378,9 +401,6 @@ updateViewDisplay(mode) {
         this.showLoading(true);
         
         try {
-            const params = this.getSearchParams();
-            
-            // Формируем URL
             let url = '/Home/SearchProducts';
             if (params) {
                 url += '?' + params;
@@ -398,7 +418,6 @@ updateViewDisplay(mode) {
             });
             
             console.log('Response status:', response.status);
-            console.log('Response headers:', [...response.headers.entries()]);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -415,7 +434,6 @@ updateViewDisplay(mode) {
             
             const html = await response.text();
             console.log('Response length:', html.length);
-            console.log('Response first 500 chars:', html.substring(0, 500));
             
             if (!html || html.trim() === '') {
                 throw new Error('Empty response from server');
@@ -429,6 +447,7 @@ updateViewDisplay(mode) {
                 // После загрузки контента инициализируем обработчики
                 setTimeout(() => {
                     this.reinitializeAfterAjax();
+                    this.updatePaginationControls();
                 }, 100);
             }
             
@@ -465,47 +484,51 @@ updateViewDisplay(mode) {
         }
     }
 
-    getSearchParams() {
-        const params = new URLSearchParams();
-        
-        // Собираем значения из полей
-        const searchInput = document.getElementById('searchInput');
-        const sortSelect = document.getElementById('sortSelect');
-        const componentTypeFilter = document.getElementById('componentTypeFilter');
-        const minPriceInput = document.getElementById('minPrice');
-        const maxPriceInput = document.getElementById('maxPrice');
-        
-        const search = searchInput ? searchInput.value.trim() : '';
-        const sortBy = sortSelect ? sortSelect.value : 'default';
-        const componentType = componentTypeFilter ? componentTypeFilter.value : 'all';
-        const minPrice = minPriceInput ? minPriceInput.value : '';
-        const maxPrice = maxPriceInput ? maxPriceInput.value : '';
-        const savedMode = localStorage.getItem('catalogViewMode') || 'cards';
-        
-        // Добавляем параметры
-        if (search) params.append('search', search);
-        if (sortBy && sortBy !== 'default') params.append('sortBy', sortBy);
-        if (componentType && componentType !== 'all') params.append('componentType', componentType);
-        if (minPrice) params.append('minPrice', minPrice);
-        if (maxPrice) params.append('maxPrice', maxPrice);
-        params.append('productType', this.currentProductType);
-        params.append('viewMode', savedMode);
-        
-        const paramsObj = {
-            search,
-            sortBy,
-            componentType,
-            minPrice,
-            maxPrice,
-            productType: this.currentProductType,
-            viewMode: savedMode,
-            queryString: params.toString()
-        };
-        
-        console.log('Search params:', paramsObj);
-        
-        return params.toString();
-    }
+getSearchParams() {
+    const params = new URLSearchParams();
+    
+    // Собираем значения из полей
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const componentTypeFilter = document.getElementById('componentTypeFilter');
+    const minPriceInput = document.getElementById('minPrice');
+    const maxPriceInput = document.getElementById('maxPrice');
+    
+    const search = searchInput ? searchInput.value.trim() : '';
+    const sortBy = sortSelect ? sortSelect.value : 'default';
+    const componentType = componentTypeFilter ? componentTypeFilter.value : 'all';
+    const minPrice = minPriceInput ? minPriceInput.value : '';
+    const maxPrice = maxPriceInput ? maxPriceInput.value : '';
+    const savedMode = localStorage.getItem('catalogViewMode') || 'cards';
+    
+    // Добавляем параметры
+    if (search) params.append('search', search);
+    if (sortBy && sortBy !== 'default') params.append('sortBy', sortBy);
+    if (componentType && componentType !== 'all') params.append('componentType', componentType);
+    if (minPrice) params.append('minPrice', minPrice);
+    if (maxPrice) params.append('maxPrice', maxPrice);
+    params.append('productType', this.currentProductType);
+    params.append('viewMode', savedMode);
+    params.append('page', this.currentPage.toString());          // Добавляем страницу
+    params.append('pageSize', this.itemsPerPage.toString());     // Добавляем размер страницы
+    
+    const paramsObj = {
+        search,
+        sortBy,
+        componentType,
+        minPrice,
+        maxPrice,
+        productType: this.currentProductType,
+        viewMode: savedMode,
+        page: this.currentPage,
+        pageSize: this.itemsPerPage,
+        queryString: params.toString()
+    };
+    
+    console.log('Search params:', paramsObj);
+    
+    return params.toString();
+}
 
     updateResultsCount() {
         // Считаем компьютеры и комплектующие
@@ -517,67 +540,199 @@ updateViewDisplay(mode) {
         const componentsCount = document.querySelectorAll('[data-product-type="Component"]').length;
         
         const actualTotal = computersCount + componentsCount;
+        this.totalItems = actualTotal; // Сохраняем общее количество
         
         const resultsElement = document.getElementById('resultsCount');
         if (resultsElement) {
             if (actualTotal > 0) {
-                resultsElement.textContent = `Найдено ${actualTotal} товаров (${computersCount} компьютеров, ${componentsCount} комплектующих)`;
+                const totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+                resultsElement.textContent = `Найдено ${this.totalItems} товаров (${computersCount} компьютеров, ${componentsCount} комплектующих) • Страница ${this.currentPage} из ${totalPages}`;
             } else {
                 resultsElement.textContent = `Найдено ${total} товаров`;
             }
         }
     }
 
-    switchViewMode(mode) {
-        console.log('Switching view mode to:', mode);
-        
-        // Сохраняем в localStorage
-        localStorage.setItem('catalogViewMode', mode);
-        
-        // Обновляем отображение
-        const cardsView = document.getElementById('cardsView');
-        const listView = document.getElementById('listViewContainer');
-        
-        if (mode === 'cards') {
-            if (cardsView) cardsView.classList.remove('hidden');
-            if (listView) listView.classList.add('hidden');
-            
-            // Обновляем активную кнопку
-            const cardBtn = document.getElementById('cardViewBtn');
-            const listBtn = document.getElementById('listViewBtn');
-            if (cardBtn) {
-                cardBtn.classList.add('bg-primary', 'text-dark');
-                cardBtn.classList.remove('text-gray-400');
-            }
-            if (listBtn) {
-                listBtn.classList.remove('bg-primary', 'text-dark');
-                listBtn.classList.add('text-gray-400');
-            }
-        } else {
-            if (cardsView) cardsView.classList.add('hidden');
-            if (listView) listView.classList.remove('hidden');
-            
-            // Обновляем активную кнопку
-            const cardBtn = document.getElementById('cardViewBtn');
-            const listBtn = document.getElementById('listViewBtn');
-            if (listBtn) {
-                listBtn.classList.add('bg-primary', 'text-dark');
-                listBtn.classList.remove('text-gray-400');
-            }
-            if (cardBtn) {
-                cardBtn.classList.remove('bg-primary', 'text-dark');
-                cardBtn.classList.add('text-gray-400');
-            }
+    // Пагинация - перейти на страницу
+    goToPage(page) {
+        if (page < 1 || page > this.getTotalPages()) {
+            console.log('Invalid page number:', page);
+            return;
         }
         
-        // Обновляем URL с новым viewMode
+        console.log('Going to page:', page);
+        this.currentPage = page;
         this.searchProducts();
+        
+        // Прокрутка к верху результатов
+        setTimeout(() => {
+            const productList = document.getElementById('productList');
+            if (productList) {
+                productList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
     }
 
-    updateViewMode() {
-        const savedMode = localStorage.getItem('catalogViewMode') || 'cards';
-        console.log('Updating view mode from localStorage:', savedMode);
-        this.switchViewMode(savedMode);
+    // Получить общее количество страниц
+    getTotalPages() {
+        return Math.ceil(this.totalItems / this.itemsPerPage);
+    }
+
+    // Обновление элементов пагинации
+    updatePaginationControls() {
+        const totalPages = this.getTotalPages();
+        const paginationContainer = document.getElementById('paginationContainer');
+        
+        if (!paginationContainer) {
+            // Создаем контейнер для пагинации если его нет
+            const productList = document.getElementById('productList');
+            if (productList && totalPages > 1) {
+                const paginationHTML = this.generatePaginationHTML(totalPages);
+                productList.insertAdjacentHTML('afterend', paginationHTML);
+            }
+            return;
+        }
+        
+        if (totalPages > 1) {
+            paginationContainer.innerHTML = this.generatePaginationHTML(totalPages);
+            paginationContainer.classList.remove('hidden');
+            this.bindPaginationEvents();
+        } else {
+            paginationContainer.classList.add('hidden');
+        }
+    }
+
+    // Генерация HTML пагинации
+    generatePaginationHTML(totalPages) {
+        if (totalPages <= 1) return '';
+        
+        let pages = [];
+        const maxVisiblePages = 5;
+        
+        // Определяем диапазон отображаемых страниц
+        let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+        
+        // Кнопка "Назад"
+        const prevDisabled = this.currentPage === 1 ? 'opacity-50 cursor-not-allowed' : '';
+        const prevHTML = `
+            <button class="pagination-btn pagination-prev px-4 py-2 rounded-lg bg-dark-card border border-gray-800 text-gray-400 hover:text-white transition-all duration-300 ${prevDisabled}"
+                    ${this.currentPage === 1 ? 'disabled' : ''}
+                    onclick="window.catalogSearch.goToPage(${this.currentPage - 1})">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+        `;
+        
+        // Кнопка "Вперед"
+        const nextDisabled = this.currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : '';
+        const nextHTML = `
+            <button class="pagination-btn pagination-next px-4 py-2 rounded-lg bg-dark-card border border-gray-800 text-gray-400 hover:text-white transition-all duration-300 ${nextDisabled}"
+                    ${this.currentPage === totalPages ? 'disabled' : ''}
+                    onclick="window.catalogSearch.goToPage(${this.currentPage + 1})">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        `;
+        
+        // Номера страниц
+        for (let i = startPage; i <= endPage; i++) {
+            const isActive = i === this.currentPage;
+            const activeClass = isActive ? 'bg-primary text-dark font-bold' : 'bg-dark-card text-gray-400 hover:text-white hover:border-gray-600';
+            pages.push(`
+                <button class="pagination-btn pagination-page px-4 py-2 rounded-lg border ${isActive ? 'border-primary' : 'border-gray-800'} ${activeClass} transition-all duration-300"
+                        onclick="window.catalogSearch.goToPage(${i})">
+                    ${i}
+                </button>
+            `);
+        }
+        
+        // Троеточие в начале если нужно
+        if (startPage > 1) {
+            pages.unshift(`
+                <span class="px-3 py-2 text-gray-500">...</span>
+            `);
+            pages.unshift(`
+                <button class="pagination-btn pagination-page px-4 py-2 rounded-lg bg-dark-card border border-gray-800 text-gray-400 hover:text-white transition-all duration-300"
+                        onclick="window.catalogSearch.goToPage(1)">
+                    1
+                </button>
+            `);
+        }
+        
+        // Троеточие в конце если нужно
+        if (endPage < totalPages) {
+            pages.push(`
+                <span class="px-3 py-2 text-gray-500">...</span>
+            `);
+            pages.push(`
+                <button class="pagination-btn pagination-page px-4 py-2 rounded-lg bg-dark-card border border-gray-800 text-gray-400 hover:text-white transition-all duration-300"
+                        onclick="window.catalogSearch.goToPage(${totalPages})">
+                    ${totalPages}
+                </button>
+            `);
+        }
+        
+        // Выбор количества товаров на странице
+        const pageSizeSelect = `
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-400">Показать:</span>
+                <select id="pageSizeSelect" class="bg-dark-card border border-gray-800 rounded-lg px-3 py-2 text-white text-sm focus:border-primary focus:ring-1 focus:ring-primary">
+                    <option value="12" ${this.itemsPerPage === 12 ? 'selected' : ''}>12</option>
+                    <option value="24" ${this.itemsPerPage === 24 ? 'selected' : ''}>24</option>
+                    <option value="36" ${this.itemsPerPage === 36 ? 'selected' : ''}>36</option>
+                    <option value="48" ${this.itemsPerPage === 48 ? 'selected' : ''}>48</option>
+                </select>
+                <span class="text-sm text-gray-400">на странице</span>
+            </div>
+        `;
+        
+        return `
+            <div id="paginationContainer" class="mt-12 pt-8 border-t border-gray-800/50">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div class="text-sm text-gray-400">
+                        Показано ${((this.currentPage - 1) * this.itemsPerPage) + 1}-${Math.min(this.currentPage * this.itemsPerPage, this.totalItems)} из ${this.totalItems} товаров
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        ${prevHTML}
+                        <div class="flex gap-1">
+                            ${pages.join('')}
+                        </div>
+                        ${nextHTML}
+                    </div>
+                    
+                    ${pageSizeSelect}
+                </div>
+            </div>
+        `;
+    }
+
+    // Привязка событий пагинации
+    bindPaginationEvents() {
+        // Обработчик изменения количества товаров на странице
+        const pageSizeSelect = document.getElementById('pageSizeSelect');
+        if (pageSizeSelect) {
+            pageSizeSelect.addEventListener('change', (e) => {
+                this.itemsPerPage = parseInt(e.target.value);
+                this.currentPage = 1; // Сбрасываем на первую страницу
+                this.searchProducts();
+            });
+        }
+        
+        // Обработчики для всех кнопок пагинации
+        document.querySelectorAll('.pagination-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
     }
 
     initializeViewMode() {
@@ -628,12 +783,14 @@ updateViewDisplay(mode) {
         const minPriceInput = document.getElementById('minPrice');
         const maxPriceInput = document.getElementById('maxPrice');
         const sortSelect = document.getElementById('sortSelect');
+        const pageSizeSelect = document.getElementById('pageSizeSelect');
         
         if (searchInput) searchInput.value = '';
         if (componentTypeFilter) componentTypeFilter.value = 'all';
         if (minPriceInput) minPriceInput.value = '';
         if (maxPriceInput) maxPriceInput.value = '';
         if (sortSelect) sortSelect.value = 'default';
+        if (pageSizeSelect) pageSizeSelect.value = '12';
         
         // Сброс кнопок типа товаров
         document.querySelectorAll('.product-type-btn').forEach(btn => {
@@ -648,6 +805,10 @@ updateViewDisplay(mode) {
             this.currentProductType = 'all';
         }
         
+        // Сброс пагинации
+        this.currentPage = 1;
+        this.itemsPerPage = 12;
+        
         // Выполняем поиск
         setTimeout(() => this.searchProducts(), 100);
     }
@@ -658,7 +819,7 @@ updateViewDisplay(mode) {
             const searchParams = new URLSearchParams(params);
             
             // Обновляем все параметры
-            ['search', 'sortBy', 'componentType', 'minPrice', 'maxPrice', 'productType'].forEach(param => {
+            ['search', 'sortBy', 'componentType', 'minPrice', 'maxPrice', 'productType', 'page', 'pageSize'].forEach(param => {
                 const value = searchParams.get(param);
                 if (value) {
                     url.searchParams.set(param, value);
@@ -679,6 +840,7 @@ updateViewDisplay(mode) {
         this.isLoading = show;
         const loadingIndicator = document.getElementById('loadingIndicator');
         const productList = document.getElementById('productList');
+        const paginationContainer = document.getElementById('paginationContainer');
         
         console.log('Loading:', show);
         
@@ -690,6 +852,12 @@ updateViewDisplay(mode) {
             productList.classList.add('opacity-50');
         } else if (productList) {
             productList.classList.remove('opacity-50');
+        }
+        
+        if (paginationContainer && show) {
+            paginationContainer.classList.add('opacity-50');
+        } else if (paginationContainer) {
+            paginationContainer.classList.remove('opacity-50');
         }
     }
 
@@ -722,40 +890,29 @@ updateViewDisplay(mode) {
         }, 5000);
     }
 
-reinitializeAfterAjax() {
-    console.log('=== Reinitializing after AJAX ===');
-    
-    // Обновляем счетчик результатов
-    this.updateResultsCount();
-    
-    // Восстанавливаем текущий режим отображения
-    const savedMode = localStorage.getItem('catalogViewMode') || 'cards';
-    this.updateViewDisplay(savedMode);
-    
-    // Сбрасываем флаг инициализации для перепривязки событий
-    this.isInitialized = false;
-    
-    // Привязываем события к новым элементам
-    setTimeout(() => {
-        this.bindAllFilterEvents();
+    reinitializeAfterAjax() {
+        console.log('=== Reinitializing after AJAX ===');
         
-        // Инициализируем кнопки избранного
-        if (typeof initializeFavoriteButtons === 'function') {
-            console.log('Initializing favorite buttons...');
-            initializeFavoriteButtons();
-        }
-    }, 100);
-}
-
-    bindNewFilterEvents() {
-        // Привязываем обработчики к новым кнопкам типа товаров
-        document.querySelectorAll('.product-type-btn').forEach(btn => {
-            // Удаляем старые обработчики
-            btn.replaceWith(btn.cloneNode(true));
-        });
+        // Обновляем счетчик результатов
+        this.updateResultsCount();
         
-        // Повторно привязываем все обработчики
-        this.bindAllFilterEvents();
+        // Восстанавливаем текущий режим отображения
+        const savedMode = localStorage.getItem('catalogViewMode') || 'cards';
+        this.updateViewDisplay(savedMode);
+        
+        // Сбрасываем флаг инициализации для перепривязки событий
+        this.isInitialized = false;
+        
+        // Привязываем события к новым элементам
+        setTimeout(() => {
+            this.bindAllFilterEvents();
+            
+            // Инициализируем кнопки избранного
+            if (typeof initializeFavoriteButtons === 'function') {
+                console.log('Initializing favorite buttons...');
+                initializeFavoriteButtons();
+            }
+        }, 100);
     }
 
     bindCartButtons() {
@@ -890,15 +1047,13 @@ reinitializeAfterAjax() {
     }
 }
 
-    // Инициализация при загрузке страницы
-// В конце файла, после класса CatalogSearch
+// Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== Catalog Page Loaded ===');
     
     // Защита от множественной инициализации
     if (window.catalogSearchInstance) {
         console.log('CatalogSearch already exists, cleaning up...');
-        // Можно добавить cleanup методов если нужно
     }
     
     // Инициализируем CatalogSearch
@@ -969,4 +1124,14 @@ document.addEventListener('click', function(e) {
         }
     }
 }, true);
+
+// Экспортируем глобальные методы для доступа из HTML
+if (typeof window !== 'undefined') {
+    window.CatalogSearch = CatalogSearch;
+    window.goToPage = function(page) {
+        if (window.catalogSearch) {
+            window.catalogSearch.goToPage(page);
+        }
+    };
+}
 </script>

@@ -306,7 +306,9 @@ namespace WebShopV3.Controllers
             decimal? minPrice = null,
             decimal? maxPrice = null,
             string productType = "all",
-            string viewMode = "cards")
+            string viewMode = "cards",
+            int page = 1,
+            int pageSize = 12)
         {
             try
             {
@@ -365,6 +367,19 @@ namespace WebShopV3.Controllers
                     ProductType = productType
                 };
 
+                var totalItems = computers.Count + components.Count;
+                if (page > 1)
+                {
+                    var skip = (page - 1) * pageSize;
+                    computers = computers.Skip(skip).Take(pageSize).ToList();
+                    components = components.Skip(skip).Take(pageSize).ToList();
+                }
+                else
+                {
+                    computers = computers.Take(pageSize).ToList();
+                    components = components.Take(pageSize).ToList();
+                }
+
                 ViewBag.SearchQuery = search;
                 ViewBag.SortBy = sortBy;
                 ViewBag.ComponentType = componentType;
@@ -373,6 +388,10 @@ namespace WebShopV3.Controllers
                 ViewBag.ProductType = productType;
                 ViewBag.ViewMode = viewMode;
                 ViewBag.TotalCount = computers.Count + components.Count;
+                ViewBag.Page = page;
+                ViewBag.PageSize = pageSize;
+                ViewBag.TotalItems = totalItems;
+                ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
                 // Проверяем AJAX запрос
                 var isAjax = Request.Headers["X-Requested-With"].Contains("XMLHttpRequest");
