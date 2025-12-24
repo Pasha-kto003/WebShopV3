@@ -75,6 +75,7 @@ builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddSession();
+builder.Services.AddHttpContextAccessor();
 
 
 
@@ -98,7 +99,7 @@ else
             var context = services.GetRequiredService<ApplicationDbContext>();
             var passwordHasher = services.GetRequiredService<IPasswordHasher>();
             context.Database.EnsureCreated(); // Creates database if it doesn't exist
-            DbInitializer.Initialize(context, passwordHasher);
+            DbInitializer.Initialize(context);
             Console.WriteLine("Database created successfully!");
         }
         catch (Exception ex)
@@ -121,5 +122,11 @@ app.UseRecommendationTracking();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// В Program.cs, если нужно настроить маршруты:
+app.MapControllerRoute(
+    name: "recommendations",
+    pattern: "recommendations/{action=My}/{id?}",
+    defaults: new { controller = "Recommendation" });
 
 app.Run();

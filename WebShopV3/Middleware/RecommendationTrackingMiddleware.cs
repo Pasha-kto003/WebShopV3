@@ -39,7 +39,6 @@ namespace WebShopV3.Middleware
                     await TrackProductViewAsync(context, recommendationService);
                 }
 
-                // Отслеживаем добавление в корзину (если есть параметры)
                 if (context.Request.Path.StartsWithSegments("/Cart/AddToCart") &&
                     context.Request.Method == "POST")
                 {
@@ -64,7 +63,19 @@ namespace WebShopV3.Middleware
                 if (int.TryParse(productId, out int id))
                 {
                     var userId = context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                    var guestId = context.Request.Cookies["GuestId"] ?? context.Session.Id;
+                    var guestId = context.Request.Cookies["RecommendationGuestId"];
+
+                    if (string.IsNullOrEmpty(guestId))
+                    {
+                        guestId = Guid.NewGuid().ToString();
+                        context.Response.Cookies.Append("RecommendationGuestId", guestId, new CookieOptions
+                        {
+                            Expires = DateTime.UtcNow.AddDays(30),
+                            HttpOnly = true,
+                            SameSite = SameSiteMode.Strict,
+                            IsEssential = true
+                        });
+                    }
 
                     var isComputer = context.Request.Path.StartsWithSegments("/Home/ComputerDetails");
                     var productType = isComputer ? "Computer" : "Component";
@@ -79,7 +90,8 @@ namespace WebShopV3.Middleware
                         Timestamp = DateTime.UtcNow
                     };
 
-                    recommendationService.TrackAction(action);
+                    // Используем новый асинхронный метод
+                    await recommendationService.TrackActionAsync(action);
                 }
             }
             catch (Exception ex)
@@ -101,7 +113,12 @@ namespace WebShopV3.Middleware
                     if (!string.IsNullOrEmpty(computerId) || !string.IsNullOrEmpty(componentId))
                     {
                         var userId = context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                        var guestId = context.Request.Cookies["GuestId"] ?? context.Session.Id;
+                        var guestId = context.Request.Cookies["RecommendationGuestId"];
+
+                        if (string.IsNullOrEmpty(guestId))
+                        {
+                            guestId = Guid.NewGuid().ToString();
+                        }
 
                         var action = new UserAction
                         {
@@ -113,7 +130,8 @@ namespace WebShopV3.Middleware
                             Timestamp = DateTime.UtcNow
                         };
 
-                        recommendationService.TrackAction(action);
+                        // Используем новый асинхронный метод
+                        await recommendationService.TrackActionAsync(action);
                     }
                 }
             }

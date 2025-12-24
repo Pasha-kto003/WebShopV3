@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +37,7 @@ namespace WebShopV3.Controllers
                 .Take(6)
                 .ToListAsync();
 
-            // Получаем статистику для View
+            // РџРѕР»СѓС‡Р°РµРј СЃС‚Р°С‚РёСЃС‚РёРєСѓ РґР»СЏ View
             ViewBag.TotalComponents = await _context.Components
                 .Where(c => c.Quantity > 0)
                 .CountAsync();
@@ -47,7 +47,7 @@ namespace WebShopV3.Controllers
                 .Distinct()
                 .CountAsync();
 
-            // Получаем компоненты по категориям
+            // РџРѕР»СѓС‡Р°РµРј РєРѕРјРїРѕРЅРµРЅС‚С‹ РїРѕ РєР°С‚РµРіРѕСЂРёСЏРј
             var categoryData = await GetComponentCategoriesDataAsync();
             ViewBag.ComponentCategoriesData = categoryData;
 
@@ -86,14 +86,14 @@ namespace WebShopV3.Controllers
                 return NotFound();
             }
 
-            // Получаем связанные компоненты (того же типа)
+            // РџРѕР»СѓС‡Р°РµРј СЃРІСЏР·Р°РЅРЅС‹Рµ РєРѕРјРїРѕРЅРµРЅС‚С‹ (С‚РѕРіРѕ Р¶Рµ С‚РёРїР°)
             var relatedComponents = await _context.Components
                 .Where(c => c.Type == component.Type && c.Id != component.Id && c.Quantity > 0)
                 .OrderByDescending(c => c.Id)
                 .Take(4)
                 .ToListAsync();
 
-            // Передаем данные через ViewBag и ViewData
+            // РџРµСЂРµРґР°РµРј РґР°РЅРЅС‹Рµ С‡РµСЂРµР· ViewBag Рё ViewData
             ViewBag.RelatedComponents = relatedComponents;
             ViewBag.ComponentCharacteristics = component.ComponentCharacteristics.ToList();
 
@@ -119,18 +119,18 @@ namespace WebShopV3.Controllers
                 .Take(6)
                 .ToListAsync();
 
-            // Передаем через ViewBag
+            // РџРµСЂРµРґР°РµРј С‡РµСЂРµР· ViewBag
             ViewBag.RecommendedComputers = recommendedComputers;
             ViewBag.RecommendedComponents = recommendedComponents;
 
-            // Получаем корзину для отображения количества
+            // РџРѕР»СѓС‡Р°РµРј РєРѕСЂР·РёРЅСѓ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РєРѕР»РёС‡РµСЃС‚РІР°
             var cartJson = HttpContext.Session.GetString("Cart");
             var cart = string.IsNullOrEmpty(cartJson)
                 ? new Cart()
                 : JsonSerializer.Deserialize<Cart>(cartJson);
             ViewBag.CartItemsCount = cart?.TotalItems ?? 0;
 
-            // Трекинг просмотра
+            // РўСЂРµРєРёРЅРі РїСЂРѕСЃРјРѕС‚СЂР°
             await RecommendationHelper.TrackViewAsync(
                 HttpContext,
                 _recommendationService,
@@ -138,7 +138,7 @@ namespace WebShopV3.Controllers
                 "Component",
                 component.Name);
 
-            // Получение рекомендаций для сайдбара
+            // РџРѕР»СѓС‡РµРЅРёРµ СЂРµРєРѕРјРµРЅРґР°С†РёР№ РґР»СЏ СЃР°Р№РґР±Р°СЂР°
             var sidebarRecommendations = await RecommendationHelper.GetSidebarRecommendationsAsync(
                 HttpContext,
                 _recommendationService,
@@ -148,10 +148,10 @@ namespace WebShopV3.Controllers
 
             ViewBag.SidebarRecommendations = sidebarRecommendations;
 
-            return View(component); // Передаем сам компонент как модель
+            return View(component); // РџРµСЂРµРґР°РµРј СЃР°Рј РєРѕРјРїРѕРЅРµРЅС‚ РєР°Рє РјРѕРґРµР»СЊ
         }
 
-        // Новый метод для получения данных категорий
+        // РќРѕРІС‹Р№ РјРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РєР°С‚РµРіРѕСЂРёР№
         private async Task<List<CategoryData>> GetComponentCategoriesDataAsync()
         {
             var categoryTypes = new[] { "CPU", "GPU", "RAM", "SSD", "HDD", "MB", "PSU", "CASE" };
@@ -220,7 +220,7 @@ namespace WebShopV3.Controllers
                 .Take(6)
                 .ToListAsync();
 
-            // Передаем через ViewBag
+            // РџРµСЂРµРґР°РµРј С‡РµСЂРµР· ViewBag
             ViewBag.RecommendedComputers = recommendedComputers;
             ViewBag.RecommendedComponents = recommendedComponents;
 
@@ -234,7 +234,7 @@ namespace WebShopV3.Controllers
             ViewBag.CurrentComputerId = id.Value;
             ViewBag.RecentlyViewedCount = recentlyViewed.Count;
 
-            // Трекинг просмотра
+            // РўСЂРµРєРёРЅРі РїСЂРѕСЃРјРѕС‚СЂР°
             await RecommendationHelper.TrackViewAsync(
                 HttpContext,
                 _recommendationService,
@@ -242,7 +242,7 @@ namespace WebShopV3.Controllers
                 "Computer",
                 computer.Name);
 
-            // Получение рекомендаций для сайдбара
+            // РџРѕР»СѓС‡РµРЅРёРµ СЂРµРєРѕРјРµРЅРґР°С†РёР№ РґР»СЏ СЃР°Р№РґР±Р°СЂР°
             var sidebarRecommendations = await RecommendationHelper.GetSidebarRecommendationsAsync(
                 HttpContext,
                 _recommendationService,
@@ -296,58 +296,66 @@ namespace WebShopV3.Controllers
             return View(viewModel);
         }
 
-        
+
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> SearchProducts(
             string search,
             string sortBy = "default",
             string componentType = "all",
             decimal? minPrice = null,
             decimal? maxPrice = null,
-            string productType = "all")
+            string productType = "all",
+            string viewMode = "cards")
         {
             try
             {
-                // Логируем параметры для отладки
-                Console.WriteLine($"Search: {search}, Type: {productType}, ComponentType: {componentType}");
+                Console.WriteLine($"=== SearchProducts Called ===");
+                Console.WriteLine($"Search: '{search}'");
+                Console.WriteLine($"SortBy: {sortBy}");
+                Console.WriteLine($"ComponentType: {componentType}");
+                Console.WriteLine($"MinPrice: {minPrice}");
+                Console.WriteLine($"MaxPrice: {maxPrice}");
+                Console.WriteLine($"ProductType: {productType}");
+                Console.WriteLine($"ViewMode: {viewMode}");
+                Console.WriteLine($"Is AJAX: {Request.Headers["X-Requested-With"].Contains("XMLHttpRequest")}");
 
-                // Получаем компьютеры
+                // РџРѕР»СѓС‡Р°РµРј РєРѕРјРїСЊСЋС‚РµСЂС‹ Рё РєРѕРјРїР»РµРєС‚СѓСЋС‰РёРµ
                 var computers = productType == "components"
                     ? new List<Computer>()
                     : await GetFilteredComputers(search, sortBy, componentType, minPrice, maxPrice);
 
-                // Получаем комплектующие
                 var components = productType == "computers"
                     ? new List<Models.Component>()
                     : await GetFilteredComponents(search, sortBy, componentType, minPrice, maxPrice);
 
-                if (computers.Any() || components.Any())
+                Console.WriteLine($"Found {computers.Count} computers and {components.Count} components");
+
+                // РџСЂРёРјРµРЅСЏРµРј СЃРѕСЂС‚РёСЂРѕРІРєСѓ
+                if (sortBy == "price_asc")
                 {
-                    if (sortBy == "price_asc")
-                    {
-                        computers = computers.OrderBy(c => c.Price).ToList();
-                        components = components.OrderBy(c => c.Price).ToList();
-                    }
-                    else if (sortBy == "price_desc")
-                    {
-                        computers = computers.OrderByDescending(c => c.Price).ToList();
-                        components = components.OrderByDescending(c => c.Price).ToList();
-                    }
-                    else if (sortBy == "name_asc")
-                    {
-                        computers = computers.OrderBy(c => c.Name).ToList();
-                        components = components.OrderBy(c => c.Name).ToList();
-                    }
-                    else if (sortBy == "name_desc")
-                    {
-                        computers = computers.OrderByDescending(c => c.Name).ToList();
-                        components = components.OrderByDescending(c => c.Name).ToList();
-                    }
-                    else if (sortBy == "newest")
-                    {
-                        computers = computers.OrderByDescending(c => c.Id).ToList();
-                        components = components.OrderByDescending(c => c.Id).ToList();
-                    }
+                    computers = computers.OrderBy(c => c.Price).ToList();
+                    components = components.OrderBy(c => c.Price).ToList();
+                }
+                else if (sortBy == "price_desc")
+                {
+                    computers = computers.OrderByDescending(c => c.Price).ToList();
+                    components = components.OrderByDescending(c => c.Price).ToList();
+                }
+                else if (sortBy == "name_asc")
+                {
+                    computers = computers.OrderBy(c => c.Name).ToList();
+                    components = components.OrderBy(c => c.Name).ToList();
+                }
+                else if (sortBy == "name_desc")
+                {
+                    computers = computers.OrderByDescending(c => c.Name).ToList();
+                    components = components.OrderByDescending(c => c.Name).ToList();
+                }
+                else if (sortBy == "newest")
+                {
+                    computers = computers.OrderByDescending(c => c.Id).ToList();
+                    components = components.OrderByDescending(c => c.Id).ToList();
                 }
 
                 var viewModel = new CatalogViewModel
@@ -363,10 +371,14 @@ namespace WebShopV3.Controllers
                 ViewBag.MinPrice = minPrice;
                 ViewBag.MaxPrice = maxPrice;
                 ViewBag.ProductType = productType;
+                ViewBag.ViewMode = viewMode;
                 ViewBag.TotalCount = computers.Count + components.Count;
 
-                // Проверяем AJAX запрос
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                // РџСЂРѕРІРµСЂСЏРµРј AJAX Р·Р°РїСЂРѕСЃ
+                var isAjax = Request.Headers["X-Requested-With"].Contains("XMLHttpRequest");
+                Console.WriteLine($"Returning {(isAjax ? "PartialView" : "View")}");
+
+                if (isAjax)
                 {
                     return PartialView("_ComputerListPartial", viewModel);
                 }
@@ -375,23 +387,25 @@ namespace WebShopV3.Controllers
             }
             catch (Exception ex)
             {
-                // Логируем ошибку
-                Console.WriteLine($"Search error: {ex.Message}");
+                Console.WriteLine($"SearchProducts Error: {ex.Message}");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
 
-                // Возвращаем пустой результат в случае ошибки
-                var viewModel = new CatalogViewModel
+                // Р”Р»СЏ AJAX Р·Р°РїСЂРѕСЃРѕРІ РІРѕР·РІСЂР°С‰Р°РµРј JSON СЃ РѕС€РёР±РєРѕР№
+                if (Request.Headers["X-Requested-With"].Contains("XMLHttpRequest"))
+                {
+                    Response.StatusCode = 500;
+                    return Json(new { error = ex.Message });
+                }
+
+                // Р”Р»СЏ РѕР±С‹С‡РЅС‹С… Р·Р°РїСЂРѕСЃРѕРІ РІРѕР·РІСЂР°С‰Р°РµРј РїСѓСЃС‚СѓСЋ РјРѕРґРµР»СЊ
+                var emptyModel = new CatalogViewModel
                 {
                     Computers = new List<Computer>(),
                     Components = new List<Models.Component>(),
                     ProductType = productType
                 };
 
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                {
-                    return PartialView("_ComputerListPartial", viewModel);
-                }
-
-                return View("Catalog", viewModel);
+                return View("Catalog", emptyModel);
             }
         }
 
@@ -501,7 +515,7 @@ namespace WebShopV3.Controllers
         private const string RecentlyViewedCookieName = "WebShopV3_RecentlyViewed";
 
         /// <summary>
-        /// Добавляет компьютер в историю просмотров (куки)
+        /// Р”РѕР±Р°РІР»СЏРµС‚ РєРѕРјРїСЊСЋС‚РµСЂ РІ РёСЃС‚РѕСЂРёСЋ РїСЂРѕСЃРјРѕС‚СЂРѕРІ (РєСѓРєРё)
         /// </summary>
         private void AddToRecentlyViewed(int computerId, string computerName, decimal price, string? imageUrl)
         {
@@ -509,19 +523,19 @@ namespace WebShopV3.Controllers
             {
                 var history = GetRecentlyViewedFromCookie();
 
-                // Проверяем, не просматривалось ли недавно (в течение 2 часов)
+                // РџСЂРѕРІРµСЂСЏРµРј, РЅРµ РїСЂРѕСЃРјР°С‚СЂРёРІР°Р»РѕСЃСЊ Р»Рё РЅРµРґР°РІРЅРѕ (РІ С‚РµС‡РµРЅРёРµ 2 С‡Р°СЃРѕРІ)
                 var existing = history.FirstOrDefault(x => x.ComputerId == computerId);
                 if (existing != null && (DateTime.UtcNow - existing.ViewedAt).TotalHours < 2)
                 {
-                    // Обновляем время просмотра
+                    // РћР±РЅРѕРІР»СЏРµРј РІСЂРµРјСЏ РїСЂРѕСЃРјРѕС‚СЂР°
                     existing.ViewedAt = DateTime.UtcNow;
                 }
                 else
                 {
-                    // Удаляем дубликаты если есть
+                    // РЈРґР°Р»СЏРµРј РґСѓР±Р»РёРєР°С‚С‹ РµСЃР»Рё РµСЃС‚СЊ
                     history.RemoveAll(x => x.ComputerId == computerId);
 
-                    // Добавляем новый просмотр в начало
+                    // Р”РѕР±Р°РІР»СЏРµРј РЅРѕРІС‹Р№ РїСЂРѕСЃРјРѕС‚СЂ РІ РЅР°С‡Р°Р»Рѕ
                     history.Insert(0, new RecentlyViewedItem
                     {
                         ComputerId = computerId,
@@ -531,7 +545,7 @@ namespace WebShopV3.Controllers
                         ViewedAt = DateTime.UtcNow
                     });
 
-                    // Ограничиваем количество элементов (макс. 20)
+                    // РћРіСЂР°РЅРёС‡РёРІР°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ (РјР°РєСЃ. 20)
                     if (history.Count > 20)
                     {
                         history = history.Take(20).ToList();
@@ -542,12 +556,12 @@ namespace WebShopV3.Controllers
             }
             catch
             {
-                // Игнорируем ошибки с куками
+                // РРіРЅРѕСЂРёСЂСѓРµРј РѕС€РёР±РєРё СЃ РєСѓРєР°РјРё
             }
         }
 
         /// <summary>
-        /// Получает список недавно просмотренных компьютеров из БД
+        /// РџРѕР»СѓС‡Р°РµС‚ СЃРїРёСЃРѕРє РЅРµРґР°РІРЅРѕ РїСЂРѕСЃРјРѕС‚СЂРµРЅРЅС‹С… РєРѕРјРїСЊСЋС‚РµСЂРѕРІ РёР· Р‘Р”
         /// </summary>
         private List<Computer> GetRecentlyViewedComputers()
         {
@@ -557,21 +571,21 @@ namespace WebShopV3.Controllers
 
             var computerIds = recentlyViewedItems.Select(x => x.ComputerId).ToList();
 
-            // Используем синхронный вызов через Task.Run для избежания deadlock в ASP.NET
+            // РСЃРїРѕР»СЊР·СѓРµРј СЃРёРЅС…СЂРѕРЅРЅС‹Р№ РІС‹Р·РѕРІ С‡РµСЂРµР· Task.Run РґР»СЏ РёР·Р±РµР¶Р°РЅРёСЏ deadlock РІ ASP.NET
             var computers = _context.Computers
                 .Include(c => c.ComputerComponents)
                     .ThenInclude(cc => cc.Component)
                 .Where(c => computerIds.Contains(c.Id))
                 .AsEnumerable()
-                .OrderBy(c => computerIds.IndexOf(c.Id)) // Сохраняем порядок из куки
-                .Take(6) // Берем на 1 больше, чтобы потом исключить текущий
+                .OrderBy(c => computerIds.IndexOf(c.Id)) // РЎРѕС…СЂР°РЅСЏРµРј РїРѕСЂСЏРґРѕРє РёР· РєСѓРєРё
+                .Take(6) // Р‘РµСЂРµРј РЅР° 1 Р±РѕР»СЊС€Рµ, С‡С‚РѕР±С‹ РїРѕС‚РѕРј РёСЃРєР»СЋС‡РёС‚СЊ С‚РµРєСѓС‰РёР№
                 .ToList();
 
             return computers;
         }
 
         /// <summary>
-        /// Получает историю просмотров из куки
+        /// РџРѕР»СѓС‡Р°РµС‚ РёСЃС‚РѕСЂРёСЋ РїСЂРѕСЃРјРѕС‚СЂРѕРІ РёР· РєСѓРєРё
         /// </summary>
         private List<RecentlyViewedItem> GetRecentlyViewedFromCookie()
         {
@@ -591,7 +605,7 @@ namespace WebShopV3.Controllers
         }
 
         /// <summary>
-        /// Сохраняет историю просмотров в куки
+        /// РЎРѕС…СЂР°РЅСЏРµС‚ РёСЃС‚РѕСЂРёСЋ РїСЂРѕСЃРјРѕС‚СЂРѕРІ РІ РєСѓРєРё
         /// </summary>
         private void SaveHistoryToCookie(List<RecentlyViewedItem> history)
         {
@@ -599,8 +613,8 @@ namespace WebShopV3.Controllers
 
             var options = new CookieOptions
             {
-                Expires = DateTimeOffset.UtcNow.AddDays(45), // 1.5 месяца
-                HttpOnly = false, // Чтобы можно было очистить через JS
+                Expires = DateTimeOffset.UtcNow.AddDays(45), // 1.5 РјРµСЃСЏС†Р°
+                HttpOnly = false, // Р§С‚РѕР±С‹ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РѕС‡РёСЃС‚РёС‚СЊ С‡РµСЂРµР· JS
                 IsEssential = true,
                 SameSite = SameSiteMode.Strict,
                 Secure = Request.IsHttps,
@@ -611,7 +625,7 @@ namespace WebShopV3.Controllers
         }
 
         /// <summary>
-        /// Очищает историю просмотров
+        /// РћС‡РёС‰Р°РµС‚ РёСЃС‚РѕСЂРёСЋ РїСЂРѕСЃРјРѕС‚СЂРѕРІ
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -620,14 +634,14 @@ namespace WebShopV3.Controllers
             try
             {
                 Response.Cookies.Delete(RecentlyViewedCookieName);
-                TempData["SuccessMessage"] = "История просмотров успешно очищена";
+                TempData["SuccessMessage"] = "РСЃС‚РѕСЂРёСЏ РїСЂРѕСЃРјРѕС‚СЂРѕРІ СѓСЃРїРµС€РЅРѕ РѕС‡РёС‰РµРЅР°";
             }
             catch
             {
-                TempData["ErrorMessage"] = "Не удалось очистить историю просмотров";
+                TempData["ErrorMessage"] = "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‡РёСЃС‚РёС‚СЊ РёСЃС‚РѕСЂРёСЋ РїСЂРѕСЃРјРѕС‚СЂРѕРІ";
             }
 
-            // Возвращаем на предыдущую страницу
+            // Р’РѕР·РІСЂР°С‰Р°РµРј РЅР° РїСЂРµРґС‹РґСѓС‰СѓСЋ СЃС‚СЂР°РЅРёС†Сѓ
             var returnUrl = Request.Headers["Referer"].ToString();
             if (!string.IsNullOrEmpty(returnUrl))
             {
@@ -638,7 +652,7 @@ namespace WebShopV3.Controllers
         }
 
         /// <summary>
-        /// Обрезает строку до указанной длины
+        /// РћР±СЂРµР·Р°РµС‚ СЃС‚СЂРѕРєСѓ РґРѕ СѓРєР°Р·Р°РЅРЅРѕР№ РґР»РёРЅС‹
         /// </summary>
         private string? TruncateString(string? value, int maxLength)
         {
@@ -660,7 +674,7 @@ namespace WebShopV3.Controllers
         }
 
         /// <summary>
-        /// API метод для получения истории просмотров (для AJAX)
+        /// API РјРµС‚РѕРґ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РёСЃС‚РѕСЂРёРё РїСЂРѕСЃРјРѕС‚СЂРѕРІ (РґР»СЏ AJAX)
         /// </summary>
         [HttpGet]
         [AllowAnonymous]
@@ -681,10 +695,10 @@ namespace WebShopV3.Controllers
                     componentCount = c.ComputerComponents?.Count ?? 0,
                     cpu = c.ComputerComponents?
                         .Select(cc => cc.Component)
-                        .FirstOrDefault(comp => comp.Type == "CPU")?.Name ?? "Не указан",
+                        .FirstOrDefault(comp => comp.Type == "CPU")?.Name ?? "РќРµ СѓРєР°Р·Р°РЅ",
                     gpu = c.ComputerComponents?
                         .Select(cc => cc.Component)
-                        .FirstOrDefault(comp => comp.Type == "GPU")?.Name ?? "Не указан",
+                        .FirstOrDefault(comp => comp.Type == "GPU")?.Name ?? "РќРµ СѓРєР°Р·Р°РЅ",
                     url = Url.Action("ComputerDetails", "Computer", new { id = c.Id })
                 })
                 .ToList();
@@ -692,22 +706,22 @@ namespace WebShopV3.Controllers
             return Json(new { success = true, data = result });
         }
 
-        // HomeController.cs - добавьте этот метод
+        // HomeController.cs - РґРѕР±Р°РІСЊС‚Рµ СЌС‚РѕС‚ РјРµС‚РѕРґ
         [AllowAnonymous]
         public async Task<IActionResult> GetBestsellers(string type = "all", int limit = 6)
         {
             IQueryable<Models.Component> query = _context.Components
                 .Where(c => c.Quantity > 0);
 
-            // Фильтрация по типу
+            // Р¤РёР»СЊС‚СЂР°С†РёСЏ РїРѕ С‚РёРїСѓ
             if (!string.IsNullOrEmpty(type) && type.ToLower() != "all")
             {
                 query = query.Where(c => c.Type == type.ToUpper());
             }
 
-            // Для "всех категорий" показываем наиболее популярные товары
-            // Можно добавить логику сортировки по популярности (количеству продаж)
-            // Пока используем сортировку по ID (новые первыми)
+            // Р”Р»СЏ "РІСЃРµС… РєР°С‚РµРіРѕСЂРёР№" РїРѕРєР°Р·С‹РІР°РµРј РЅР°РёР±РѕР»РµРµ РїРѕРїСѓР»СЏСЂРЅС‹Рµ С‚РѕРІР°СЂС‹
+            // РњРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ Р»РѕРіРёРєСѓ СЃРѕСЂС‚РёСЂРѕРІРєРё РїРѕ РїРѕРїСѓР»СЏСЂРЅРѕСЃС‚Рё (РєРѕР»РёС‡РµСЃС‚РІСѓ РїСЂРѕРґР°Р¶)
+            // РџРѕРєР° РёСЃРїРѕР»СЊР·СѓРµРј СЃРѕСЂС‚РёСЂРѕРІРєСѓ РїРѕ ID (РЅРѕРІС‹Рµ РїРµСЂРІС‹РјРё)
             var components = await query
                 .OrderByDescending(c => c.Id)
                 .Take(limit)
@@ -724,14 +738,14 @@ namespace WebShopV3.Controllers
                     memoryType = c.MemoryType,
                     formFactor = c.FormFactor,
                     imageUrl = c.ImageUrl,
-                    shortName = c.Name // Для отображения короткого имени
+                    shortName = c.Name // Р”Р»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РєРѕСЂРѕС‚РєРѕРіРѕ РёРјРµРЅРё
                 })
                 .ToListAsync();
 
             return Json(new { success = true, components });
         }
 
-        // Вспомогательный метод для сокращения имени
+        // Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ СЃРѕРєСЂР°С‰РµРЅРёСЏ РёРјРµРЅРё
         private string TruncateName(string name, int maxLength = 30)
         {
             if (string.IsNullOrEmpty(name) || name.Length <= maxLength)

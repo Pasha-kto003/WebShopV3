@@ -1,4 +1,6 @@
 ﻿// Helpers/RecommendationHelper.cs
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using WebShopV3.Models.Recommendation;
 using WebShopV3.Services;
 
@@ -16,12 +18,12 @@ namespace WebShopV3.Helpers
         {
             try
             {
-                var userId = context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var guestId = context.Request.Cookies["GuestId"] ?? context.Session.Id;
+                var userId = GetUserId(context);
+                var guestId = GetGuestId(context);
 
                 var action = new UserAction
                 {
-                    UserId = userId != null ? int.Parse(userId) : (int?)null,
+                    UserId = userId,
                     GuestId = guestId,
                     ActionType = UserActionType.View,
                     ProductType = productType,
@@ -31,7 +33,7 @@ namespace WebShopV3.Helpers
                     Timestamp = DateTime.UtcNow
                 };
 
-                recommendationService.TrackAction(action);
+                await recommendationService.TrackActionAsync(action);
             }
             catch
             {
@@ -44,16 +46,16 @@ namespace WebShopV3.Helpers
             IRecommendationService recommendationService,
             int? currentProductId = null,
             string? currentProductType = null,
-            int limit = 5)
+            int limit = 4)
         {
             try
             {
-                var userId = context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var guestId = context.Request.Cookies["GuestId"] ?? context.Session.Id;
+                var userId = GetUserId(context);
+                var guestId = GetGuestId(context);
 
                 var request = new RecommendationRequest
                 {
-                    UserId = userId != null ? int.Parse(userId) : (int?)null,
+                    UserId = userId,
                     GuestId = guestId,
                     CurrentProductId = currentProductId,
                     CurrentProductType = currentProductType,
@@ -70,6 +72,27 @@ namespace WebShopV3.Helpers
             }
         }
 
+        public static int? GetUserId(HttpContext context)
+        {
+            var userIdClaim = context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userIdClaim != null && int.TryParse(userIdClaim, out int userId) ? userId : null;
+        }
 
+        public static string GetGuestId(HttpContext context)
+        {
+            var guestId = context.Request.Cookies["RecommendationGuestId"];
+            if (string.IsNullOrEmpty(guestId))
+            {
+                guestId = Guid.NewGuid().ToString();
+                context.Response.Cookies.Append("RecommendationGuestId", guestId, new CookieOptions
+                {
+                    Expires = DateTime.UtcNow.AddDays(30),
+                    HttpOnly = true,
+                    SameSite = SameSiteMode.Strict,
+                    IsEssential = true
+                });
+            }
+            return guestId;
+        }
     }
 }
