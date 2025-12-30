@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.Data.SqlClient;
+п»їusing Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Stripe;
 using WebShopV3.Middleware;
 using WebShopV3.Models;
 using WebShopV3.Services;
@@ -40,15 +38,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.Strict;
     });
 
-// Авторизация
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Админ"));
-    options.AddPolicy("ManagerOnly", policy => policy.RequireRole("Менеджер"));
-    options.AddPolicy("AdminOrManager", policy => policy.RequireRole("Админ", "Менеджер"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("пїЅпїЅпїЅпїЅпїЅ"));
+    options.AddPolicy("ManagerOnly", policy => policy.RequireRole("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"));
+    options.AddPolicy("AdminOrManager", policy => policy.RequireRole("пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"));
     options.AddPolicy("Authenticated", policy => policy.RequireAuthenticatedUser());
 
-    // Политика для паролей
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     options.AddPolicy("StrongPassword", policy =>
         policy.RequireClaim("PasswordStrength", "Strong"));
 });
@@ -123,7 +121,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// В Program.cs, если нужно настроить маршруты:
 app.MapControllerRoute(
     name: "recommendations",
     pattern: "recommendations/{action=My}/{id?}",

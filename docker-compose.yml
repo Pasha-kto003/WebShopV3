@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: webshop-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong@Password123"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./script.sql:/docker-entrypoint-initdb.d/script.sql
+    networks:
+      - webshop-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Password123' -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+      timeout: 3s
+
+
+  webshopv3:
+    build: 
+      context: .  
+      dockerfile: Dockerfile
+    container_name: webshop-app
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ComputerShopDbV1;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=true;MultipleActiveResultSets=true;
+    ports:
+      - "5000:80"
+      - "5001:443"
+    volumes:
+      - ./appsettings.Docker.json:/app/appsettings.Docker.json
+      - .:/src
+    networks:
+      - webshop-network
+    restart: unless-stopped
+
+networks:
+  webshop-network:
+    driver: bridge
+
+volumes:
+  sqlserver_data:
+    driver: local

@@ -1,5 +1,4 @@
-﻿using AutoMapper.Configuration.Annotations;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WebShopV3.Models
 {
