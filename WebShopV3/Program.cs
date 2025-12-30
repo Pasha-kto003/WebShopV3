@@ -16,7 +16,7 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
+//hmmm
 // Add DbContext with retry logic
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
