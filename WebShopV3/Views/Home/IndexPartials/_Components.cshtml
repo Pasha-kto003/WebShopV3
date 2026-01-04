@@ -38,7 +38,7 @@
                     {
                         var config = categoryConfig[category.Type];
 
-                        <a asp-action="ComponentDetails" asp-controller="Home" asp-route-id="@category.Component.Id"
+                        <a asp-action="ComponentDetails" asp-controller="Home" asp-route-id="@(category.Component?.Id ?? 0)"
                            class="group relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 text-center transition-all duration-500 hover:-translate-y-3 overflow-hidden card-hover">
 
                             <!-- Анимированный градиентный фон -->
@@ -56,7 +56,7 @@
 
                                 <!-- Основная иконка -->
                                 <div class="relative w-full h-full bg-gradient-to-br @config.Gradient rounded-2xl flex items-center justify-center
-                                                        group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-xl">
+                                                                    group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-xl">
                                     <span class="text-4xl drop-shadow-lg">@config.Icon</span>
 
                                     <!-- Анимированные элементы -->
@@ -67,7 +67,7 @@
 
                             <!-- Название категории -->
                             <h3 class="relative text-xl font-bold mb-2 bg-gradient-to-r @config.Gradient bg-clip-text text-transparent
-                                                   group-hover:scale-105 transition-transform duration-300">
+                                                               group-hover:scale-105 transition-transform duration-300">
                                 @config.Name
                             </h3>
 
@@ -113,7 +113,7 @@
                                     <div class="space-y-3">
                                         <!-- Статус наличия -->
                                         <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-sm
-                                                                  @(component.Quantity > 0 ? "bg-green-500/20" : "bg-red-500/20")">
+                                                                                  @(component.Quantity > 0 ? "bg-green-500/20" : "bg-red-500/20")">
                                             <span class="relative flex h-2 w-2">
                                                 @if (component.Quantity > 0)
                                                 {
@@ -179,7 +179,7 @@
                         <div class="relative w-24 h-24 mx-auto mb-6">
                             <div class="absolute inset-0 bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition duration-500"></div>
                             <div class="relative w-full h-full bg-gradient-to-br from-blue-500 via-cyan-400 to-blue-600 rounded-2xl flex items-center justify-center
-                                                group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-xl animate-pulse-slow">
+                                                        group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-xl animate-pulse-slow">
                                 <span class="text-4xl drop-shadow-lg">📦</span>
                             </div>
                         </div>
@@ -198,7 +198,7 @@
                             <div class="relative w-12 h-12 mx-auto">
                                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
                                 <div class="relative w-full h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center
-                                                    group-hover:scale-110 group-hover:rotate-90 transition-all duration-500">
+                                                            group-hover:scale-110 group-hover:rotate-90 transition-all duration-500">
                                     <span class="text-xl font-bold">→</span>
                                 </div>
                             </div>

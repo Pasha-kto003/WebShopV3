@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using WebShopV3.Models;
 
@@ -32,11 +33,14 @@ namespace WebShopV3.Services
 
         public async Task<PaymentResponse> CreatePaymentAsync(PaymentRequest request)
         {
+            // Форматируем сумму с двумя знаками после запятой
+            var amountValue = request.Amount.ToString("0.00", CultureInfo.InvariantCulture);
+
             var paymentData = new
             {
                 amount = new
                 {
-                    value = request.Amount.ToString("F2"),
+                    value = amountValue,
                     currency = "RUB"
                 },
                 capture = true,
@@ -52,7 +56,11 @@ namespace WebShopV3.Services
                 }
             };
 
-            var json = JsonSerializer.Serialize(paymentData);
+            var json = JsonSerializer.Serialize(paymentData, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync($"{_baseUrl}payments", content);
@@ -71,7 +79,9 @@ namespace WebShopV3.Services
                 Id = root.GetProperty("id").GetString(),
                 Status = root.GetProperty("status").GetString(),
                 ConfirmationUrl = root.GetProperty("confirmation").GetProperty("confirmation_url").GetString(),
-                Amount = decimal.Parse(root.GetProperty("amount").GetProperty("value").GetString())
+                Amount = decimal.Parse(
+                    root.GetProperty("amount").GetProperty("value").GetString(),
+                    CultureInfo.InvariantCulture) // Используем InvariantCulture здесь
             };
         }
 
