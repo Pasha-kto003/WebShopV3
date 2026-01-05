@@ -98,7 +98,6 @@ namespace WebShopV3.Models
                             });
                         }
 
-                        // 15 обычных пользователей (используем Bogus для разнообразия)
                         var userFaker = new Faker<User>("ru")
                             .RuleFor(u => u.Username, f => f.Internet.UserName().ToLower())
                             .RuleFor(u => u.Email, f => f.Internet.Email())
@@ -267,14 +266,10 @@ namespace WebShopV3.Models
 
             var components = new List<Component>();
 
-            // Увеличиваем количество процессоров с 10 до 20
             Console.WriteLine("Генерация процессоров...");
             var cpuFaker = componentFaker
                 .RuleFor(c => c.Type, "CPU")
-                .RuleFor(c => c.Socket, f => f.Random.ListItem(new[] {
-            "AM4", "AM5", "AM3+",
-            "LGA1700", "LGA1200", "LGA1151", "LGA2066",
-            "sTRX4", "TR4", "sWRX8"
+                .RuleFor(c => c.Socket, f => f.Random.ListItem(new[] { "AM4", "AM5", "AM3+", "LGA1700", "LGA1200", "LGA1151", "LGA2066", "sTRX4", "TR4", "sWRX8"
                 }))
                 .RuleFor(c => c.MemoryType, f => "")
                 .RuleFor(c => c.FormFactor, f => "")
@@ -301,15 +296,10 @@ namespace WebShopV3.Models
 
             components.AddRange(cpuFaker.Generate(20));
 
-            // Материнские платы (увеличиваем до 25)
             Console.WriteLine("Генерация материнских плат...");
             var mbFaker = componentFaker
                 .RuleFor(c => c.Type, "MB")
-                .RuleFor(c => c.Socket, f => f.Random.ListItem(new[] {
-            "AM4", "AM5", "AM3+",
-            "LGA1700", "LGA1200", "LGA1151", "LGA2066",
-            "sTRX4", "TR4", "sWRX8"
-                }))
+                .RuleFor(c => c.Socket, f => f.Random.ListItem(new[] {"AM4", "AM5", "AM3+", "LGA1700", "LGA1200", "LGA1151", "LGA2066", "sTRX4", "TR4", "sWRX8"}))
                 .RuleFor(c => c.MemoryType, f => f.Random.ListItem(new[] { "DDR4", "DDR5", "DDR3" }))
                 .RuleFor(c => c.FormFactor, f => f.Random.ListItem(new[] {
             "ATX", "Micro-ATX", "Mini-ITX", "E-ATX", "XL-ATX"
