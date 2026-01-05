@@ -105,9 +105,86 @@ namespace WebShopV3.Services
         {
             var compatibilityMatrix = new Dictionary<string, List<string>>
             {
-                { "ATX", new List<string> { "ATX", "E-ATX" } },
-                { "mATX", new List<string> { "ATX", "mATX" } },
-                { "ITX", new List<string> { "ATX", "mATX", "ITX" } }
+                // ATX (Standard ATX) - 305 × 244 мм
+                { "ATX", new List<string> {
+                    "ATX", "E-ATX", "XL-ATX", "Full-Tower", "Mid-Tower",
+                    "Super-Tower", "Tower", "Extended-ATX"
+                } },
+    
+                // Micro-ATX (mATX) - 244 × 244 мм
+                { "Micro-ATX", new List<string> {
+                    "ATX", "Micro-ATX", "mATX", "Mid-Tower", "Mini-Tower",
+                    "Full-Tower", "Super-Tower", "Tower"
+                } },
+    
+                // Mini-ITX - 170 × 170 мм
+                { "Mini-ITX", new List<string> {
+                    "ATX", "Micro-ATX", "mATX", "Mini-ITX", "ITX",
+                    "Mid-Tower", "Mini-Tower", "Cube", "HTPC", "Desktop",
+                    "Slim", "Small Form Factor", "SFF"
+                } },
+    
+                // E-ATX (Extended ATX) - 305 × 330 мм
+                { "E-ATX", new List<string> {
+                    "E-ATX", "XL-ATX", "Full-Tower", "Super-Tower",
+                    "Extended-ATX", "Tower"
+                } },
+    
+                // XL-ATX - 345 × 262 мм
+                { "XL-ATX", new List<string> {
+                    "XL-ATX", "Full-Tower", "Super-Tower", "E-ATX"
+                } },
+    
+                // SSI CEB - 305 × 267 мм
+                { "SSI CEB", new List<string> {
+                    "E-ATX", "Full-Tower", "Super-Tower", "Server Case"
+                } },
+    
+                // SSI EEB - 330 × 305 мм
+                { "SSI EEB", new List<string> {
+                    "E-ATX", "Full-Tower", "Super-Tower", "Server Case",
+                    "Workstation Case"
+                } },
+    
+                // DTX - 203 × 244 мм
+                { "DTX", new List<string> {
+                    "ATX", "Micro-ATX", "Mini-ITX", "Mid-Tower", "Mini-Tower"
+                } },
+    
+                // Flex-ATX - 229 × 191 мм
+                { "Flex-ATX", new List<string> {
+                    "ATX", "Micro-ATX", "Mini-ITX", "Mini-Tower"
+                } },
+    
+                // HPTX - 345 × 381 мм (очень большой)
+                { "HPTX", new List<string> {
+                    "Full-Tower", "Super-Tower", "Server Case"
+                } },
+    
+                // WTX - 356 × 425 мм (серверный)
+                { "WTX", new List<string> {
+                    "Server Case", "Workstation Case"
+                } },
+    
+                // BTX - альтернативный стандарт
+                { "BTX", new List<string> {
+                    "BTX", "BTX Case"
+                } },
+    
+                // Nano-ITX - 120 × 120 мм
+                { "Nano-ITX", new List<string> {
+                    "Mini-ITX", "HTPC", "Embedded", "NUC", "Small"
+                } },
+    
+                // Pico-ITX - 100 × 72 мм
+                { "Pico-ITX", new List<string> {
+                    "Embedded", "Custom", "Mini"
+                } },
+    
+                // Mobile-ITX - 75 × 45 мм
+                { "Mobile-ITX", new List<string> {
+                    "Embedded", "Industrial"
+                } }
             };
 
             return compatibilityMatrix.ContainsKey(motherboardFormFactor) &&

@@ -116,24 +116,159 @@
         <p class="text-gray-400 text-sm mb-4 line-clamp-2 flex-grow">@Model.Description</p>
 
         <!-- Основные характеристики -->
-        <div class="specs-grid mb-4">
-            <div class="spec-item">
-                <div class="spec-icon"></div>
-                <span>Процессор: Intel i7</span>
+        @if (Model.ComputerComponents != null && Model.ComputerComponents.Any())
+        {
+            // Создаем словарь для группировки компонентов по типу
+            var componentsByType = Model.ComputerComponents
+            .Where(cc => cc.Component != null)
+            .GroupBy(cc => cc.Component.Type)
+            .ToDictionary(g => g.Key, g => g.First().Component);
+
+            <div class="specs-grid mb-4">
+                @{
+                    var componentDisplayNames = new Dictionary<string, string>
+                        {
+                        { "CPU", "Процессор" },
+                        { "GPU", "Видеокарта" },
+                        { "RAM", "ОЗУ" },
+                        { "SSD", "Накопитель" },
+                        { "HDD", "Жесткий диск" },
+                        { "Motherboard", "Материнская плата" },
+                        { "PSU", "Блок питания" },
+                        { "Cooler", "Охлаждение" },
+                        { "Case", "Корпус" }
+                        };
+                }
+
+                @if (componentsByType.TryGetValue("CPU", out var cpuComponent))
+                {
+                    <div class="spec-item">
+                        <div class="spec-icon">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <span>
+                            @componentDisplayNames.GetValueOrDefault("CPU", "Процессор"):
+                            @cpuComponent.Name
+                            @{
+                                var cpuClock = cpuComponent.ComponentCharacteristics?
+                                .FirstOrDefault(cc => cc.Characteristic.Name.Contains("частота") ||
+                                cc.Characteristic.Name.Contains("Frequency"))?
+                                .Value;
+                            }
+                            @if (!string.IsNullOrEmpty(cpuClock))
+                            {
+                                <text>(@cpuClock)</text>
+                            }
+                        </span>
+                    </div>
+                }
+
+                @if (componentsByType.TryGetValue("GPU", out var gpuComponent))
+                {
+                    <div class="spec-item">
+                        <div class="spec-icon">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <span>
+                            @componentDisplayNames.GetValueOrDefault("GPU", "Видеокарта"):
+                            @gpuComponent.Name
+                            @{
+                                var gpuMemory = gpuComponent.ComponentCharacteristics?
+                                .FirstOrDefault(cc => cc.Characteristic.Name.Contains("память") ||
+                                cc.Characteristic.Name.Contains("Memory"))?
+                                .Value;
+                            }
+                            @if (!string.IsNullOrEmpty(gpuMemory))
+                            {
+                                <text>(@gpuMemory)</text>
+                            }
+                        </span>
+                    </div>
+                }
+
+                @if (componentsByType.TryGetValue("RAM", out var ramComponent))
+                {
+                    <div class="spec-item">
+                        <div class="spec-icon">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <span>
+                            @componentDisplayNames.GetValueOrDefault("RAM", "ОЗУ"):
+                            @{
+                                var ramSize = ramComponent.ComponentCharacteristics?
+                                .FirstOrDefault(cc => cc.Characteristic.Name.Contains("объем") ||
+                                cc.Characteristic.Name.Contains("Size"))?
+                                .Value;
+                            }
+                            @if (!string.IsNullOrEmpty(ramSize))
+                            {
+                                @ramSize
+                            }
+                            else
+                            {
+                                @ramComponent.Name
+                            }
+                        </span>
+                    </div>
+                }
+
+                @{
+                    var storageComponent = componentsByType.ContainsKey("SSD") ? componentsByType["SSD"] :
+                    componentsByType.ContainsKey("HDD") ? componentsByType["HDD"] : null;
+                }
+                @if (storageComponent != null)
+                {
+                    <div class="spec-item">
+                        <div class="spec-icon">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <span>
+                            Память:
+                            @{
+                                var storageSize = storageComponent.ComponentCharacteristics?
+                                .FirstOrDefault(cc => cc.Characteristic.Name.Contains("емкость") ||
+                                cc.Characteristic.Name.Contains("Capacity"))?
+                                .Value;
+                            }
+                            @if (!string.IsNullOrEmpty(storageSize))
+                            {
+                                @storageSize
+                            }
+                            else
+                            {
+                                @storageComponent.Name
+                            }
+                        </span>
+                    </div>
+                }
+
+                @if (!componentsByType.ContainsKey("CPU") && !componentsByType.ContainsKey("GPU") &&
+                            !componentsByType.ContainsKey("RAM") && storageComponent == null)
+                {
+                    <div class="spec-item">
+                        <div class="spec-icon"></div>
+                        <span>Характеристики не указаны</span>
+                    </div>
+                }
             </div>
-            <div class="spec-item">
-                <div class="spec-icon"></div>
-                <span>Видеокарта: RTX 3070</span>
+        }
+        else
+        {
+            <div class="specs-grid mb-4">
+                <div class="spec-item">
+                    <div class="spec-icon"></div>
+                    <span>Компоненты не указаны</span>
+                </div>
             </div>
-            <div class="spec-item">
-                <div class="spec-icon"></div>
-                <span>ОЗУ: 16 ГБ</span>
-            </div>
-            <div class="spec-item">
-                <div class="spec-icon"></div>
-                <span>Память: 1 ТБ SSD</span>
-            </div>
-        </div>
+        }
 
         <!-- Статус и цена -->
         <div class="mt-auto pt-4 border-t border-gray-800/50">
@@ -200,7 +335,7 @@
         }
         catch
         {
-            // Игнорируем ошибки десериализации
+            
         }
         return false;
     }

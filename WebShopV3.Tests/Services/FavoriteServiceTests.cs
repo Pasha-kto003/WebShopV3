@@ -90,22 +90,14 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task RemoveFromFavoritesAsync_ShouldRemoveFavorite()
         {
-            // Arrange
             var userId = 1;
             var guestId = "guest123";
             await CreateTestProductsAsync();
-
             var addResult = await _service.AddToFavoritesAsync(userId, guestId, "Computer", 1);
             var favoriteId = addResult.Favorite.Id;
-
-            // Act
             var result = await _service.RemoveFromFavoritesAsync(userId, guestId, favoriteId);
-
-            // Assert
             Assert.True(result.Success);
             Assert.Contains("удален", result.Message);
-
-            // Проверяем, что удалилось из БД
             var favorite = await _dbContext.Favorites.FindAsync(favoriteId);
             Assert.Null(favorite);
         }
@@ -113,21 +105,13 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task RemoveByProductAsync_ShouldRemoveFavoriteByProduct()
         {
-            // Arrange
             var userId = 1;
             var guestId = "guest123";
             await CreateTestProductsAsync();
-
             await _service.AddToFavoritesAsync(userId, guestId, "Computer", 1);
-
-            // Act
             var result = await _service.RemoveByProductAsync(userId, guestId, "Computer", 1);
-
-            // Assert
             Assert.True(result.Success);
             Assert.Contains("удален", result.Message);
-
-            // Проверяем, что удалилось
             var exists = await _service.IsProductInFavoritesAsync(userId, guestId, "Computer", 1);
             Assert.False(exists);
         }
@@ -135,43 +119,29 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task GetFavoriteCountAsync_ShouldReturnCorrectCount()
         {
-            // Arrange
             var userId = 1;
             var guestId = "guest123";
             await CreateTestProductsAsync();
-
             await _service.AddToFavoritesAsync(userId, guestId, "Computer", 1);
             await _service.AddToFavoritesAsync(userId, guestId, "Component", 1);
             await _service.AddToFavoritesAsync(userId, guestId, "Component", 2);
-
-            // Act
             var count = await _service.GetFavoriteCountAsync(userId, guestId);
-
-            // Assert
             Assert.Equal(3, count);
         }
 
         [Fact]
         public async Task GetFavoritesWithProductsAsync_ShouldReturnFavoritesWithProducts()
         {
-            // Arrange
             var userId = 1;
             var guestId = "guest123";
             await CreateTestProductsAsync();
-
             await _service.AddToFavoritesAsync(userId, guestId, "Computer", 1);
             await _service.AddToFavoritesAsync(userId, guestId, "Component", 1);
-
-            // Act
             var favorites = await _service.GetFavoritesWithProductsAsync(userId, guestId);
-
-            // Assert
             Assert.Equal(2, favorites.Count);
-
             var computerFavorite = favorites.First(f => f.Computer != null);
             Assert.NotNull(computerFavorite.Computer);
             Assert.Equal("Test PC 1", computerFavorite.Computer.Name);
-
             var componentFavorite = favorites.First(f => f.Component != null);
             Assert.NotNull(componentFavorite.Component);
             Assert.Equal("CPU 1", componentFavorite.Component.Name);
@@ -180,57 +150,37 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task IsProductInFavoritesAsync_ShouldReturnTrueWhenExists()
         {
-            // Arrange
             var userId = 1;
             var guestId = "guest123";
             await CreateTestProductsAsync();
 
             await _service.AddToFavoritesAsync(userId, guestId, "Computer", 1);
-
-            // Act
             var exists = await _service.IsProductInFavoritesAsync(userId, guestId, "Computer", 1);
-
-            // Assert
             Assert.True(exists);
         }
 
         [Fact]
         public async Task IsProductInFavoritesAsync_ShouldReturnFalseWhenNotExists()
         {
-            // Arrange
             var userId = 1;
             var guestId = "guest123";
             await CreateTestProductsAsync();
-
-            // Act
             var exists = await _service.IsProductInFavoritesAsync(userId, guestId, "Computer", 999);
-
-            // Assert
             Assert.False(exists);
         }
 
         [Fact]
         public async Task MigrateGuestFavoritesAsync_ShouldMigrateToUser()
         {
-            // Arrange
             var guestId = "guest123";
             var userId = 1;
             await CreateTestProductsAsync();
-
             await _service.AddToFavoritesAsync(null, guestId, "Computer", 1);
             await _service.AddToFavoritesAsync(null, guestId, "Component", 1);
-
-            // Act
             var result = await _service.MigrateGuestFavoritesAsync(guestId, userId);
-
-            // Assert
             Assert.True(result.Success);
-
-            // Проверяем, что у пользователя теперь есть избранное
             var userFavorites = await _service.GetFavoritesWithProductsAsync(userId, null);
             Assert.Equal(2, userFavorites.Count);
-
-            // Проверяем, что GuestId очищен
             var favorites = await _dbContext.Favorites.Where(f => f.GuestId == guestId).ToListAsync();
             Assert.Empty(favorites);
         }
@@ -238,13 +188,10 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task CleanupOldGuestFavoritesAsync_ShouldRemoveOldFavorites()
         {
-            // Arrange - создаем тестовые товары
             await CreateTestProductsAsync();
-
             var oldGuestId = "oldguest";
             var newGuestId = "newguest";
 
-            // Старое избранное (добавлено давно)
             var oldFavorite = new Favorite
             {
                 GuestId = oldGuestId,
@@ -253,8 +200,6 @@ namespace WebShopV3.Tests.Services
                 AddedAt = DateTime.UtcNow.AddDays(-60), // 60 дней назад
                 LastViewed = DateTime.UtcNow.AddDays(-60)
             };
-
-            // Новое избранное
             var newFavorite = new Favorite
             {
                 GuestId = newGuestId,
@@ -263,14 +208,9 @@ namespace WebShopV3.Tests.Services
                 AddedAt = DateTime.UtcNow.AddDays(-1), // 1 день назад
                 LastViewed = DateTime.UtcNow.AddDays(-1)
             };
-
             await _dbContext.Favorites.AddRangeAsync(oldFavorite, newFavorite);
             await _dbContext.SaveChangesAsync();
-
-            // Act
             await _service.CleanupOldGuestFavoritesAsync();
-
-            // Assert
             var remainingFavorites = await _dbContext.Favorites.ToListAsync();
             Assert.Single(remainingFavorites); // Только новое должно остаться
             Assert.Equal(newGuestId, remainingFavorites[0].GuestId);
@@ -279,11 +219,8 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task CleanupOldGuestFavoritesAsync_ShouldNotRemoveRecentFavorites()
         {
-            // Arrange
             await CreateTestProductsAsync();
-
             var guestId = "recentguest";
-
             var recentFavorite = new Favorite
             {
                 GuestId = guestId,
@@ -295,11 +232,7 @@ namespace WebShopV3.Tests.Services
 
             await _dbContext.Favorites.AddAsync(recentFavorite);
             await _dbContext.SaveChangesAsync();
-
-            // Act
             await _service.CleanupOldGuestFavoritesAsync();
-
-            // Assert
             var remainingFavorites = await _dbContext.Favorites.ToListAsync();
             Assert.Single(remainingFavorites); // Должно остаться
             Assert.Equal(guestId, remainingFavorites[0].GuestId);
@@ -308,32 +241,21 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task GetFavoritesAsync_ShouldReturnEmptyList_WhenNoFavorites()
         {
-            // Arrange
             var userId = 1;
             var guestId = "guest123";
-
-            // Act
             var favorites = await _service.GetFavoritesAsync(userId, guestId);
-
-            // Assert
             Assert.Empty(favorites);
         }
 
         [Fact]
         public async Task GetFavoritesAsync_ShouldReturnFavorites_WhenTheyExist()
         {
-            // Arrange
             var userId = 1;
             var guestId = "guest123";
             await CreateTestProductsAsync();
-
             await _service.AddToFavoritesAsync(userId, guestId, "Computer", 1);
             await _service.AddToFavoritesAsync(userId, guestId, "Component", 1);
-
-            // Act
             var favorites = await _service.GetFavoritesAsync(userId, guestId);
-
-            // Assert
             Assert.Equal(2, favorites.Count);
             Assert.All(favorites, f =>
                 Assert.True(f.UserId == userId || f.GuestId == guestId));
@@ -342,14 +264,9 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task RemoveByProductAsync_ShouldReturnFalse_WhenFavoriteNotFound()
         {
-            // Arrange
             var userId = 1;
             var guestId = "guest123";
-
-            // Act
             var result = await _service.RemoveByProductAsync(userId, guestId, "Computer", 999);
-
-            // Assert
             Assert.False(result.Success);
             Assert.Contains("не найден", result.Message);
         }
@@ -357,14 +274,9 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task RemoveFromFavoritesAsync_ShouldReturnFalse_WhenFavoriteNotFound()
         {
-            // Arrange
             var userId = 1;
             var guestId = "guest123";
-
-            // Act
             var result = await _service.RemoveFromFavoritesAsync(userId, guestId, 999);
-
-            // Assert
             Assert.False(result.Success);
             Assert.Contains("не найден", result.Message);
         }
@@ -372,26 +284,18 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task MigrateGuestFavoritesAsync_ShouldReturnSuccess_WhenNoGuestFavorites()
         {
-            // Arrange
             var guestId = "emptyguest";
             var userId = 1;
-
-            // Act
             var result = await _service.MigrateGuestFavoritesAsync(guestId, userId);
-
-            // Assert
             Assert.True(result.Success);
             Assert.Contains("Нет гостевых избранных", result.Message);
         }
 
         private async Task CreateTestProductsAsync()
         {
-            // Очищаем БД перед созданием тестовых данных
             _dbContext.Computers.RemoveRange(_dbContext.Computers);
             _dbContext.Components.RemoveRange(_dbContext.Components);
             await _dbContext.SaveChangesAsync();
-
-            // Добавляем тестовые компьютеры с ВСЕМИ обязательными полями
             _dbContext.Computers.AddRange(
                 new Computer
                 {
@@ -413,7 +317,6 @@ namespace WebShopV3.Tests.Services
                 }
             );
 
-            // Добавляем тестовые компоненты с обязательными полями
             _dbContext.Components.AddRange(
                 new Component
                 {

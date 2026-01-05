@@ -308,15 +308,10 @@ namespace WebShopV3.Tests.Services
         [Fact]
         public async Task GetPaymentStatusAsync_ShouldHandleDifferentStatuses()
         {
-            // Arrange
             var paymentId = "payment_123";
-
-            // Сохраняем предыдущую культуру потока
             var previousCulture = Thread.CurrentThread.CurrentCulture;
-
             try
             {
-                // Устанавливаем инвариантную культуру для корректного парсинга
                 Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
                 var testCases = new[]
@@ -329,7 +324,6 @@ namespace WebShopV3.Tests.Services
 
                 foreach (var testCase in testCases)
                 {
-                    // Пересоздаем мок для каждого теста
                     _httpMessageHandlerMock
                         .Protected()
                         .Setup<Task<HttpResponseMessage>>(
@@ -347,31 +341,23 @@ namespace WebShopV3.Tests.Services
                                 paid = testCase.paid,
                                 amount = new { value = "1000.00", currency = "RUB" }
                             };
-
                             var responseJson = JsonSerializer.Serialize(expectedResponse);
                             return new HttpResponseMessage(HttpStatusCode.OK)
                             {
                                 Content = new StringContent(responseJson, Encoding.UTF8, "application/json")
                             };
                         });
-
-                    // Act
                     var result = await _service.GetPaymentStatusAsync(paymentId);
-
-                    // Assert
                     Assert.NotNull(result);
                     Assert.Equal(paymentId, result.Id);
                     Assert.Equal(testCase.status, result.Status);
                     Assert.Equal(testCase.paid, result.Paid);
                     Assert.Equal(1000.00m, result.Amount);
-
-                    // Сбрасываем мок для следующей итерации
                     _httpMessageHandlerMock.Reset();
                 }
             }
             finally
             {
-                // Восстанавливаем культуру
                 Thread.CurrentThread.CurrentCulture = previousCulture;
             }
         }
