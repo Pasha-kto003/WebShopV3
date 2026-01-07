@@ -107,4 +107,11 @@
     <Folder Include="wwwroot\Images\components\" />
   </ItemGroup>
 
+	<ItemGroup>
+		<None Update="Properties/launchSettings.json">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>

@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  webshop:
+    image: webshopv3:latest
+    container_name: webshopv3-app
+    build: 
+      context: .
+      dockerfile: WebShopV3/Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ComputerShopDbV1;User Id=sa;Password=YourStrong@Passw0rd;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=true;Connect Timeout=30
+      - Yookassa__ShopId=1214467
+      - Yookassa__SecretKey=test_Pq3cYBpb6eXypEpy5R1EgaBAml75YPTp68TYP23MJKI
+      - Yookassa__BaseUrl=https://api.yookassa.ru/v3/
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: on-failure
+    networks:
+      - webshop-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: webshopv3-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+      - MSSQL_TCP_PORT=1433
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql/data
+    networks:
+      - webshop-network
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong@Passw0rd", "-Q", "SELECT 1", "-b", "-o", "/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+    driver: local
+
+networks:
+  webshop-network:
+    driver: bridge
