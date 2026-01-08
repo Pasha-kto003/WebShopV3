@@ -1,0 +1,245 @@
+version: '3.8'
+
+services:
+  webshop:
+    build:
+      context: .
+      dockerfile: WebShopV3/Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ComputerShopDbV1;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;
+      - Yookassa__ShopId=1214467
+      - Yookassa__SecretKey=test_Pq3cYBpb6eXypEpy5R1EgaBAml75YPTp68TYP23MJKI
+      - Yookassa__BaseUrl=https://api.yookassa.ru/v3/
+    depends_on:
+      - sqlserver
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql/data
+    healthcheck:
+      test: [ "CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong@Passw0rd", "-Q", "SELECT 1" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+volumes:
+  sqlserver_data:
+  
+  
+  
+  # Этап сборки
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Восстанавливаем зависимости
+COPY ["WebShopV3/WebShopV3.csproj", "WebShopV3/"]
+RUN dotnet restore "WebShopV3/WebShopV3.csproj"
+
+# Копируем весь проект
+COPY . .
+
+# Удаляем launchSettings.json — на всякий случай (защита от ошибок)
+RUN rm -f WebShopV3/Properties/launchSettings.json
+
+# Собираем
+WORKDIR "/src/WebShopV3"
+RUN dotnet build "WebShopV3.csproj" -c Release -o /app/build
+
+# Этап публикации
+FROM build AS publish
+RUN dotnet publish "WebShopV3.csproj" -c Release -o /app/publish --no-restore
+
+# Финальный образ
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+# Переменные окружения
+ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Порт
+EXPOSE 80
+
+# Запуск
+ENTRYPOINT ["dotnet", "WebShopV3.dll"]
+
+
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using WebShopV3.Middleware;
+using WebShopV3.Models;
+using WebShopV3.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+{
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(5000); // Слушаем на порту 5000 в контейнере
+    });
+}
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+//hmmm
+// Add DbContext with retry logic
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure());
+});
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.None
+            : CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+    });
+
+// �����������
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("�����"));
+    options.AddPolicy("ManagerOnly", policy => policy.RequireRole("��������"));
+    options.AddPolicy("AdminOrManager", policy => policy.RequireRole("�����", "��������"));
+    options.AddPolicy("Authenticated", policy => policy.RequireAuthenticatedUser());
+
+    // �������� ��� �������
+    options.AddPolicy("StrongPassword", policy =>
+        policy.RequireClaim("PasswordStrength", "Strong"));
+});
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddScoped<IPasswordHasher, PasswordHasherService>();
+builder.Services.AddScoped<CompatibilityService>();
+
+builder.Services.AddHttpClient<IYookassaService, YookassaService>();
+builder.Services.AddScoped<IYookassaService, YookassaService>();
+
+builder.Services.AddLogging();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<IComparisonService, ComparisonService>();
+
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+
+builder.Services.AddMemoryCache();
+builder.Services.AddSession();
+builder.Services.AddHttpContextAccessor();
+
+
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+else
+{
+    // Initialize database in development
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        try
+        {
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            var passwordHasher = services.GetRequiredService<IPasswordHasher>();
+            context.Database.EnsureCreated(); // Creates database if it doesn't exist
+            DbInitializer.Initialize(context);
+            Console.WriteLine("Database created successfully!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while creating the database: {ex.Message}");
+        }
+    }
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+app.UseSession();
+
+app.UseAuthorization();
+
+app.UseRecommendationTracking();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "recommendations",
+    pattern: "recommendations/{action=My}/{id?}",
+    defaults: new { controller = "Recommendation" });
+
+app.Run();
+
+
+
+
+webshopv3-1  | warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+webshopv3-1  |       No store type was specified for the decimal property 'Price' on entity type 'Component'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+webshopv3-1  | warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+webshopv3-1  |       No store type was specified for the decimal property 'UnitPrice' on entity type 'ComponentOrder'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+webshopv3-1  | warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+webshopv3-1  |       No store type was specified for the decimal property 'Price' on entity type 'Computer'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+webshopv3-1  | warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+webshopv3-1  |       No store type was specified for the decimal property 'UnitPrice' on entity type 'ComputerOrder'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+webshopv3-1  | warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+webshopv3-1  |       No store type was specified for the decimal property 'TotalAmount' on entity type 'Order'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+webshopv3-1  | DB init error: A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: TCP Provider, error: 35 - An internal exception was caught)
+webshopv3-1  | warn: Microsoft.AspNetCore.DataProtection.Repositories.EphemeralXmlRepository[50]
+webshopv3-1  |       Using an in-memory repository. Keys will not be persisted to storage.
+webshopv3-1  | warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[59]
+webshopv3-1  |       Neither user profile nor HKLM registry available. Using an ephemeral key repository. Protected data will be unavailable when application exits.
+webshopv3-1  | warn: Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager[35]
+webshopv3-1  |       No XML encryptor configured. Key {4f6f2932-20c7-421c-bee6-fe8cc778cc92} may be persisted to storage in unencrypted form.
+webshopv3-1  | warn: Microsoft.AspNetCore.Server.Kestrel[0]
+webshopv3-1  |       Overriding address(es) 'http://*:8080, https://*:8081'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead.
+webshopv3-1  | info: Microsoft.Hosting.Lifetime[14]
+webshopv3-1  |       Now listening on: http://[::]:80
+webshopv3-1  | info: Microsoft.Hosting.Lifetime[0]
+webshopv3-1  |       Application started. Press Ctrl+C to shut down.
+webshopv3-1  | info: Microsoft.Hosting.Lifetime[0]
+webshopv3-1  |       Hosting environment: Development
+webshopv3-1  | info: Microsoft.Hosting.Lifetime[0]
+webshopv3-1  |       Content root path: /app
