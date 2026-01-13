@@ -1,0 +1,65 @@
+﻿@using WebShopV3.Json.Models
+@{
+    var components = ViewBag.Components as List<Component>;
+    ViewData["Title"] = "Конфигуратор ПК";
+}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-900 to-black pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-white mb-4">Конфигуратор ПК</h1>
+            <p class="text-xl text-gray-400">Соберите свой идеальный компьютер с проверкой совместимости</p>
+        </div>
+
+        <!-- Отладочная информация -->
+        @if (components == null || !components.Any())
+        {
+            <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-4 mb-6">
+                <div class="text-red-400 text-sm">
+                    ❌ Компоненты не загружены или отсутствуют в базе данных
+                </div>
+            </div>
+        }
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Левая колонка - Выбор компонентов -->
+            <div class="lg:col-span-2">
+                @await Html.PartialAsync("_ComponentSelection", components)
+            </div>
+
+            <!-- Правая колонка - Конфигурация -->
+            <div class="lg:col-span-1">
+                @await Html.PartialAsync("_ConfigurationPanel")
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+@section Scripts {
+    <script>
+        // Глобальные переменные
+        let selectedComponents = [];
+        let totalPrice = 0;
+        let componentsTotalPrice = 0;
+        let markupAmount = 0;
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Если это режим редактирования, выбираем компоненты
+            const selectedComponentIds = @Html.Raw(Json.Serialize(ViewBag.SelectedComponentIds ?? new List<int>()));
+            if (selectedComponentIds && selectedComponentIds.length > 0) {
+                setTimeout(() => {
+                    selectedComponentIds.forEach(componentId => {
+                        const componentCard = document.querySelector(`[data-component-id="${componentId}"]`);
+                        if (componentCard) {
+                            componentCard.click();
+                        }
+                    });
+                }, 500);
+            }
+        });
+    </script>
+    
+    @await Html.PartialAsync("Scripts")
+}

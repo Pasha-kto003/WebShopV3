@@ -1,0 +1,35 @@
+﻿@model List<WebShopV3.Json.Models.Computer>
+@using WebShopV3.Json.Models.DTO
+@{
+    ViewData["Title"] = "WipeMyComputer";
+}
+
+<!-- Hero Section -->
+<partial name="IndexPartials/_Hero" />
+
+<!-- Components Section -->
+<partial name="IndexPartials/_Components" />
+
+<!-- Benefits Section -->
+<partial name="IndexPartials/_Benefits" />
+
+<!-- Configurator Section -->
+<partial name="IndexPartials/_Configurator" />
+
+<!-- Gaming PCs Section -->
+<partial name="IndexPartials/_GamingPCs" model="Model" />
+
+<!-- Reviews Section -->
+<partial name="IndexPartials/_Reviews" />
+
+<!-- Stats Section -->
+<partial name="IndexPartials/_StatsSection" />
+
+<!-- CTA Section -->
+<partial name="IndexPartials/_CtaSection" />
+
+<!-- Global Styles -->
+<partial name="IndexPartials/_GlobalStyles" />
+
+<!-- Global Scripts -->
+<partial name="IndexPartials/_GlobalScripts" />

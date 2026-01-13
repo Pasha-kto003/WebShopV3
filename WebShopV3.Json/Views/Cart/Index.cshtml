@@ -1,0 +1,150 @@
+﻿@model WebShopV3.Json.Models.Cart
+@using System.Web
+@{
+    ViewData["Title"] = "Корзина покупок";
+    Layout = "_Layout";
+}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-900 to-black pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a asp-controller="Home" asp-action="Index"
+                       class="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                        </svg>
+                        Главная
+                    </a>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Корзина</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <!-- Заголовок -->
+        <partial name="Partials/_CartHeader" />
+
+        @if (!Model.Items.Any())
+        {
+            <!-- Пустая корзина -->
+            <partial name="Partials/_EmptyCart" />
+        }
+        else
+        {
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Левая колонка -->
+                <div class="lg:col-span-2">
+                    <!-- Список товаров -->
+                    <partial name="Partials/_CartItemsList" model="Model.Items" />
+                    
+                    <!-- Дополнительные услуги -->
+                    <partial name="Partials/_AdditionalServices" />
+                    
+                    <!-- Кнопки управления корзиной -->
+                    <partial name="Partials/_CartActions" />
+                </div>
+
+                <!-- Правая колонка -->
+                <div class="lg:col-span-1">
+                    <partial name="Partials/_OrderSummary" model="Model" />
+                </div>
+            </div>
+
+            @if (Model.Items.Any())
+            {
+                <!-- Похожие компьютеры -->
+                <partial name="Partials/_SimilarComputers" />
+            }
+        }
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <partial name="Partials/_CartScripts" />
+    <style>
+    /* Стили для компактных карточек */
+    .similar-computers .bg-dark-card {
+        transition: all 0.2s ease;
+    }
+    
+    .similar-computers .bg-dark-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Адаптивность */
+    @@media (max-width: 640px) {
+        .similar-computers .grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .similar-computers .h-32 {
+            height: 6rem;
+        }
+        
+        .similar-computers .p-3 {
+            padding: 0.5rem;
+        }
+    }
+    
+    /* Анимация появления */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .similar-computers .bg-dark-card {
+        animation: fadeInUp 0.3s ease-out forwards;
+        opacity: 0;
+    }
+    
+    /* Задержка для каждой карточки */
+    .similar-computers .bg-dark-card:nth-child(1) { animation-delay: 0.1s; }
+    .similar-computers .bg-dark-card:nth-child(2) { animation-delay: 0.2s; }
+    .similar-computers .bg-dark-card:nth-child(3) { animation-delay: 0.3s; }
+    .similar-computers .bg-dark-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Скрыть scrollbar но оставить функциональность */
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;     /* Firefox */
+        }
+    
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
+        }
+    
+        /* Плавный скролл */
+        .scrollbar-hide {
+            scroll-behavior: smooth;
+        }
+    
+        /* Тень для индикации скролла */
+        .relative::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to right, transparent, var(--tw-bg-dark) 80%);
+            pointer-events: none;
+        }
+    </style>
+}

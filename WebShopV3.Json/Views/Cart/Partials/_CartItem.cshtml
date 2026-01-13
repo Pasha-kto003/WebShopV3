@@ -1,0 +1,60 @@
+﻿@model WebShopV3.Json.Models.CartItem
+@using System.Web
+
+<div class="flex flex-col md:flex-row gap-6">
+    <!-- Изображение -->
+    <div class="flex-shrink-0">
+        <partial name="Partials/_CartItemImage" model="Model" />
+    </div>
+
+    <!-- Информация о товаре -->
+    <div class="flex-grow">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
+            <div>
+                <h3 class="text-xl font-bold text-white mb-2">@Model.Name</h3>
+            </div>
+            <div class="mt-2 md:mt-0">
+                <div class="text-2xl font-bold text-primary">@Model.Price.ToString("N0") ₽</div>
+            </div>
+        </div>
+
+        <!-- Управление количеством -->
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-gray-400 text-sm">Количество:</span>
+                <div class="flex items-center border border-gray-700 rounded-lg">
+                    <button type="button"
+                            class="quantity-decrease w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white transition duration-200"
+                            data-computer-id="@Model.ComputerId">
+                        −
+                    </button>
+                    <span class="quantity w-12 h-10 flex items-center justify-center text-white font-semibold">@Model.Quantity</span>
+                    <button type="button"
+                            class="quantity-increase w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white transition duration-200"
+                            data-computer-id="@Model.ComputerId">
+                        +
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button type="button"
+                        class="text-gray-400 hover:text-primary transition duration-200 flex items-center add-to-favorites"
+                        data-computer-id="@Model.ComputerId">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    В избранное
+                </button>
+                <button type="button"
+                        class="text-gray-400 hover:text-red-400 transition duration-200 flex items-center remove-from-cart"
+                        data-computer-id="@Model.ComputerId">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

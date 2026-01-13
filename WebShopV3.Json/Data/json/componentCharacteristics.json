@@ -1,0 +1,167 @@
+﻿[
+  {
+    "componentId": 101,
+    "characteristicId": 1,
+    "value": "3.2"
+  },
+  {
+    "componentId": 101,
+    "characteristicId": 2,
+    "value": "24"
+  },
+  {
+    "componentId": 101,
+    "characteristicId": 3,
+    "value": "32"
+  },
+  {
+    "componentId": 101,
+    "characteristicId": 4,
+    "value": "36"
+  },
+  {
+    "componentId": 101,
+    "characteristicId": 5,
+    "value": "10"
+  },
+  {
+    "componentId": 101,
+    "characteristicId": 6,
+    "value": "125"
+  },
+  {
+    "componentId": 102,
+    "characteristicId": 1,
+    "value": "4.2"
+  },
+  {
+    "componentId": 102,
+    "characteristicId": 2,
+    "value": "8"
+  },
+  {
+    "componentId": 102,
+    "characteristicId": 3,
+    "value": "16"
+  },
+  {
+    "componentId": 102,
+    "characteristicId": 4,
+    "value": "104"
+  },
+  {
+    "componentId": 102,
+    "characteristicId": 5,
+    "value": "5"
+  },
+  {
+    "componentId": 102,
+    "characteristicId": 6,
+    "value": "120"
+  },
+  {
+    "componentId": 201,
+    "characteristicId": 7,
+    "value": "24"
+  },
+  {
+    "componentId": 201,
+    "characteristicId": 8,
+    "value": "384"
+  },
+  {
+    "componentId": 201,
+    "characteristicId": 9,
+    "value": "21000"
+  },
+  {
+    "componentId": 201,
+    "characteristicId": 10,
+    "value": "GDDR6X"
+  },
+  {
+    "componentId": 202,
+    "characteristicId": 7,
+    "value": "12"
+  },
+  {
+    "componentId": 202,
+    "characteristicId": 8,
+    "value": "192"
+  },
+  {
+    "componentId": 202,
+    "characteristicId": 9,
+    "value": "21000"
+  },
+  {
+    "componentId": 202,
+    "characteristicId": 10,
+    "value": "GDDR6X"
+  },
+  {
+    "componentId": 301,
+    "characteristicId": 9,
+    "value": "6000"
+  },
+  {
+    "componentId": 301,
+    "characteristicId": 7,
+    "value": "32"
+  },
+  {
+    "componentId": 301,
+    "characteristicId": 10,
+    "value": "DDR5"
+  },
+  {
+    "componentId": 401,
+    "characteristicId": 19,
+    "value": "3"
+  },
+  {
+    "componentId": 401,
+    "characteristicId": 20,
+    "value": "6"
+  },
+  {
+    "componentId": 501,
+    "characteristicId": 11,
+    "value": "7450"
+  },
+  {
+    "componentId": 501,
+    "characteristicId": 12,
+    "value": "6900"
+  },
+  {
+    "componentId": 501,
+    "characteristicId": 13,
+    "value": "1200"
+  },
+  {
+    "componentId": 701,
+    "characteristicId": 14,
+    "value": "1000"
+  },
+  {
+    "componentId": 701,
+    "characteristicId": 15,
+    "value": "80 Plus Gold"
+  },
+  {
+    "componentId": 801,
+    "characteristicId": 16,
+    "value": "465x285x465"
+  },
+  {
+    "componentId": 901,
+    "characteristicId": 17,
+    "value": "24.6"
+  },
+  {
+    "componentId": 901,
+    "characteristicId": 18,
+    "value": "LGA1700, AM5, LGA1200, AM4"
+  }
+]

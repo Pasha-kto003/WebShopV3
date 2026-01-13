@@ -1,5 +1,4 @@
-﻿// Models/Favorite.cs - УПРОЩЕННАЯ версия
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebShopV3.Models

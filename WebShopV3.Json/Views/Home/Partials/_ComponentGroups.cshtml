@@ -1,0 +1,63 @@
+﻿@model WebShopV3.Json.Models.Computer
+
+<div class="bg-dark-card rounded-2xl p-8 border border-gray-800">
+    <h2 class="text-2xl font-bold text-white mb-6">Конфигурация компьютера</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @if (Model.ComputerComponents.Any())
+        {
+            foreach (var componentGroup in Model.ComputerComponents.GroupBy(cc => cc.Component.Type))
+            {
+                <div class="bg-gray-800/30 rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+                        @GetComponentIcon(componentGroup.Key)
+                        @GetTypeDisplayName(componentGroup.Key)
+                    </h3>
+                    <div class="space-y-3">
+                        @foreach (var comp in componentGroup)
+                        {
+                            <div>
+                                <div class="text-white font-medium mb-1">@comp.Component.Name</div>
+                                @if (!string.IsNullOrEmpty(comp.Component.Description))
+                                {
+                                    <div class="text-gray-400 text-sm">@comp.Component.Description</div>
+                                }
+                                <div class="text-primary text-sm font-semibold mt-1">@comp.Component.Price.ToString("C")</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@functions {
+    public string GetComponentIcon(string type)
+    {
+        return type switch
+        {
+            "CPU" => "⚙️",
+            "GPU" => "🎮",
+            "RAM" => "💾",
+            "SSD" => "💿",
+            "HDD" => "📀",
+            "PSU" => "⚡",
+            _ => "🔧"
+        } + " ";
+    }
+
+    public string GetTypeDisplayName(string type)
+    {
+        return type switch
+        {
+            "CPU" => "Процессор",
+            "GPU" => "Видеокарта",
+            "RAM" => "Оперативная память",
+            "SSD" => "SSD накопитель",
+            "HDD" => "Жесткий диск",
+            "PSU" => "Блок питания",
+            _ => type
+        };
+    }
+}

@@ -1,0 +1,26 @@
+﻿@using System.Web
+@model WebShopV3.Json.Models.CartItem
+
+@if (!string.IsNullOrEmpty(Model.ImageUrl))
+{
+    <div class="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center overflow-hidden">
+        @if (Model.ComputerId != 0)
+        {
+            <img src="/Images/computers/@Model.ImageUrl"
+                 alt="@HttpUtility.HtmlEncode(Model.Name)"
+                 class="w-full h-full object-cover">
+        }
+        @if (Model.ComponentId != 0)
+        {
+            <img src="/Images/components/@Model.ImageUrl"
+                 alt="@HttpUtility.HtmlEncode(Model.Name)"
+                 class="w-full h-full object-cover">
+        }
+    </div>
+}
+else
+{
+    <div class="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl flex items-center justify-center">
+        <span class="text-3xl">🎮</span>
+    </div>
+}

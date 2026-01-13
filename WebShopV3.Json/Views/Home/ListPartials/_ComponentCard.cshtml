@@ -1,0 +1,229 @@
+﻿@* Views/Shared/ListPartials/_ComponentCard.cshtml *@
+@model WebShopV3.Json.Models.Component
+@using System.Text.Json
+
+@{
+    var stockClass = Model.Quantity > 10 ? "stock-high" : Model.Quantity > 3 ? "stock-medium" : "stock-low";
+    var stockText = Model.Quantity > 10 ? "Много" : Model.Quantity > 3 ? "Мало" : "Заканчивается";
+    var typeIcon = GetComponentIcon(Model.Type);
+}
+
+<div class="product-card bg-dark-card rounded-2xl border border-gray-800/50 overflow-hidden card-hover gradient-border">
+    <div class="relative">
+        <!-- Бейдж типа слева -->
+        <div class="absolute top-12 left-4 z-20">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 backdrop-blur-sm">
+                @Model.Type
+            </span>
+        </div>
+
+        <!-- Кнопка сравнения справа -->
+        <div class="absolute top-4 right-4 z-20">
+            <!-- Форма для добавления в сравнение -->
+            <form asp-action="Add" asp-controller="Compare" method="post" class="inline-block">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="productType" value="Computer" />
+                <button type="submit"
+                        class="compare-btn @(IsInCompare(Model.Id, "Component") ? "checked" : "")"
+                        title="@(IsInCompare(Model.Id, "Component") ? "Удалить из сравнения" : "Добавить к сравнению")">
+                    @if (IsInCompare(Model.Id, "Component"))
+                    {
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    }
+                    else
+                    {
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    }
+                </button>
+            </form>
+        </div>
+
+        <!-- Кнопка избранного слева под бейджем типа -->
+        <button class="absolute top-24 left-4 z-20 favorite-btn w-10 h-10 flex items-center justify-center bg-gray-900/80 hover:bg-red-600 text-gray-300 hover:text-white rounded-full transition-all duration-200 backdrop-blur-sm"
+                data-product-id="@Model.Id"
+                data-product-type="Component"
+                title="Добавить в избранное">
+            <svg class="w-5 h-5 favorite-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+        </button>
+
+        <!-- Изображение -->
+        <div class="image-container h-56">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="/Images/components/@Model.ImageUrl"
+                     alt="@Model.Name"
+                     class="w-full h-full object-contain p-4 transition-transform duration-700 hover:scale-110"
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='/Images/components/default-component.jpg'" />
+            }
+            else
+            {
+                <div class="w-full h-full bg-gradient-to-br from-blue-500/20 to-cyan-400/20 flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="text-5xl mb-2 text-blue-400">
+                            @typeIcon
+                        </div>
+                        <p class="text-gray-400 text-sm">Изображение отсутствует</p>
+                    </div>
+                </div>
+            }
+
+            <!-- Градиентная полоска -->
+            <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-purple-500 z-10"></div>
+        </div>
+    </div>
+
+    <!-- Контент карточки -->
+    <div class="product-content p-6">
+        <!-- Хит продаж -->
+        @if (Model.Price < 50000)
+        {
+            <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-400 to-cyan-400 text-dark mb-3">
+                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" />
+                </svg>
+                ХИТ ПРОДАЖ
+            </div>
+        }
+
+        <!-- Название -->
+        <h3 class="text-lg font-bold text-white mb-2 line-clamp-1">
+            <a href="@Url.Action("ComponentDetails", "Home", new { id = Model.Id })"
+               class="hover:text-blue-400 transition-colors duration-200">
+                @Model.Name
+            </a>
+        </h3>
+
+        <!-- Краткое описание -->
+        <p class="text-gray-400 text-sm mb-4 line-clamp-2 flex-grow">@Model.Description</p>
+
+        <!-- Основные характеристики -->
+        @if (!string.IsNullOrEmpty(Model.Specifications))
+        {
+            <div class="mb-4">
+                <div class="text-xs text-gray-500 mb-2">Ключевые характеристики:</div>
+                <div class="text-sm text-gray-300 line-clamp-2">
+                    @Model.Specifications
+                </div>
+            </div>
+        }
+
+        <!-- Доп. параметры -->
+        <div class="specs-grid mb-4">
+            @if (!string.IsNullOrEmpty(Model.Socket))
+            {
+                <div class="spec-item">
+                    <div class="spec-icon"></div>
+                    <span>Socket: @Model.Socket</span>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.MemoryType))
+            {
+                <div class="spec-item">
+                    <div class="spec-icon"></div>
+                    <span>Память: @Model.MemoryType</span>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.FormFactor))
+            {
+                <div class="spec-item">
+                    <div class="spec-icon"></div>
+                    <span>Форм-фактор: @Model.FormFactor</span>
+                </div>
+            }
+        </div>
+
+        <!-- Статус и цена -->
+        <div class="mt-auto pt-4 border-t border-gray-800/50">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center mb-2 sm:mb-1">
+                        <span class="stock-indicator @stockClass flex-shrink-0"></span>
+                        <span class="text-xs text-gray-400 truncate">@stockText (@Model.Quantity шт.)</span>
+                    </div>
+                    <div class="text-2xl font-bold text-blue-400 truncate">
+                        @Model.Price.ToString("C")
+                    </div>
+                </div>
+
+                <!-- Скидка для хитов -->
+                @if (Model.Price < 50000)
+                {
+                    <div class="text-right flex-shrink-0">
+                        <div class="text-sm text-gray-500 line-through">
+                            @((Model.Price * 1.15m).ToString("C"))
+                        </div>
+                        <div class="text-xs text-green-400 font-semibold">
+                            -15%
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="flex gap-2 mt-4">
+            <button class="add-to-cart-component flex-1 btn-gradient text-white py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 flex items-center justify-center gap-2"
+                    data-component-id="@Model.Id"
+                    data-component-name="@Model.Name">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                В корзину
+            </button>
+
+            <button class="w-12 flex items-center justify-center bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl transition-all duration-200 flex-shrink-0"
+                    title="Быстрый просмотр"
+                    onclick="window.location.href='@Url.Action("ComponentDetails", "Home", new { id = Model.Id })'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private bool IsInCompare(int productId, string productType)
+    {
+        try
+        {
+            var compareJson = Context.Session.GetString("CompareItems");
+            if (!string.IsNullOrEmpty(compareJson))
+            {
+                var compareItems = JsonSerializer.Deserialize<List<CompareItem>>(compareJson);
+                return compareItems?.Any(x => x.Id == productId.ToString() && x.Type == productType) ?? false;
+            }
+        }
+        catch
+        {
+            // Игнорируем ошибки десериализации
+        }
+        return false;
+    }
+
+    public string GetComponentIcon(string type)
+    {
+        return type?.ToLower() switch
+        {
+            "cpu" => "⚡",
+            "gpu" => "🎮",
+            "ram" => "💾",
+            "mb" => "🖥️",
+            "psu" => "🔌",
+            "ssd" => "💿",
+            "hdd" => "💽",
+            "case" => "📦",
+            _ => "⚙️"
+        };
+    }
+}

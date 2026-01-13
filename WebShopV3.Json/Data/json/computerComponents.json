@@ -1,0 +1,254 @@
+[
+  {
+    "ComputerId": 1,
+    "ComponentId": 101,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 1,
+    "ComponentId": 201,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 1,
+    "ComponentId": 301,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 1,
+    "ComponentId": 401,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 1,
+    "ComponentId": 501,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 1,
+    "ComponentId": 701,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 1,
+    "ComponentId": 801,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 1,
+    "ComponentId": 901,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 2,
+    "ComponentId": 103,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 2,
+    "ComponentId": 302,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 2,
+    "ComponentId": 402,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 2,
+    "ComponentId": 502,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 2,
+    "ComponentId": 601,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 2,
+    "ComponentId": 702,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 2,
+    "ComponentId": 802,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 3,
+    "ComponentId": 101,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 3,
+    "ComponentId": 201,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 3,
+    "ComponentId": 301,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 3,
+    "ComponentId": 401,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 3,
+    "ComponentId": 501,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 3,
+    "ComponentId": 601,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 3,
+    "ComponentId": 701,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 3,
+    "ComponentId": 801,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 4,
+    "ComponentId": 102,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 4,
+    "ComponentId": 302,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 4,
+    "ComponentId": 402,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 4,
+    "ComponentId": 502,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 4,
+    "ComponentId": 601,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 4,
+    "ComponentId": 702,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 4,
+    "ComponentId": 802,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 9,
+    "ComponentId": 101,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 9,
+    "ComponentId": 201,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 9,
+    "ComponentId": 301,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 9,
+    "ComponentId": 401,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 9,
+    "ComponentId": 701,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 9,
+    "ComponentId": 801,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 10,
+    "ComponentId": 101,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 10,
+    "ComponentId": 201,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 10,
+    "ComponentId": 301,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 10,
+    "ComponentId": 401,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 10,
+    "ComponentId": 701,
+    "Computer": null,
+    "Component": null
+  },
+  {
+    "ComputerId": 10,
+    "ComponentId": 801,
+    "Computer": null,
+    "Component": null
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "Id": "1",
+    "OrderId": 11,
+    "Amount": 79999.99,
+    "Status": "pending",
+    "ConfirmationUrl": "https://yoomoney.ru/checkout/payments/v2/contract?orderId=30f8367d-000f-5000-b000-154b0512e9b9",
+    "CreatedAt": "2026-01-13T10:47:25.4108691Z"
+  }
+]

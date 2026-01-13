@@ -629,9 +629,6 @@ namespace WebShopV3.Services
                     keysToRemove.Add($"{CACHE_PREFIX}guest_{guestId}_");
                     keysToRemove.Add($"{CACHE_PREFIX}rec_{guestId}_");
                 }
-
-                // В реальном приложении используйте Redis или другой распределенный кэш
-                // с поддержкой удаления по префиксу
                 _logger.LogDebug("Invalidating cache for user/guest");
             }
             catch (Exception ex)

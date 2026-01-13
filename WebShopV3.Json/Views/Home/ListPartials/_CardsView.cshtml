@@ -1,0 +1,17 @@
+﻿@* Views/Shared/ListPartials/_CardsView.cshtml *@
+@model WebShopV3.Json.Models.CatalogViewModel
+
+<!-- Вид карточками -->
+<div id="cardsView" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+    <!-- Компьютеры -->
+    @foreach (var computer in Model.Computers)
+    {
+        <partial name="~/Views/Home/ListPartials/_ComputerCard.cshtml" model="computer" />
+    }
+
+    <!-- Комплектующие -->
+    @foreach (var component in Model.Components)
+    {
+        <partial name="~/Views/Home/ListPartials/_ComponentCard.cshtml" model="component" />
+    }
+</div>

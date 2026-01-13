@@ -1,0 +1,58 @@
+﻿[
+  {
+    "id": 1,
+    "name": "Процессоры",
+    "slug": "cpu",
+    "description": "Центральные процессоры для ПК",
+    "imageUrl": "/images/categories/cpu.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Видеокарты",
+    "slug": "gpu",
+    "description": "Графические процессоры для игр и работы",
+    "imageUrl": "/images/categories/gpu.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Материнские платы",
+    "slug": "motherboards",
+    "description": "Основа для сборки компьютера",
+    "imageUrl": "/images/categories/motherboard.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Оперативная память",
+    "slug": "ram",
+    "description": "Модули оперативной памяти",
+    "imageUrl": "/images/categories/ram.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Накопители",
+    "slug": "storage",
+    "description": "SSD и HDD накопители",
+    "imageUrl": "/images/categories/storage.jpg"
+  },
+  {
+    "id": 6,
+    "name": "Блоки питания",
+    "slug": "psu",
+    "description": "Источники питания для ПК",
+    "imageUrl": "/images/categories/psu.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Корпуса",
+    "slug": "cases",
+    "description": "Корпуса для системных блоков",
+    "imageUrl": "/images/categories/case.jpg"
+  },
+  {
+    "id": 8,
+    "name": "Охлаждение",
+    "slug": "cooling",
+    "description": "Системы охлаждения для ПК",
+    "imageUrl": "/images/categories/cooling.jpg"
+  }
+]

@@ -1,32 +1,17 @@
+version: '3.8'
+
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong@Passw0rd
-    ports:
-      - "1433:1433"
-    volumes:
-      - sqlserver_data:/var/opt/mssql
-    restart: unless-stopped
-
-  webshopv3:
-    image: webshopv3
+  webshopv3-json:
     build:
-      context: WebShopV3
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: WebShopV3.Json/Dockerfile
     ports:
-      - "8080:80"
+      - "5002:5002"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ComputerShopDbV1;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;Encrypt=False;Connect Timeout=60
-      - Yookassa__ShopId=1214467
-      - Yookassa__SecretKey=test_Pq3cYBpb6eXypEpy5R1EgaBAml75YPTp68TYP23MJKI
-      - Yookassa__BaseUrl=https://api.yookassa.ru/v3/
-    depends_on:
-      - sqlserver
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - YOOKASSA_SECRET_KEY=test_Pq3cYBpb6eXypEpy5R1EgaBAml75YPTp68TYP23MJKI
+      - HTTPS_PORTS=
+      - HTTP_PORTS=5002
+    volumes:
+      - ./WebShopV3.Json/Data/Json:/app/Data/Json
     restart: unless-stopped
-
-volumes:
-  sqlserver_data:

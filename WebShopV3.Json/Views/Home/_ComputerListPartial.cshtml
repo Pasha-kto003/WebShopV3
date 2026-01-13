@@ -1,0 +1,27 @@
+﻿@using System.Text.Json
+@model WebShopV3.Json.Models.CatalogViewModel
+
+@if (!Context.Request.Headers["X-Requested-With"].Contains("XMLHttpRequest"))
+{
+    @Html.AntiForgeryToken()
+}
+
+<!-- Подключаем стили -->
+<partial name="~/Views/Home/ListPartials/_Styles.cshtml" />
+
+<!-- Вид карточками (изначально видим) -->
+<partial name="~/Views/Home/ListPartials/_CardsView.cshtml" model="Model" />
+
+<!-- Вид списком (изначально скрыт) -->
+<div id="listViewContainer" class="hidden">
+    <partial name="~/Views/Home/ListPartials/_ListView.cshtml" model="Model" />
+</div>
+
+<!-- Сообщение "Товары не найдены" -->
+@if (!Model.Computers.Any() && !Model.Components.Any())
+{
+    <partial name="~/Views/Home/ListPartials/_NoResults.cshtml" />
+}
+
+<!-- Подключаем скрипты -->
+<partial name="~/Views/Home/ListPartials/_Scripts.cshtml" />

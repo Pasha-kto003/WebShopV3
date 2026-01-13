@@ -1,0 +1,778 @@
+﻿<!-- Views/Favorites/Index.cshtml -->
+@model List<FavoriteWithProduct>
+
+@{
+    ViewData["Title"] = "Избранное";
+    var totalCount = ViewBag.TotalCount ?? 0;
+    var isGuest = ViewBag.IsGuest ?? false;
+    var maxItems = isGuest ? 5 : 20;
+    var percentage = totalCount > 0 ? (totalCount * 100 / maxItems) : 0;
+}
+@Html.AntiForgeryToken()
+<div class="min-h-screen bg-gradient-to-b from-gray-900 to-black pt-6 pb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Хлебные крошки -->
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a asp-controller="Home" asp-action="Index"
+                       class="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                        </svg>
+                        Главная
+                    </a>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Избранное</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Заголовок и статистика -->
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Избранное</h1>
+                    <p class="text-gray-400">
+                        @if (isGuest)
+                        {
+                            <span>Сохранено в этом браузере (макс. @maxItems товаров)</span>
+                        }
+                        else
+                        {
+                            <span>Ваши сохраненные товары</span>
+                        }
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <!-- Счетчик -->
+                    <div class="bg-gray-900/50 border border-gray-800 rounded-xl px-4 py-3">
+                        <div class="text-2xl font-bold text-white text-center" id="total-count">@totalCount</div>
+                        <div class="text-xs text-gray-400 text-center">товаров</div>
+                    </div>
+
+                    <!-- Кнопка очистки -->
+                    @if (totalCount > 0)
+                    {
+                        <button onclick="clearAllFavorites()"
+                                class="px-4 py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-xl transition-colors border border-red-700/50 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Очистить все
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Прогресс бар лимита -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-gray-400">
+                        @if (isGuest)
+                        {
+                            <span>Гостевой режим</span>
+                        }
+                        else
+                        {
+                            <span>Ваш лимит</span>
+                        }
+                    </span>
+                    <span class="text-sm font-medium text-gray-300" id="limit-counter">@totalCount/@maxItems</span>
+                </div>
+                <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
+                         style="width: @percentage%;" id="limit-progress"></div>
+                </div>
+                @if (totalCount >= maxItems)
+                {
+                    <p class="text-sm text-red-400 mt-2 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        Достигнут лимит избранного. Удалите некоторые товары, чтобы добавить новые.
+                    </p>
+                }
+            </div>
+
+            <!-- Баннер для гостей -->
+            @if (isGuest && totalCount > 0)
+            {
+                <div class="mb-6 p-4 bg-gradient-to-r from-blue-900/20 to-blue-800/20 border border-blue-700/50 rounded-xl">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-white font-bold">Сохраните избранное навсегда</h3>
+                                <p class="text-gray-400 text-sm">Создайте аккаунт, чтобы не потерять ваши @totalCount избранных товаров</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <a asp-controller="Auth" asp-action="Register"
+                               class="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-lg transition-all duration-300 font-medium">
+                                Создать аккаунт
+                            </a>
+                            <a asp-controller="Auth" asp-action="Login"
+                               class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors">
+                                Войти
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Сообщения -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="mb-6 p-4 bg-green-900/30 border border-green-800 rounded-xl text-green-400">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="mb-6 p-4 bg-red-900/30 border border-red-800 rounded-xl text-red-400">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <!-- Контент -->
+        @if (Model == null || !Model.Any())
+        {
+            <!-- Пустое состояние -->
+            <div class="text-center py-16">
+                <div class="inline-block p-8 rounded-2xl bg-gray-900/30 border border-gray-800 max-w-md">
+                    <div class="text-6xl mb-4 opacity-30">❤️</div>
+                    <h3 class="text-xl font-bold text-white mb-3">Избранное пусто</h3>
+                    <p class="text-gray-400 mb-6">
+                        Добавляйте товары в избранное, чтобы легко найти их позже.
+                        @if (isGuest)
+                        {
+                            <br>
+                    
+                            <span class="text-sm">Создайте аккаунт, чтобы сохранить избранное навсегда.</span>
+                        }
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a asp-controller="Home" asp-action="Catalog" asp-route-productType="computers"
+                           class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-green-400 text-dark font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/25 transition-all duration-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                            </svg>
+                            Сборки ПК
+                        </a>
+                        <a asp-controller="Home" asp-action="Catalog" asp-route-productType="components"
+                           class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Комплектующие
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Фильтры и сортировка -->
+            <div class="mb-6 flex flex-col sm:flex-row gap-4">
+                <!-- Поиск -->
+                <div class="flex-1">
+                    <div class="relative">
+                        <input type="text"
+                               placeholder="Поиск в избранном..."
+                               class="w-full bg-gray-900/50 border border-gray-800 text-white rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-blue-500 transition-colors"
+                               id="search-favorites">
+                        <svg class="absolute left-3 top-3.5 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Сортировка -->
+                <div class="flex gap-2">
+                    <select class="bg-gray-900/50 border border-gray-800 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 transition-colors"
+                            id="sort-favorites">
+                        <option value="newest">Сначала новые</option>
+                        <option value="oldest">Сначала старые</option>
+                        <option value="price_asc">Цена по возрастанию</option>
+                        <option value="price_desc">Цена по убыванию</option>
+                        <option value="name_asc">По названию (А-Я)</option>
+                        <option value="name_desc">По названию (Я-А)</option>
+                    </select>
+
+                    <!-- Переключение вида -->
+                    <button class="p-3 bg-gray-900/50 border border-gray-800 text-gray-400 hover:text-white hover:border-blue-500 rounded-xl transition-colors"
+                            onclick="toggleViewMode()"
+                            id="view-mode-btn">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Сетка/Список товаров -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="favorites-grid">
+                @foreach (var item in Model)
+                {
+                    <div class="favorite-item bg-gray-900/30 border border-gray-800 hover:border-blue-500/50 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 group relative"
+                         data-product-type="@item.Favorite.ProductType"
+                         data-product-id="@item.Favorite.ProductId"
+                         data-added-at="@item.Favorite.AddedAt.ToString("o")"
+                         data-price="@item.Price"
+                         data-name="@item.Name">
+
+                        <!-- Бейдж типа -->
+                        <div class="absolute top-4 left-4 z-10">
+                            @{
+                                var badgeClass = item.Favorite.ProductType switch
+                                {
+                                    "Computer" => "bg-gradient-to-r from-green-600 to-green-500",
+                                    "Component" => "bg-gradient-to-r from-blue-600 to-blue-500",
+                                    _ => "bg-gradient-to-r from-gray-600 to-gray-500"
+                                };
+                                var badgeText = item.Favorite.ProductType switch
+                                {
+                                    "Computer" => "Сборка ПК",
+                                    "Component" => "Комплектующее",
+                                    _ => "Товар"
+                                };
+                            }
+                            <span class="px-3 py-1 text-xs font-bold rounded-lg @badgeClass text-white shadow-lg">
+                                @badgeText
+                            </span>
+                        </div>
+
+                        <!-- Кнопка удаления -->
+                        <button class="absolute top-4 right-4 z-10 p-2 bg-gray-900/80 hover:bg-red-600 text-gray-300 hover:text-white rounded-full transition-all duration-200 remove-favorite-btn"
+                                data-favorite-id="@item.Favorite.Id"
+                                title="Удалить из избранного">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <!-- Изображение -->
+                        <div class="relative h-56 bg-gradient-to-br from-gray-900 to-black overflow-hidden">
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="/Images/@(item.Favorite.ProductType.ToLower() + "s")/@item.ImageUrl"
+                                     alt="@item.Name"
+                                     class="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105">
+                            }
+                            else
+                            {
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <div class="text-6xl opacity-20">
+                                        @if (item.Favorite.ProductType == "Computer")
+                                        {
+                                            @:🖥️
+                                        }
+                                        else
+                                        {
+                                            @:⚙️
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Контент -->
+                        <div class="p-6">
+                            <!-- Название -->
+                            <h3 class="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-blue-400 transition-colors">
+                                <a href="@Url.Action(item.Favorite.ProductType == "Computer" ? "ComputerDetails" : "ComponentDetails", "Home", new { id = item.Favorite.ProductId })"
+                                   class="hover:no-underline">
+                                    @item.Name
+                                </a>
+                            </h3>
+
+                            <!-- Характеристики -->
+                            <div class="mb-4 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-400">Дата добавления:</span>
+                                    <span class="text-sm text-gray-300">@item.Favorite.AddedAt.ToString("dd.MM.yyyy")</span>
+                                </div>
+
+                                <div class="flex items-center">
+                                    <span class="text-sm text-gray-400">Статус:</span>
+                                    @if (item.IsAvailable)
+                                    {
+                                        <span class="ml-2 text-sm text-green-400 flex items-center">
+                                            <div class="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
+                                            В наличии
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="ml-2 text-sm text-red-400 flex items-center">
+                                            <div class="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
+                                            Нет в наличии
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Цена и действия -->
+                            <div class="pt-4 border-t border-gray-800">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="text-2xl font-bold text-white">
+                                        @item.Price.ToString("N0") ₽
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <a href="@Url.Action(item.Favorite.ProductType == "Computer" ? "ComputerDetails" : "ComponentDetails", "Home", new { id = item.Favorite.ProductId })"
+                                       class="bg-gray-800 hover:bg-gray-700 text-white py-2.5 rounded-lg text-sm text-center transition-colors flex items-center justify-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        Подробнее
+                                    </a>
+
+                                    @if (item.IsAvailable)
+                                    {
+                                        <button class="bg-gradient-to-r from-primary to-green-400 hover:from-green-500 hover:to-green-600 text-dark py-2.5 rounded-lg text-sm font-medium transition-all duration-300 add-to-cart-btn"
+                                                data-product-id="@item.Favorite.ProductId"
+                                                data-product-type="@item.Favorite.ProductType.ToLower()"
+                                                data-product-name="@item.Name"
+                                                data-product-price="@item.Price">
+                                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                            В корзину
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="bg-gray-700 text-gray-400 py-2.5 rounded-lg text-sm cursor-not-allowed" disabled>
+                                            Нет в наличии
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Массовые действия -->
+            <div class="mt-8 p-4 bg-gray-900/30 border border-gray-800 rounded-xl">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" id="select-all" class="w-4 h-4 rounded border-gray-700 bg-gray-800">
+                        <label for="select-all" class="text-gray-300">Выбрать все</label>
+                        <span class="text-gray-500 text-sm">(<span id="selected-count">0</span> выбрано)</span>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button onclick="addSelectedToCart()"
+                                class="px-4 py-2 bg-gradient-to-r from-primary to-green-400 hover:from-green-500 hover:to-green-600 text-dark rounded-lg font-medium transition-all duration-300 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            Добавить выбранное в корзину
+                        </button>
+                        <button onclick="removeSelectedFavorites()"
+                                class="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg transition-colors border border-red-700/50 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Удалить выбранное
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFavoriteCounters();
+            setupEventListeners();
+            loadFavoriteDropdown();
+        });
+
+        // Обновление счетчиков
+        function updateFavoriteCounters() {
+            const count = @totalCount;
+
+            // Обновляем все счетчики
+            document.querySelectorAll('.favorite-counter').forEach(counter => {
+                counter.textContent = count;
+                counter.dataset.count = count;
+                if (count > 0) {
+                    counter.classList.remove('hidden');
+                } else {
+                    counter.classList.add('hidden');
+                }
+            });
+
+            // Мобильный счетчик
+            const mobileCounter = document.getElementById('favorite-counter-mobile');
+            if (mobileCounter) {
+                mobileCounter.textContent = count;
+                mobileCounter.style.display = count > 0 ? 'flex' : 'none';
+            }
+
+            // Лимит в выпадающем списке
+            const limitElement = document.getElementById('favorite-limit');
+            if (limitElement) {
+                limitElement.textContent = `${count}/${@maxItems}`;
+            }
+
+            // Обновляем прогресс бар
+            updateProgressBar(count);
+        }
+
+        // Обновление прогресс бара
+        function updateProgressBar(count) {
+            const max = @maxItems;
+            const percentage = (count * 100) / max;
+            const progressBar = document.getElementById('limit-progress');
+            if (progressBar) {
+                progressBar.style.width = `${percentage}%`;
+            }
+
+            const limitCounter = document.getElementById('limit-counter');
+            if (limitCounter) {
+                limitCounter.textContent = `${count}/${max}`;
+            }
+        }
+
+        // Загрузка выпадающего списка в хедере
+        async function loadFavoriteDropdown() {
+            try {
+                const response = await fetch('/Favorites/Recent');
+                if (response.ok) {
+                    const html = await response.text();
+                    const container = document.getElementById('favorite-dropdown-items');
+                    if (container) {
+                        container.innerHTML = html;
+                        setupDropdownEventListeners();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading favorite dropdown:', error);
+            }
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Поиск
+            const searchInput = document.getElementById('search-favorites');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(searchFavorites, 300));
+            }
+
+            // Сортировка
+            const sortSelect = document.getElementById('sort-favorites');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', sortFavorites);
+            }
+
+            // Удаление из избранного
+            document.querySelectorAll('.remove-favorite-btn').forEach(btn => {
+                btn.addEventListener('click', handleRemoveFavorite);
+            });
+
+            // Добавление в корзину
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', handleAddToCart);
+            });
+
+            // Выбор всех
+            const selectAll = document.getElementById('select-all');
+            if (selectAll) {
+                selectAll.addEventListener('change', toggleSelectAll);
+            }
+        }
+
+        // Обработчик удаления из избранного
+        async function handleRemoveFavorite(e) {
+            const button = e.currentTarget;
+            const favoriteId = button.dataset.favoriteId;
+
+            if (!confirm('Удалить товар из избранного?')) return;
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const response = await fetch('/Favorites/Remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `favoriteId=${favoriteId}&__RequestVerificationToken=${token}`
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Удаляем элемент
+                    const item = button.closest('.favorite-item');
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(20px)';
+
+                    setTimeout(() => {
+                        item.remove();
+
+                        // Обновляем счетчики
+                        updateFavoriteCounters();
+
+                        // Если список пуст, перезагружаем страницу
+                        if (document.querySelectorAll('.favorite-item').length === 0) {
+                            setTimeout(() => location.reload(), 300);
+                        }
+
+                        // Показываем уведомление
+                        showNotification(data.message, 'success');
+                    }, 300);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error removing favorite:', error);
+                showNotification('Ошибка при удалении из избранного', 'error');
+            }
+        }
+
+        // Очистка всего избранного
+        async function clearAllFavorites() {
+            if (!confirm('Очистить все избранные товары? Это действие нельзя отменить.')) return;
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const response = await fetch('/Favorites/ClearAll', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `__RequestVerificationToken=${token}`
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Анимируем удаление всех элементов
+                    document.querySelectorAll('.favorite-item').forEach(item => {
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateY(20px)';
+                    });
+
+                    setTimeout(() => {
+                        // Перезагружаем страницу
+                        location.reload();
+                    }, 500);
+
+                    showNotification(data.message, 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error clearing favorites:', error);
+                showNotification('Ошибка при очистке избранного', 'error');
+            }
+        }
+
+        // Поиск в избранном
+        function searchFavorites() {
+            const searchTerm = document.getElementById('search-favorites').value.toLowerCase();
+            const items = document.querySelectorAll('.favorite-item');
+
+            items.forEach(item => {
+                const name = item.dataset.name.toLowerCase();
+                const productType = item.dataset.productType.toLowerCase();
+
+                if (name.includes(searchTerm) || productType.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Сортировка избранного
+        function sortFavorites() {
+            const sortBy = document.getElementById('sort-favorites').value;
+            const container = document.getElementById('favorites-grid');
+            const items = Array.from(container.querySelectorAll('.favorite-item'));
+
+            items.sort((a, b) => {
+                switch (sortBy) {
+                    case 'newest':
+                        return new Date(b.dataset.addedAt) - new Date(a.dataset.addedAt);
+                    case 'oldest':
+                        return new Date(a.dataset.addedAt) - new Date(b.dataset.addedAt);
+                    case 'price_asc':
+                        return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+                    case 'price_desc':
+                        return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                    case 'name_asc':
+                        return a.dataset.name.localeCompare(b.dataset.name);
+                    case 'name_desc':
+                        return b.dataset.name.localeCompare(a.dataset.name);
+                    default:
+                        return 0;
+                }
+            });
+
+            // Перемещаем элементы
+            items.forEach(item => container.appendChild(item));
+        }
+
+        // Переключение режима просмотра
+        function toggleViewMode() {
+            const container = document.getElementById('favorites-grid');
+            const button = document.getElementById('view-mode-btn');
+
+            if (container.classList.contains('grid-cols-1')) {
+                // Переключаем на сетку
+                container.classList.remove('grid-cols-1');
+                container.classList.add('grid-cols-1', 'lg:grid-cols-3');
+                button.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>`;
+            } else {
+                // Переключаем на список
+                container.classList.remove('grid-cols-1', 'lg:grid-cols-3');
+                container.classList.add('grid-cols-1');
+                button.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>`;
+            }
+        }
+
+        // Выбор всех элементов
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('.favorite-item input[type="checkbox"]');
+            const selectedCount = document.getElementById('selected-count');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+
+            selectedCount.textContent = selectAll.checked ? checkboxes.length : 0;
+        }
+
+        // Добавление выбранных в корзину
+        async function addSelectedToCart() {
+            const selectedItems = document.querySelectorAll('.favorite-item input[type="checkbox"]:checked');
+
+            if (selectedItems.length === 0) {
+                showNotification('Выберите товары для добавления в корзину', 'warning');
+                return;
+            }
+
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const checkbox of selectedItems) {
+                const item = checkbox.closest('.favorite-item');
+                const productId = item.dataset.productId;
+                const productType = item.dataset.productType;
+                const productName = item.dataset.name;
+                const productPrice = item.dataset.price;
+
+                try {
+                    // Здесь нужно вызвать вашу функцию добавления в корзину
+                    // addToCart(productId, productName, productPrice, productType.toLowerCase());
+                    successCount++;
+                } catch (error) {
+                    errorCount++;
+                }
+            }
+
+            showNotification(`Добавлено ${successCount} товаров в корзину${errorCount > 0 ? `, ошибок: ${errorCount}` : ''}`, 'success');
+        }
+
+        // Удаление выбранных из избранного
+        async function removeSelectedFavorites() {
+            const selectedItems = document.querySelectorAll('.favorite-item input[type="checkbox"]:checked');
+
+            if (selectedItems.length === 0) {
+                showNotification('Выберите товары для удаления', 'warning');
+                return;
+            }
+
+            if (!confirm(`Удалить ${selectedItems.length} товаров из избранного?`)) return;
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                // Удаляем каждый выбранный элемент
+                for (const checkbox of selectedItems) {
+                    const item = checkbox.closest('.favorite-item');
+                    const favoriteId = item.querySelector('.remove-favorite-btn').dataset.favoriteId;
+
+                    await fetch('/Favorites/Remove', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `favoriteId=${favoriteId}&__RequestVerificationToken=${token}`
+                    });
+
+                    // Анимируем удаление
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(20px)';
+                    setTimeout(() => item.remove(), 300);
+                }
+
+                // Обновляем счетчики
+                setTimeout(() => {
+                    updateFavoriteCounters();
+                    if (document.querySelectorAll('.favorite-item').length === 0) {
+                        location.reload();
+                    }
+                }, 500);
+
+                showNotification(`Удалено ${selectedItems.length} товаров из избранного`, 'success');
+
+            } catch (error) {
+                console.error('Error removing selected favorites:', error);
+                showNotification('Ошибка при удалении товаров', 'error');
+            }
+        }
+
+        // Дебаунс для поиска
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Функция показа уведомлений
+        function showNotification(message, type = 'info') {
+            // Реализация уведомлений
+            console.log(`${type}: ${message}`);
+            // Можно использовать Toastify или другую библиотеку
+        }
+    </script>
+}

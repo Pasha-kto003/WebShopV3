@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  webshopv3-json:
+    build:
+      context: .
+      dockerfile: WebShopV3.Json/Dockerfile
+    ports:
+      - "5002:5002"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - YOOKASSA_SECRET_KEY=test_Pq3cYBpb6eXypEpy5R1EgaBAml75YPTp68TYP23MJKI
+      - HTTP_PORTS=5002
+      - HTTPS_PORTS=
+    volumes:
+      - ./WebShopV3.Json/Data/Json:/app/Data/Json

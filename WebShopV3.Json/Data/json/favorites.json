@@ -1,0 +1,57 @@
+[
+  {
+    "Id": 1,
+    "UserId": 2,
+    "GuestId": null,
+    "ProductType": "Computer",
+    "ProductId": 5,
+    "AddedAt": "2024-12-10T14:30:00Z",
+    "LastViewed": "2024-12-14T09:20:00Z",
+    "User": null,
+    "IsGuestFavorite": false
+  },
+  {
+    "Id": 2,
+    "UserId": 2,
+    "GuestId": null,
+    "ProductType": "Component",
+    "ProductId": 202,
+    "AddedAt": "2024-12-08T16:45:00Z",
+    "LastViewed": "2024-12-13T11:15:00Z",
+    "User": null,
+    "IsGuestFavorite": false
+  },
+  {
+    "Id": 3,
+    "UserId": null,
+    "GuestId": "guest_abc123",
+    "ProductType": "Computer",
+    "ProductId": 1,
+    "AddedAt": "2024-12-14T10:20:00Z",
+    "LastViewed": "2024-12-14T10:20:00Z",
+    "User": null,
+    "IsGuestFavorite": true
+  },
+  {
+    "Id": 4,
+    "UserId": 4,
+    "GuestId": null,
+    "ProductType": "Computer",
+    "ProductId": 7,
+    "AddedAt": "2026-01-13T10:25:49.282669Z",
+    "LastViewed": null,
+    "User": null,
+    "IsGuestFavorite": false
+  },
+  {
+    "Id": 5,
+    "UserId": 4,
+    "GuestId": null,
+    "ProductType": "Computer",
+    "ProductId": 4,
+    "AddedAt": "2026-01-13T10:25:50.350239Z",
+    "LastViewed": null,
+    "User": null,
+    "IsGuestFavorite": false
+  }
+]

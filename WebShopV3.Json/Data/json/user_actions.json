@@ -1,0 +1,62 @@
+[
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-13T12:41:58.7675Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-13T12:41:58.7676405Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-13T12:41:58.7676415Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-13T12:41:58.7676421Z",
+    "weight": 0.7
+  },
+  {
+    "id": 1,
+    "userId": null,
+    "guestId": "56b44742-201d-47a3-8de9-5d56ead1ed56",
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 10,
+    "productName": "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435",
+    "category": null,
+    "timestamp": "2026-01-13T12:41:58.7678297Z",
+    "weight": 0.7
+  }
+]

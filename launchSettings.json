@@ -4,7 +4,7 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "webshopv3": "StartDebugging"
+        "webshopv3.json": "StartDebugging"
       }
     }
   }
