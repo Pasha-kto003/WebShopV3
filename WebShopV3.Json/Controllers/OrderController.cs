@@ -625,14 +625,14 @@ namespace WebShopV3.Json.Controllers
 
         private async Task<List<Order>> GetOrdersWithDetails()
         {
-            var orders = await _jsonData.GetAllAsync<Order>("Orders");
-            var users = await _jsonData.GetAllAsync<User>("Users");
-            var orderTypes = await _jsonData.GetAllAsync<OrderType>("OrderTypes");
-            var statuses = await _jsonData.GetAllAsync<Status>("Statuses");
-            var computers = await _jsonData.GetAllAsync<Computer>("Computers");
-            var components = await _jsonData.GetAllAsync<Component>("Components");
-            var computerOrders = await _jsonData.GetAllAsync<ComputerOrder>("ComputerOrders");
-            var componentOrders = await _jsonData.GetAllAsync<ComponentOrder>("ComponentOrders");
+            var orders = await _jsonData.GetAllAsync<Order>("orders");
+            var users = await _jsonData.GetAllAsync<User>("users");
+            var orderTypes = await _jsonData.GetAllAsync<OrderType>("orderTypes");
+            var statuses = await _jsonData.GetAllAsync<Status>("statuses");
+            var computers = await _jsonData.GetAllAsync<Computer>("computers");
+            var components = await _jsonData.GetAllAsync<Component>("components");
+            var computerOrders = await _jsonData.GetAllAsync<ComputerOrder>("computerorders");
+            var componentOrders = await _jsonData.GetAllAsync<ComponentOrder>("componentorders");
 
             foreach (var order in orders)
             {

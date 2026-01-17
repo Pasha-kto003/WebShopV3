@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using WebShopV3.Json.Models;
@@ -9,11 +10,8 @@ namespace WebShopV3.Json.Services
     {
         Task<PaymentResponse> CreatePaymentAsync(Models.PaymentRequest request);
         Task<PaymentResponse> GetPaymentStatusAsync(string paymentId);
-        Task<PaymentResponse> CreatePaymentForOrderAsync(int orderId);
         Task<PaymentResponse> CapturePaymentAsync(string paymentId);
         Task<PaymentResponse> CancelPaymentAsync(string paymentId);
-        Task<PaymentResponse> RefundPaymentAsync(string paymentId, decimal amount, string reason = "Возврат средств");
-        Task<List<PaymentResponse>> GetPaymentsForOrderAsync(int orderId);
         Task UpdateOrderPaymentStatusAsync(int orderId, string paymentId, string status);
     }
 
@@ -28,22 +26,29 @@ namespace WebShopV3.Json.Services
         private const string PAYMENTS_FILE = "payments.json";
 
         public YookassaService(
-            IConfiguration configuration,
-            HttpClient httpClient,
-            string dataPath,
-            ILogger<YookassaService> logger)
+        IConfiguration configuration,
+        IHttpClientFactory httpClientFactory,
+        ILogger<YookassaService> logger)
         {
-            _httpClient = httpClient;
-            _dataPath = dataPath;
-            _shopId = configuration["Yookassa:ShopId"];
-            _secretKey = configuration["Yookassa:SecretKey"];
-            _logger = logger;
+            _httpClient = httpClientFactory.CreateClient("Yookassa");
+            _shopId = configuration["Yookassa:ShopId"] ?? throw new ArgumentNullException(nameof(_shopId));
+            _secretKey = configuration["Yookassa:SecretKey"] ?? throw new ArgumentNullException(nameof(_secretKey));
             _baseUrl = configuration["Yookassa:BaseUrl"] ?? "https://api.yookassa.ru/v3/";
+            _logger = logger;
 
-            // Базовая аутентификация
-            var authString = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_shopId}:{_secretKey}"));
-            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {authString}");
+            // Настройка базовой аутентификации
+            var authString = $"{_shopId}:{_secretKey}";
+            var authBytes = Encoding.UTF8.GetBytes(authString);
+            var authBase64 = Convert.ToBase64String(authBytes);
+
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", authBase64);
+
+            // Добавляем заголовок Idempotence-Key
             _httpClient.DefaultRequestHeaders.Add("Idempotence-Key", Guid.NewGuid().ToString());
+
+            // Настройка таймаутов
+            _httpClient.Timeout = TimeSpan.FromSeconds(30);
         }
 
         public async Task<PaymentResponse> CreatePaymentAsync(Models.PaymentRequest request)
@@ -98,11 +103,7 @@ namespace WebShopV3.Json.Services
                     ConfirmationUrl = root.GetProperty("confirmation").GetProperty("confirmation_url").GetString(),
                     Amount = decimal.Parse(
                         root.GetProperty("amount").GetProperty("value").GetString(),
-                        CultureInfo.InvariantCulture),
-                    OrderId = request.OrderId,
-                    CreatedAt = DateTime.UtcNow,
-                    Description = request.Description,
-                    ReturnUrl = request.ReturnUrl
+                        CultureInfo.InvariantCulture)
                 };
 
                 // Сохраняем информацию о платеже в JSON
@@ -132,7 +133,7 @@ namespace WebShopV3.Json.Services
                 {
                     OrderId = orderId,
                     Amount = order.TotalAmount,
-                    Description = $"Оплата заказа #{orderId} от {order.CreatedAt:dd.MM.yyyy}",
+                    Description = $"Оплата заказа #{orderId}",
                     ReturnUrl = $"/orders/{orderId}/payment-success"
                 };
 
@@ -261,80 +262,7 @@ namespace WebShopV3.Json.Services
             }
         }
 
-        public async Task<PaymentResponse> RefundPaymentAsync(string paymentId, decimal amount, string reason = "Возврат средств")
-        {
-            try
-            {
-                var amountValue = amount.ToString("0.00", CultureInfo.InvariantCulture);
-
-                var refundData = new
-                {
-                    amount = new
-                    {
-                        value = amountValue,
-                        currency = "RUB"
-                    },
-                    payment_id = paymentId,
-                    description = reason
-                };
-
-                var json = JsonSerializer.Serialize(refundData, new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
-
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync($"{_baseUrl}refunds", content);
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception($"Ошибка возврата платежа: {responseContent}");
-                }
-
-                using var document = JsonDocument.Parse(responseContent);
-                var root = document.RootElement;
-
-                var paymentResponse = new PaymentResponse
-                {
-                    Id = root.GetProperty("id").GetString(),
-                    Status = root.GetProperty("status").GetString(),
-                    Amount = decimal.Parse(
-                        root.GetProperty("amount").GetProperty("value").GetString(),
-                        CultureInfo.InvariantCulture),
-                    Refunded = true,
-                    RefundReason = reason
-                };
-
-                // Добавляем информацию о возврате в JSON
-                await AddRefundToJsonAsync(paymentId, paymentResponse);
-
-                return paymentResponse;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Ошибка при возврате платежа {paymentId}");
-                throw;
-            }
-        }
-
-        public async Task<List<PaymentResponse>> GetPaymentsForOrderAsync(int orderId)
-        {
-            try
-            {
-                var payments = await LoadPaymentsFromJsonAsync();
-                return payments
-                    .Where(p => p.OrderId == orderId)
-                    .OrderByDescending(p => p.CreatedAt)
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Ошибка при получении платежей для заказа {orderId}");
-                return new List<PaymentResponse>();
-            }
-        }
+   
 
         public async Task UpdateOrderPaymentStatusAsync(int orderId, string paymentId, string status)
         {
@@ -345,17 +273,14 @@ namespace WebShopV3.Json.Services
 
                 if (order != null)
                 {
-                    order.PaymentStatus = status;
-                    order.PaymentId = paymentId;
-                    order.UpdatedAt = DateTime.UtcNow;
 
                     if (status == "succeeded")
                     {
-                        order.Status = "Оплачен";
+                        order.Status.Name = "Оплачен";
                     }
                     else if (status == "canceled")
                     {
-                        order.Status = "Отменен";
+                        order.Status.Name = "Отменен";
                     }
 
                     await SaveOrdersToJsonAsync(orders);
@@ -431,6 +356,7 @@ namespace WebShopV3.Json.Services
             try
             {
                 var payments = await LoadPaymentsFromJsonAsync();
+                payment.Paid = true;
                 payments.Add(payment);
 
                 var filePath = Path.Combine(_dataPath, PAYMENTS_FILE);
@@ -500,7 +426,6 @@ namespace WebShopV3.Json.Services
                     payment.Status = status;
                     if (paid.HasValue)
                         payment.Paid = paid.Value;
-                    payment.UpdatedAt = DateTime.UtcNow;
 
                     var filePath = Path.Combine(_dataPath, PAYMENTS_FILE);
                     var json = JsonSerializer.Serialize(payments, new JsonSerializerOptions
@@ -519,108 +444,5 @@ namespace WebShopV3.Json.Services
                 _logger.LogError(ex, $"Ошибка при обновлении статуса платежа {paymentId} в JSON");
             }
         }
-
-        private async Task AddRefundToJsonAsync(string paymentId, PaymentResponse refund)
-        {
-            try
-            {
-                var payments = await LoadPaymentsFromJsonAsync();
-                var payment = payments.FirstOrDefault(p => p.Id == paymentId);
-
-                if (payment != null)
-                {
-                    payment.Refunds ??= new List<RefundInfo>();
-                    payment.Refunds.Add(new RefundInfo
-                    {
-                        Id = refund.Id,
-                        Amount = refund.Amount,
-                        Reason = refund.RefundReason,
-                        CreatedAt = DateTime.UtcNow
-                    });
-
-                    var filePath = Path.Combine(_dataPath, PAYMENTS_FILE);
-                    var json = JsonSerializer.Serialize(payments, new JsonSerializerOptions
-                    {
-                        WriteIndented = true,
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-
-                    await File.WriteAllTextAsync(filePath, json);
-
-                    _logger.LogDebug($"Добавлен возврат для платежа {paymentId} в JSON");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Ошибка при добавлении возврата для платежа {paymentId} в JSON");
-            }
-        }
-    }
-
-    // Модели для работы с платежами
-    public class PaymentRequest
-    {
-        public int OrderId { get; set; }
-        public decimal Amount { get; set; }
-        public string Description { get; set; } = string.Empty;
-        public string ReturnUrl { get; set; } = string.Empty;
-    }
-
-    public class PaymentResponse
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public bool Paid { get; set; }
-        public decimal Amount { get; set; }
-        public string? ConfirmationUrl { get; set; }
-        public int? OrderId { get; set; }
-        public string? Description { get; set; }
-        public string? ReturnUrl { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public bool Refunded { get; set; }
-        public string? RefundReason { get; set; }
-        public List<RefundInfo>? Refunds { get; set; }
-    }
-
-    public class RefundInfo
-    {
-        public string Id { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public string? Reason { get; set; }
-        public DateTime CreatedAt { get; set; }
-    }
-
-    // Модель заказа для JSON
-    public class Order
-    {
-        public int Id { get; set; }
-        public int? UserId { get; set; }
-        public string? GuestId { get; set; }
-        public string? CustomerName { get; set; }
-        public string? CustomerEmail { get; set; }
-        public string? CustomerPhone { get; set; }
-        public string? ShippingAddress { get; set; }
-        public List<OrderItem> Items { get; set; } = new();
-        public decimal Subtotal { get; set; }
-        public decimal ShippingCost { get; set; }
-        public decimal TotalAmount { get; set; }
-        public string Status { get; set; } = "Новый";
-        public string PaymentStatus { get; set; } = "Не оплачен";
-        public string? PaymentId { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-    }
-
-    public class OrderItem
-    {
-        public bool IsComputer { get; set; }
-        public int? ComputerId { get; set; }
-        public bool IsComponent { get; set; }
-        public int? ComponentId { get; set; }
-        public string ProductName { get; set; } = string.Empty;
-        public int Quantity { get; set; }
-        public decimal Price { get; set; }
-        public decimal TotalPrice => Price * Quantity;
     }
 }

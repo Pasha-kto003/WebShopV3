@@ -374,7 +374,7 @@ namespace WebShopV3.Json.Controllers
         }
 
         // GET: Cart/Checkout
-        public IActionResult Checkout()
+        public async Task<IActionResult> Checkout()
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -393,13 +393,36 @@ namespace WebShopV3.Json.Controllers
                 return RedirectToAction("Index");
             }
 
+            try
+            {
+                var userId = _authService.GetCurrentUserId(User);
+                var users = await _jsonData.GetAllAsync<User>("Users");
+                var user = users.FirstOrDefault(u => u.Id == userId);
+
+                if (user != null)
+                {
+                    ViewBag.UserData = new
+                    {
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        Phone = user.Phone
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Не удалось загрузить данные пользователя для Checkout");
+            }
+
             return View(cart);
         }
 
         // POST: Cart/ProcessYookassaPayment - для онлайн оплаты через ЮКассу
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProcessYookassaPayment(string firstName, string lastName, string email, string phone, string address, string comment)
+        public async Task<IActionResult> ProcessYookassaPayment(
+    string firstName, string lastName, string email, string phone, string address, string comment)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -430,139 +453,102 @@ namespace WebShopV3.Json.Controllers
                     return RedirectToAction("Checkout");
                 }
 
-                // Обновляем данные пользователя
-                await UpdateUserInfo(userId, firstName, lastName, email, phone);
+                // Резервируем товары (уменьшаем Quantity в Components/Computers)
+                await ReserveItems(cart);
 
-                // Получаем статусы заказов из JSON
-                var statuses = await _jsonData.GetAllAsync<OrderStatus>("OrderStatuses");
+                // Загружаем справочники
+                var statuses = await _jsonData.GetAllAsync<Status>("OrderStatuses");
                 var orderTypes = await _jsonData.GetAllAsync<OrderType>("OrderTypes");
 
-                // Находим нужные статусы и типы
-                var pendingStatus = statuses.FirstOrDefault(s => s.Name == "В ожидании оплаты");
-                var saleOrderType = orderTypes.FirstOrDefault(ot => ot.Name == "Продажа");
+                var pendingStatus = statuses.FirstOrDefault(s => s.Name == "В ожидании")
+                    ?? new Status { Id = 1, Name = "В ожидании" };
 
-                // Если нет в JSON, создаем по умолчанию
-                if (pendingStatus == null)
-                {
-                    pendingStatus = new OrderStatus
-                    {
-                        Id = 1,
-                        Name = "В ожидании оплаты",
-                        Description = "Ожидание оплаты заказа"
-                    };
-                    await _jsonData.CreateAsync("OrderStatuses", pendingStatus);
-                }
+                var saleOrderType = orderTypes.FirstOrDefault(ot => ot.Name == "Продажа")
+                    ?? new OrderType { Id = 1, Name = "Продажа" };
 
-                if (saleOrderType == null)
-                {
-                    saleOrderType = new OrderType
-                    {
-                        Id = 1,
-                        Name = "Продажа",
-                        Description = "Продажа товара"
-                    };
-                    await _jsonData.CreateAsync("OrderTypes", saleOrderType);
-                }
+                var orderId = await GetNextOrderIdAsync();
 
-                // Создаем заказ со статусом "В ожидании оплаты"
+                // Создаём заказ
                 var order = new Order
                 {
-                    Id = await GetNextOrderIdAsync(),
+                    Id = orderId,
                     UserId = userId,
-                    CustomerName = $"{firstName} {lastName}",
-                    CustomerEmail = email,
-                    CustomerPhone = phone,
-                    ShippingAddress = address,
                     OrderDate = DateTime.UtcNow,
                     OrderTypeId = saleOrderType.Id,
                     StatusId = pendingStatus.Id,
                     TotalAmount = cart.TotalAmount,
-                    PaymentStatus = "Ожидает оплаты",
                     Description = GenerateOrderDescription(address, comment),
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
                 };
 
-                // Добавляем товары в заказ
-                order.Items = new List<OrderItem>();
+                await _jsonData.CreateAsync("Orders", order);
 
-                // Берем текущие данные для цен и названий
+                // === РАБОТА С КРОСС-ТАБЛИЦАМИ ===
+
                 var computers = await _jsonData.GetAllAsync<Computer>("Computers");
                 var components = await _jsonData.GetAllAsync<Component>("Components");
 
-                foreach (var cartItem in cart.Items)
+                // Сохраняем связи: ComputerOrder
+                foreach (var cartItem in cart.Items.Where(i => i.IsComputer && i.ComputerId != 0))
                 {
-                    var orderItem = new OrderItem();
-
-                    if (cartItem.IsComputer)
+                    var computer = computers.FirstOrDefault(c => c.Id == cartItem.ComputerId);
+                    var computerOrder = new ComputerOrder
                     {
-                        var computer = computers.FirstOrDefault(c => c.Id == cartItem.ComputerId);
-                        orderItem.IsComputer = true;
-                        orderItem.ComputerId = cartItem.ComputerId;
-                        orderItem.ProductName = computer?.Name ?? cartItem.Name;
-                        orderItem.Price = cartItem.Price;
-                        orderItem.Quantity = cartItem.Quantity;
-                    }
-                    else if (cartItem.IsComponent)
-                    {
-                        var component = components.FirstOrDefault(c => c.Id == cartItem.ComponentId);
-                        orderItem.IsComponent = true;
-                        orderItem.ComponentId = cartItem.ComponentId;
-                        orderItem.ProductName = component?.Name ?? cartItem.Name;
-                        orderItem.Price = cartItem.Price;
-                        orderItem.Quantity = cartItem.Quantity;
-                    }
-
-                    order.Items.Add(orderItem);
+                        OrderId = orderId,
+                        ComputerId = cartItem.ComputerId,
+                        Quantity = cartItem.Quantity,
+                        UnitPrice = cartItem.Price
+                    };
+                    await _jsonData.CreateAsync("ComputerOrder", computerOrder);
                 }
 
-                // РЕЗЕРВИРУЕМ товары (уменьшаем количество в наличии)
-                await ReserveItems(cart);
+                // Сохраняем связи: ComponentOrder
+                foreach (var cartItem in cart.Items.Where(i => i.IsComponent && i.ComponentId != 0))
+                {
+                    var component = components.FirstOrDefault(c => c.Id == cartItem.ComponentId);
+                    var componentOrder = new ComponentOrder
+                    {
+                        OrderId = orderId,
+                        ComponentId = cartItem.ComponentId,
+                        Quantity = cartItem.Quantity,
+                        UnitPrice = cartItem.Price
+                    };
+                    await _jsonData.CreateAsync("ComponentOrder", componentOrder);
+                }
 
-                // Сохраняем заказ в JSON
-                await _jsonData.CreateAsync("Orders", order);
+                // === СОЗДАНИЕ ПЛАТЕЖА ===
 
-                // Создаем платеж в ЮКассе
                 var paymentRequest = new Models.PaymentRequest
                 {
-                    OrderId = order.Id,
+                    OrderId = orderId,
                     Amount = cart.TotalAmount,
-                    Description = $"Оплата заказа #{order.Id}",
-                    ReturnUrl = Url.Action("PaymentSuccess", "Payment", new { orderId = order.Id }, Request.Scheme) ??
-                               $"{Request.Scheme}://{Request.Host}/Payment/PaymentSuccess?orderId={order.Id}"
+                    Description = $"Оплата заказа #{orderId}",
+                    ReturnUrl = Url.Action("PaymentSuccess", "Payment", new { orderId }, Request.Scheme) ??
+                               $"{Request.Scheme}://{Request.Host}/Payment/PaymentSuccess?orderId={orderId}"
                 };
 
                 var paymentResponse = await _yookassaService.CreatePaymentAsync(paymentRequest);
-
-                // Обновляем заказ с ID платежа
-                order.PaymentId = paymentResponse.Id;
-                order.UpdatedAt = DateTime.UtcNow;
                 await _jsonData.UpdateAsync("Orders", order);
 
-                // Создаем запись о платеже в JSON
-                var paymentRecord = new PaymentRecord
+                // Сохраняем платёж
+                var paymentRecord = new PaymentResponse
                 {
                     Id = paymentResponse.Id,
-                    OrderId = order.Id,
                     Amount = paymentResponse.Amount,
                     Status = paymentResponse.Status,
                     ConfirmationUrl = paymentResponse.ConfirmationUrl,
-                    CreatedAt = DateTime.UtcNow
                 };
-
                 await _jsonData.CreateAsync("Payments", paymentRecord);
 
-                // Очищаем корзину после успешного создания заказа
+                // Очищаем корзину
                 HttpContext.Session.Remove(CartSessionKey);
 
-                // Перенаправляем пользователя на страницу оплаты ЮКассы
                 return Redirect(paymentResponse.ConfirmationUrl);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in ProcessYookassaPayment");
 
-                // В случае ошибки возвращаем товары в наличии
+                // Восстанавливаем остатки при ошибке
                 await RestoreReservedItems(cart);
 
                 TempData["ErrorMessage"] = $"Ошибка при создании платежа: {ex.Message}";
@@ -682,9 +668,6 @@ namespace WebShopV3.Json.Controllers
                     return RedirectToAction("Checkout");
                 }
 
-                // Обновляем данные пользователя
-                await UpdateUserInfo(userId, firstName, lastName, email, phone);
-
                 // Получаем ID для типа заказа и статуса
                 var orderTypes = await _jsonData.GetAllAsync<OrderType>("OrderTypes");
                 var statuses = await _jsonData.GetAllAsync<Status>("Statuses");
@@ -756,22 +739,6 @@ namespace WebShopV3.Json.Controllers
             }
 
             return errors;
-        }
-
-        private async Task UpdateUserInfo(int userId, string firstName, string lastName, string email, string phone)
-        {
-            var users = await _jsonData.GetAllAsync<User>("Users");
-            var user = users.FirstOrDefault(u => u.Id == userId);
-
-            if (user != null)
-            {
-                if (!string.IsNullOrEmpty(firstName)) user.FirstName = firstName;
-                if (!string.IsNullOrEmpty(lastName)) user.LastName = lastName;
-                if (!string.IsNullOrEmpty(email)) user.Email = email;
-                if (!string.IsNullOrEmpty(phone)) user.Phone = phone;
-
-                await _jsonData.UpdateAsync("Users", user);
-            }
         }
 
         private string GenerateOrderDescription(string address, string comment)
@@ -855,65 +822,7 @@ namespace WebShopV3.Json.Controllers
             return Json(new { count = cart.TotalItems });
         }
 
-        public class OrderStatus
-        {
-            public int Id { get; set; }
-            public string Name { get; set; } = string.Empty;
-            public string? Description { get; set; }
-        }
-
-        public class OrderType
-        {
-            public int Id { get; set; }
-            public string Name { get; set; } = string.Empty;
-            public string? Description { get; set; }
-        }
-
-        public class PaymentRecord
-        {
-            public string Id { get; set; } = string.Empty; // ID платежа от Yookassa
-            public int OrderId { get; set; }
-            public decimal Amount { get; set; }
-            public string Status { get; set; } = string.Empty;
-            public string? ConfirmationUrl { get; set; }
-            public DateTime CreatedAt { get; set; }
-        }
-
         // Обновите модель Order для JSON (добавить в WebShopV3.Json.Models)
 
-        public class Order
-        {
-            public int Id { get; set; }
-            public int? UserId { get; set; }
-            public string? CustomerName { get; set; }
-            public string? CustomerEmail { get; set; }
-            public string? CustomerPhone { get; set; }
-            public string? ShippingAddress { get; set; }
-            public List<OrderItem> Items { get; set; } = new();
-            public decimal Subtotal { get; set; }
-            public decimal ShippingCost { get; set; }
-            public decimal TotalAmount { get; set; }
-            public string Status { get; set; } = "Новый";
-            public string PaymentStatus { get; set; } = "Не оплачен";
-            public string? PaymentId { get; set; }
-            public DateTime CreatedAt { get; set; }
-            public DateTime UpdatedAt { get; set; }
-            public int OrderTypeId { get; set; }
-            public int StatusId { get; set; }
-            public string? Description { get; set; }
-            public DateTime OrderDate { get; set; }
-        }
-
-        public class OrderItem
-        {
-            public bool IsComputer { get; set; }
-            public int? ComputerId { get; set; }
-            public bool IsComponent { get; set; }
-            public int? ComponentId { get; set; }
-            public string ProductName { get; set; } = string.Empty;
-            public int Quantity { get; set; }
-            public decimal Price { get; set; }
-            public decimal TotalPrice => Price * Quantity;
-        }
     }
 }

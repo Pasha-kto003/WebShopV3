@@ -1,0 +1,40 @@
+[
+  {
+    "id": 1,
+    "userId": 2,
+    "customerName": " ",
+    "shippingAddress": "new@gmail.comnew@gmail.com",
+    "items": [
+      {
+        "isComputer": true,
+        "computerId": 7,
+        "isComponent": false,
+        "productName": "\u041A\u043E\u043C\u043F\u0430\u043A\u0442\u043D\u044B\u0439 \u041F\u041A Mini ITX",
+        "quantity": 1,
+        "price": 79999.99,
+        "totalPrice": 79999.99
+      },
+      {
+        "isComputer": true,
+        "computerId": 8,
+        "isComponent": false,
+        "productName": "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u044B\u0439 \u041F\u041A NAS",
+        "quantity": 1,
+        "price": 99999.99,
+        "totalPrice": 99999.99
+      }
+    ],
+    "subtotal": 0,
+    "shippingCost": 0,
+    "totalAmount": 179999.98,
+    "status": "\u041D\u043E\u0432\u044B\u0439",
+    "paymentStatus": "\u041E\u0436\u0438\u0434\u0430\u0435\u0442",
+    "paymentId": "30fc2f16-000f-5001-8000-14da9c602bc1",
+    "createdAt": "2026-01-16T11:04:53.6021724Z",
+    "updatedAt": "2026-01-16T11:04:55.5686314Z",
+    "orderTypeId": 2,
+    "statusId": 1,
+    "description": "\u0410\u0434\u0440\u0435\u0441 \u0434\u043E\u0441\u0442\u0430\u0432\u043A\u0438: new@gmail.comnew@gmail.com. \u041A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0439: new@gmail.comnew@gmail.com",
+    "orderDate": "2026-01-16T11:04:53.6017654Z"
+  }
+]

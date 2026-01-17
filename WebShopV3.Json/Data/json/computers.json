@@ -1,92 +1,414 @@
 [
   {
-    "Id": 1,
-    "Name": "\u0418\u0433\u0440\u043E\u0432\u043E\u0439 \u041F\u041A Gamer Pro",
-    "Description": "\u041C\u043E\u0449\u043D\u044B\u0439 \u0438\u0433\u0440\u043E\u0432\u043E\u0439 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440 \u0434\u043B\u044F \u0441\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0438\u0433\u0440 \u0432 4K \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u0438. \u0418\u0434\u0435\u0430\u043B\u0435\u043D \u0434\u043B\u044F \u043A\u0438\u0431\u0435\u0440\u0441\u043F\u043E\u0440\u0442\u0430 \u0438 \u0441\u0442\u0440\u0438\u043C\u0438\u043D\u0433\u0430.",
-    "Price": 159999.99,
-    "Quantity": 8,
-    "ImageUrl": "/images/computers/gamer-pro.jpg",
-    "ComputerComponents": []
+    "id": 1,
+    "name": "\u0418\u0433\u0440\u043E\u0432\u043E\u0439 \u041F\u041A Gamer Pro",
+    "description": "\u041C\u043E\u0449\u043D\u044B\u0439 \u0438\u0433\u0440\u043E\u0432\u043E\u0439 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440 \u0434\u043B\u044F \u0441\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0438\u0433\u0440 \u0432 4K \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u0438. \u0418\u0434\u0435\u0430\u043B\u0435\u043D \u0434\u043B\u044F \u043A\u0438\u0431\u0435\u0440\u0441\u043F\u043E\u0440\u0442\u0430 \u0438 \u0441\u0442\u0440\u0438\u043C\u0438\u043D\u0433\u0430.",
+    "price": 159999.99,
+    "quantity": 7,
+    "imageUrl": "/images/computers/gamer-pro.jpg",
+    "computerComponents": []
   },
   {
-    "Id": 2,
-    "Name": "\u041E\u0444\u0438\u0441\u043D\u044B\u0439 \u041F\u041A Office Master",
-    "Description": "\u041D\u0430\u0434\u0435\u0436\u043D\u044B\u0439 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440 \u0434\u043B\u044F \u043E\u0444\u0438\u0441\u043D\u043E\u0439 \u0440\u0430\u0431\u043E\u0442\u044B. \u0411\u044B\u0441\u0442\u0440\u044B\u0439, \u0442\u0438\u0445\u0438\u0439 \u0438 \u044D\u043D\u0435\u0440\u0433\u043E\u044D\u0444\u0444\u0435\u043A\u0442\u0438\u0432\u043D\u044B\u0439.",
-    "Price": 54999.99,
-    "Quantity": 15,
-    "ImageUrl": "/images/computers/office-master.jpg",
-    "ComputerComponents": []
+    "id": 2,
+    "name": "\u041E\u0444\u0438\u0441\u043D\u044B\u0439 \u041F\u041A Office Master",
+    "description": "\u041D\u0430\u0434\u0435\u0436\u043D\u044B\u0439 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440 \u0434\u043B\u044F \u043E\u0444\u0438\u0441\u043D\u043E\u0439 \u0440\u0430\u0431\u043E\u0442\u044B. \u0411\u044B\u0441\u0442\u0440\u044B\u0439, \u0442\u0438\u0445\u0438\u0439 \u0438 \u044D\u043D\u0435\u0440\u0433\u043E\u044D\u0444\u0444\u0435\u043A\u0442\u0438\u0432\u043D\u044B\u0439.",
+    "price": 54999.99,
+    "quantity": 14,
+    "imageUrl": "/images/computers/office-master.jpg",
+    "computerComponents": []
   },
   {
-    "Id": 3,
-    "Name": "\u041F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 Workstation",
-    "Description": "\u0420\u0430\u0431\u043E\u0447\u0430\u044F \u0441\u0442\u0430\u043D\u0446\u0438\u044F \u0434\u043B\u044F 3D \u043C\u043E\u0434\u0435\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F, \u0440\u0435\u043D\u0434\u0435\u0440\u0438\u043D\u0433\u0430 \u0438 \u043F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0445 \u0437\u0430\u0434\u0430\u0447.",
-    "Price": 229999.99,
-    "Quantity": 5,
-    "ImageUrl": "/images/computers/workstation-pro.jpg",
-    "ComputerComponents": []
+    "id": 3,
+    "name": "\u041F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 Workstation",
+    "description": "\u0420\u0430\u0431\u043E\u0447\u0430\u044F \u0441\u0442\u0430\u043D\u0446\u0438\u044F \u0434\u043B\u044F 3D \u043C\u043E\u0434\u0435\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F, \u0440\u0435\u043D\u0434\u0435\u0440\u0438\u043D\u0433\u0430 \u0438 \u043F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0445 \u0437\u0430\u0434\u0430\u0447.",
+    "price": 229999.99,
+    "quantity": 5,
+    "imageUrl": "/images/computers/workstation-pro.jpg",
+    "computerComponents": []
   },
   {
-    "Id": 4,
-    "Name": "\u0411\u044E\u0434\u0436\u0435\u0442\u043D\u044B\u0439 \u041F\u041A Starter",
-    "Description": "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u044B\u0439 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440 \u0434\u043B\u044F \u0434\u043E\u043C\u0430\u0448\u043D\u0435\u0433\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u044F, \u0443\u0447\u0435\u0431\u044B \u0438 \u043E\u0444\u0438\u0441\u043D\u044B\u0445 \u0437\u0430\u0434\u0430\u0447.",
-    "Price": 34999.99,
-    "Quantity": 19,
-    "ImageUrl": "/images/computers/starter-pc.jpg",
-    "ComputerComponents": []
+    "id": 4,
+    "name": "\u0411\u044E\u0434\u0436\u0435\u0442\u043D\u044B\u0439 \u041F\u041A Starter",
+    "description": "\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u044B\u0439 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440 \u0434\u043B\u044F \u0434\u043E\u043C\u0430\u0448\u043D\u0435\u0433\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u044F, \u0443\u0447\u0435\u0431\u044B \u0438 \u043E\u0444\u0438\u0441\u043D\u044B\u0445 \u0437\u0430\u0434\u0430\u0447.",
+    "price": 34999.99,
+    "quantity": 17,
+    "imageUrl": "/images/computers/starter-pc.jpg",
+    "computerComponents": []
   },
   {
-    "Id": 5,
-    "Name": "\u0418\u0433\u0440\u043E\u0432\u043E\u0439 \u041F\u041A Mid-Range",
-    "Description": "\u041E\u0442\u043B\u0438\u0447\u043D\u043E\u0435 \u0441\u043E\u043E\u0442\u043D\u043E\u0448\u0435\u043D\u0438\u0435 \u0446\u0435\u043D\u044B \u0438 \u043F\u0440\u043E\u0438\u0437\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u0434\u043B\u044F \u0438\u0433\u0440 \u0432 Full HD \u0438 2K.",
-    "Price": 89999.99,
-    "Quantity": 12,
-    "ImageUrl": "/images/computers/mid-range.jpg",
-    "ComputerComponents": []
+    "id": 5,
+    "name": "\u0418\u0433\u0440\u043E\u0432\u043E\u0439 \u041F\u041A Mid-Range",
+    "description": "\u041E\u0442\u043B\u0438\u0447\u043D\u043E\u0435 \u0441\u043E\u043E\u0442\u043D\u043E\u0448\u0435\u043D\u0438\u0435 \u0446\u0435\u043D\u044B \u0438 \u043F\u0440\u043E\u0438\u0437\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u0434\u043B\u044F \u0438\u0433\u0440 \u0432 Full HD \u0438 2K.",
+    "price": 89999.99,
+    "quantity": 12,
+    "imageUrl": "/images/computers/mid-range.jpg",
+    "computerComponents": []
   },
   {
-    "Id": 6,
-    "Name": "\u041C\u0443\u043B\u044C\u0442\u0438\u043C\u0435\u0434\u0438\u0439\u043D\u044B\u0439 \u041F\u041A Home Theater",
-    "Description": "\u041A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440 \u0434\u043B\u044F \u0434\u043E\u043C\u0430\u0448\u043D\u0435\u0433\u043E \u043A\u0438\u043D\u043E\u0442\u0435\u0430\u0442\u0440\u0430 \u0438 \u043C\u0443\u043B\u044C\u0442\u0438\u043C\u0435\u0434\u0438\u0430 \u0440\u0430\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0439.",
-    "Price": 69999.99,
-    "Quantity": 10,
-    "ImageUrl": "/images/computers/home-theater.jpg",
-    "ComputerComponents": []
+    "id": 6,
+    "name": "\u041C\u0443\u043B\u044C\u0442\u0438\u043C\u0435\u0434\u0438\u0439\u043D\u044B\u0439 \u041F\u041A Home Theater",
+    "description": "\u041A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440 \u0434\u043B\u044F \u0434\u043E\u043C\u0430\u0448\u043D\u0435\u0433\u043E \u043A\u0438\u043D\u043E\u0442\u0435\u0430\u0442\u0440\u0430 \u0438 \u043C\u0443\u043B\u044C\u0442\u0438\u043C\u0435\u0434\u0438\u0430 \u0440\u0430\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0439.",
+    "price": 69999.99,
+    "quantity": 9,
+    "imageUrl": "/images/computers/home-theater.jpg",
+    "computerComponents": []
   },
   {
-    "Id": 7,
-    "Name": "\u041A\u043E\u043C\u043F\u0430\u043A\u0442\u043D\u044B\u0439 \u041F\u041A Mini ITX",
-    "Description": "\u041C\u043E\u0449\u043D\u044B\u0439 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440 \u0432 \u043A\u043E\u043C\u043F\u0430\u043A\u0442\u043D\u043E\u043C \u043A\u043E\u0440\u043F\u0443\u0441\u0435 \u0434\u043B\u044F \u044D\u043A\u043E\u043D\u043E\u043C\u0438\u0438 \u043F\u0440\u043E\u0441\u0442\u0440\u0430\u043D\u0441\u0442\u0432\u0430.",
-    "Price": 79999.99,
-    "Quantity": 5,
-    "ImageUrl": "49e2e79b-4997-4113-8c5b-1ac2da986b2a.jpg",
-    "ComputerComponents": []
+    "id": 7,
+    "name": "\u041A\u043E\u043C\u043F\u0430\u043A\u0442\u043D\u044B\u0439 \u041F\u041A Mini ITX",
+    "description": "\u041C\u043E\u0449\u043D\u044B\u0439 \u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440 \u0432 \u043A\u043E\u043C\u043F\u0430\u043A\u0442\u043D\u043E\u043C \u043A\u043E\u0440\u043F\u0443\u0441\u0435 \u0434\u043B\u044F \u044D\u043A\u043E\u043D\u043E\u043C\u0438\u0438 \u043F\u0440\u043E\u0441\u0442\u0440\u0430\u043D\u0441\u0442\u0432\u0430.",
+    "price": 79999.99,
+    "quantity": 3,
+    "imageUrl": "49e2e79b-4997-4113-8c5b-1ac2da986b2a.jpg",
+    "computerComponents": []
   },
   {
-    "Id": 8,
-    "Name": "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u044B\u0439 \u041F\u041A NAS",
-    "Description": "\u041D\u0430\u0434\u0435\u0436\u043D\u044B\u0439 \u0441\u0435\u0440\u0432\u0435\u0440 \u0434\u043B\u044F \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u0434\u043E\u043C\u0430\u0448\u043D\u0435\u0439 \u0441\u0435\u0442\u0438.",
-    "Price": 99999.99,
-    "Quantity": 4,
-    "ImageUrl": "49e2e79b-4997-4113-8c5b-1ac2da986b2a.jpg",
-    "ComputerComponents": []
+    "id": 8,
+    "name": "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u044B\u0439 \u041F\u041A NAS",
+    "description": "\u041D\u0430\u0434\u0435\u0436\u043D\u044B\u0439 \u0441\u0435\u0440\u0432\u0435\u0440 \u0434\u043B\u044F \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u0434\u043E\u043C\u0430\u0448\u043D\u0435\u0439 \u0441\u0435\u0442\u0438.",
+    "price": 99999.99,
+    "quantity": 3,
+    "imageUrl": "49e2e79b-4997-4113-8c5b-1ac2da986b2a.jpg",
+    "computerComponents": []
   },
   {
-    "Id": 9,
-    "Name": "Name",
-    "Description": "\u0421\u043E\u0431\u0440\u0430\u043D\u043D\u044B\u0439 \u041F\u041A: ASUS ROG Strix Z790-E Gaming, Intel Core i9-14900K, Kingston Fury 32GB DDR5 6000MHz, NVIDIA GeForce RTX 4090, Corsair RM1000x 1000W, NZXT H9 Flow",
-    "Price": 384999.934,
-    "Quantity": 1,
-    "ImageUrl": "49e2e79b-4997-4113-8c5b-1ac2da986b2a.jpg",
-    "ComputerComponents": []
+    "id": 9,
+    "name": "Name",
+    "description": "\u0421\u043E\u0431\u0440\u0430\u043D\u043D\u044B\u0439 \u041F\u041A: ASUS ROG Strix Z790-E Gaming, Intel Core i9-14900K, Kingston Fury 32GB DDR5 6000MHz, NVIDIA GeForce RTX 4090, Corsair RM1000x 1000W, NZXT H9 Flow",
+    "price": 384999.934,
+    "quantity": 0,
+    "imageUrl": "49e2e79b-4997-4113-8c5b-1ac2da986b2a.jpg",
+    "computerComponents": [
+      {
+        "computerId": 9,
+        "componentId": 101,
+        "component": {
+          "id": 101,
+          "name": "Intel Core i9-14900K",
+          "description": "24-\u044F\u0434\u0435\u0440\u043D\u044B\u0439 \u043F\u0440\u043E\u0446\u0435\u0441\u0441\u043E\u0440 \u0434\u043B\u044F \u044D\u043A\u0441\u0442\u0440\u0435\u043C\u0430\u043B\u044C\u043D\u043E\u0439 \u043F\u0440\u043E\u0438\u0437\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0438",
+          "price": 59999.99,
+          "quantity": 22,
+          "type": "CPU",
+          "specifications": "24 \u044F\u0434\u0440\u0430 (8P\u002B16E), \u0434\u043E 6.0 GHz, 36 MB \u043A\u044D\u0448",
+          "socket": "LGA1700",
+          "imageUrl": "6.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 9,
+        "componentId": 201,
+        "component": {
+          "id": 201,
+          "name": "NVIDIA GeForce RTX 4090",
+          "description": "\u0424\u043B\u0430\u0433\u043C\u0430\u043D\u0441\u043A\u0430\u044F \u0432\u0438\u0434\u0435\u043E\u043A\u0430\u0440\u0442\u0430 \u0434\u043B\u044F 4K \u0438\u0433\u0440",
+          "price": 199999.99,
+          "quantity": 5,
+          "type": "GPU",
+          "specifications": "24 GB GDDR6X, 16384 \u044F\u0434\u0435\u0440, 384-bit",
+          "powerConnector": "12VHPWR",
+          "imageUrl": "/images/components/gpu-rtx4090.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 9,
+        "componentId": 301,
+        "component": {
+          "id": 301,
+          "name": "Kingston Fury 32GB DDR5 6000MHz",
+          "description": "\u0412\u044B\u0441\u043E\u043A\u043E\u0441\u043A\u043E\u0440\u043E\u0441\u0442\u043D\u0430\u044F \u043E\u043F\u0435\u0440\u0430\u0442\u0438\u0432\u043D\u0430\u044F \u043F\u0430\u043C\u044F\u0442\u044C",
+          "price": 14999.99,
+          "quantity": 47,
+          "type": "RAM",
+          "memoryType": "DDR5",
+          "imageUrl": "/images/components/ram-kingston-32gb.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 9,
+        "componentId": 401,
+        "component": {
+          "id": 401,
+          "name": "ASUS ROG Strix Z790-E Gaming",
+          "description": "\u0418\u0433\u0440\u043E\u0432\u0430\u044F \u043C\u0430\u0442\u0435\u0440\u0438\u043D\u0441\u043A\u0430\u044F \u043F\u043B\u0430\u0442\u0430 \u0434\u043B\u044F Intel",
+          "price": 39999.99,
+          "quantity": 12,
+          "type": "MB",
+          "socket": "LGA1700",
+          "memoryType": "DDR5",
+          "formFactor": "ATX",
+          "maxMemory": 128,
+          "memorySlots": 4,
+          "imageUrl": "/images/components/mb-asus-z790.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 9,
+        "componentId": 701,
+        "component": {
+          "id": 701,
+          "name": "Corsair RM1000x 1000W",
+          "description": "\u041C\u043E\u0449\u043D\u044B\u0439 \u0431\u043B\u043E\u043A \u043F\u0438\u0442\u0430\u043D\u0438\u044F 80 Plus Gold",
+          "price": 19999.99,
+          "quantity": 22,
+          "type": "PSU",
+          "imageUrl": "/images/components/psu-corsair-1000w.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 9,
+        "componentId": 801,
+        "component": {
+          "id": 801,
+          "name": "NZXT H9 Flow",
+          "description": "\u041A\u043E\u0440\u043F\u0443\u0441 \u0441 \u043F\u0430\u043D\u043E\u0440\u0430\u043C\u043D\u044B\u043C \u0441\u0442\u0435\u043A\u043B\u043E\u043C \u0438 \u043E\u0442\u043B\u0438\u0447\u043D\u043E\u0439 \u0432\u0435\u043D\u0442\u0438\u043B\u044F\u0446\u0438\u0435\u0439",
+          "price": 14999.99,
+          "quantity": 17,
+          "type": "Case",
+          "formFactor": "ATX",
+          "imageUrl": "/images/components/case-nzxt-h9.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      }
+    ]
   },
   {
-    "Id": 10,
-    "Name": "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435",
-    "Description": "\u0421\u043E\u0431\u0440\u0430\u043D\u043D\u044B\u0439 \u041F\u041A: ASUS ROG Strix Z790-E Gaming, Intel Core i9-14900K, Kingston Fury 32GB DDR5 6000MHz, NVIDIA GeForce RTX 4090, Corsair RM1000x 1000W, NZXT H9 Flow",
-    "Price": 384999.934,
-    "Quantity": 1,
-    "ImageUrl": "3.jpg",
-    "ComputerComponents": []
+    "id": 10,
+    "name": "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435",
+    "description": "\u0421\u043E\u0431\u0440\u0430\u043D\u043D\u044B\u0439 \u041F\u041A: ASUS ROG Strix Z790-E Gaming, Intel Core i9-14900K, Kingston Fury 32GB DDR5 6000MHz, NVIDIA GeForce RTX 4090, Corsair RM1000x 1000W, NZXT H9 Flow",
+    "price": 384999.934,
+    "quantity": 0,
+    "imageUrl": "3.jpg",
+    "computerComponents": [
+      {
+        "computerId": 10,
+        "componentId": 101,
+        "component": {
+          "id": 101,
+          "name": "Intel Core i9-14900K",
+          "description": "24-\u044F\u0434\u0435\u0440\u043D\u044B\u0439 \u043F\u0440\u043E\u0446\u0435\u0441\u0441\u043E\u0440 \u0434\u043B\u044F \u044D\u043A\u0441\u0442\u0440\u0435\u043C\u0430\u043B\u044C\u043D\u043E\u0439 \u043F\u0440\u043E\u0438\u0437\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0438",
+          "price": 59999.99,
+          "quantity": 22,
+          "type": "CPU",
+          "specifications": "24 \u044F\u0434\u0440\u0430 (8P\u002B16E), \u0434\u043E 6.0 GHz, 36 MB \u043A\u044D\u0448",
+          "socket": "LGA1700",
+          "imageUrl": "6.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 10,
+        "componentId": 201,
+        "component": {
+          "id": 201,
+          "name": "NVIDIA GeForce RTX 4090",
+          "description": "\u0424\u043B\u0430\u0433\u043C\u0430\u043D\u0441\u043A\u0430\u044F \u0432\u0438\u0434\u0435\u043E\u043A\u0430\u0440\u0442\u0430 \u0434\u043B\u044F 4K \u0438\u0433\u0440",
+          "price": 199999.99,
+          "quantity": 5,
+          "type": "GPU",
+          "specifications": "24 GB GDDR6X, 16384 \u044F\u0434\u0435\u0440, 384-bit",
+          "powerConnector": "12VHPWR",
+          "imageUrl": "/images/components/gpu-rtx4090.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 10,
+        "componentId": 301,
+        "component": {
+          "id": 301,
+          "name": "Kingston Fury 32GB DDR5 6000MHz",
+          "description": "\u0412\u044B\u0441\u043E\u043A\u043E\u0441\u043A\u043E\u0440\u043E\u0441\u0442\u043D\u0430\u044F \u043E\u043F\u0435\u0440\u0430\u0442\u0438\u0432\u043D\u0430\u044F \u043F\u0430\u043C\u044F\u0442\u044C",
+          "price": 14999.99,
+          "quantity": 47,
+          "type": "RAM",
+          "memoryType": "DDR5",
+          "imageUrl": "/images/components/ram-kingston-32gb.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 10,
+        "componentId": 401,
+        "component": {
+          "id": 401,
+          "name": "ASUS ROG Strix Z790-E Gaming",
+          "description": "\u0418\u0433\u0440\u043E\u0432\u0430\u044F \u043C\u0430\u0442\u0435\u0440\u0438\u043D\u0441\u043A\u0430\u044F \u043F\u043B\u0430\u0442\u0430 \u0434\u043B\u044F Intel",
+          "price": 39999.99,
+          "quantity": 12,
+          "type": "MB",
+          "socket": "LGA1700",
+          "memoryType": "DDR5",
+          "formFactor": "ATX",
+          "maxMemory": 128,
+          "memorySlots": 4,
+          "imageUrl": "/images/components/mb-asus-z790.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 10,
+        "componentId": 701,
+        "component": {
+          "id": 701,
+          "name": "Corsair RM1000x 1000W",
+          "description": "\u041C\u043E\u0449\u043D\u044B\u0439 \u0431\u043B\u043E\u043A \u043F\u0438\u0442\u0430\u043D\u0438\u044F 80 Plus Gold",
+          "price": 19999.99,
+          "quantity": 22,
+          "type": "PSU",
+          "imageUrl": "/images/components/psu-corsair-1000w.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 10,
+        "componentId": 801,
+        "component": {
+          "id": 801,
+          "name": "NZXT H9 Flow",
+          "description": "\u041A\u043E\u0440\u043F\u0443\u0441 \u0441 \u043F\u0430\u043D\u043E\u0440\u0430\u043C\u043D\u044B\u043C \u0441\u0442\u0435\u043A\u043B\u043E\u043C \u0438 \u043E\u0442\u043B\u0438\u0447\u043D\u043E\u0439 \u0432\u0435\u043D\u0442\u0438\u043B\u044F\u0446\u0438\u0435\u0439",
+          "price": 14999.99,
+          "quantity": 17,
+          "type": "Case",
+          "formFactor": "ATX",
+          "imageUrl": "/images/components/case-nzxt-h9.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Nmae",
+    "description": "\u0421\u043E\u0431\u0440\u0430\u043D\u043D\u044B\u0439 \u041F\u041A: ASUS ROG Strix Z790-E Gaming, Intel Core i9-14900K, Kingston Fury 32GB DDR5 6000MHz, NVIDIA GeForce RTX 4090, Corsair RM1000x 1000W, NZXT H9 Flow",
+    "price": 384999.934,
+    "quantity": 0,
+    "imageUrl": "3.jpg",
+    "computerComponents": []
+  },
+  {
+    "id": 12,
+    "name": "\u041D\u043E\u0432\u0430\u044F \u043A\u043E\u043D\u0444\u0438\u0433\u0430",
+    "description": "\u0421\u043E\u0431\u0440\u0430\u043D\u043D\u044B\u0439 \u041F\u041A: ASUS ROG Maximus Z790 Hero, Intel Core i9-14900K, G.Skill Trident Z5 RGB 32GB (2x16GB) DDR5 6000MHz, NVIDIA GeForce RTX 4090, Corsair RM1000x 1000W 80\u002B Gold, Fractal Design Meshify C",
+    "price": 3596.934,
+    "quantity": 1,
+    "imageUrl": "7.jpg",
+    "computerComponents": [
+      {
+        "computerId": 12,
+        "componentId": 1,
+        "component": {
+          "id": 1,
+          "name": "Intel Core i9-14900K",
+          "description": "\u0424\u043B\u0430\u0433\u043C\u0430\u043D\u0441\u043A\u0438\u0439 \u043F\u0440\u043E\u0446\u0435\u0441\u0441\u043E\u0440 Intel 14-\u0433\u043E \u043F\u043E\u043A\u043E\u043B\u0435\u043D\u0438\u044F, 24 \u044F\u0434\u0440\u0430, \u0434\u043E 6.0 \u0413\u0413\u0446.",
+          "price": 569.99,
+          "quantity": 7,
+          "type": "CPU",
+          "socket": "LGA1700",
+          "imageUrl": "https://example.com/images/i9-14900k.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 12,
+        "componentId": 5,
+        "component": {
+          "id": 5,
+          "name": "ASUS ROG Maximus Z790 Hero",
+          "description": "\u0422\u043E\u043F\u043E\u0432\u0430\u044F \u043C\u0430\u0442\u0435\u0440\u0438\u043D\u0441\u043A\u0430\u044F \u043F\u043B\u0430\u0442\u0430 \u0434\u043B\u044F Intel 13/14-\u0433\u043E \u043F\u043E\u043A\u043E\u043B\u0435\u043D\u0438\u044F, Wi-Fi 6E, PCIe 5.0.",
+          "price": 649.99,
+          "quantity": 4,
+          "type": "MB",
+          "socket": "LGA1700",
+          "memoryType": "DDR5",
+          "formFactor": "ATX",
+          "maxMemory": 128,
+          "memorySlots": 4,
+          "imageUrl": "https://example.com/images/z790-hero.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 12,
+        "componentId": 9,
+        "component": {
+          "id": 9,
+          "name": "G.Skill Trident Z5 RGB 32GB (2x16GB) DDR5 6000MHz",
+          "description": "\u0412\u044B\u0441\u043E\u043A\u043E\u0441\u043A\u043E\u0440\u043E\u0441\u0442\u043D\u0430\u044F \u043F\u0430\u043C\u044F\u0442\u044C DDR5 \u0434\u043B\u044F \u0433\u0435\u0439\u043C\u0435\u0440\u043E\u0432 \u0438 \u044D\u043D\u0442\u0443\u0437\u0438\u0430\u0441\u0442\u043E\u0432.",
+          "price": 139.99,
+          "quantity": 24,
+          "type": "RAM",
+          "memoryType": "DDR5",
+          "imageUrl": "https://example.com/images/gskill-ddr5-32gb.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 12,
+        "componentId": 13,
+        "component": {
+          "id": 13,
+          "name": "NVIDIA GeForce RTX 4090",
+          "description": "\u0421\u0430\u043C\u0430\u044F \u043C\u043E\u0449\u043D\u0430\u044F \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0432\u0438\u0434\u0435\u043E\u043A\u0430\u0440\u0442\u0430 \u043D\u0430 2026 \u0433\u043E\u0434.",
+          "price": 1599.99,
+          "quantity": 2,
+          "type": "GPU",
+          "powerConnector": "16-pin",
+          "imageUrl": "https://example.com/images/rtx4090.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 12,
+        "componentId": 17,
+        "component": {
+          "id": 17,
+          "name": "Corsair RM1000x 1000W 80\u002B Gold",
+          "description": "\u041C\u043E\u0449\u043D\u044B\u0439 \u0438 \u0442\u0438\u0445\u0438\u0439 \u0431\u043B\u043E\u043A \u043F\u0438\u0442\u0430\u043D\u0438\u044F \u0434\u043B\u044F \u0442\u043E\u043F\u043E\u0432\u044B\u0445 \u0441\u0431\u043E\u0440\u043E\u043A.",
+          "price": 199.99,
+          "quantity": 9,
+          "type": "PSU",
+          "imageUrl": "https://example.com/images/corsair-rm1000x.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      },
+      {
+        "computerId": 12,
+        "componentId": 24,
+        "component": {
+          "id": 24,
+          "name": "Fractal Design Meshify C",
+          "description": "\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0430\u043B\u044C\u043D\u044B\u0439 \u043A\u043E\u0440\u043F\u0443\u0441 \u0441 \u043E\u0442\u043B\u0438\u0447\u043D\u043E\u0439 \u0432\u0435\u043D\u0442\u0438\u043B\u044F\u0446\u0438\u0435\u0439, \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430 ATX.",
+          "price": 109.99,
+          "quantity": 17,
+          "type": "Case",
+          "formFactor": "ATX",
+          "imageUrl": "https://example.com/images/meshify-c.jpg",
+          "computerComponents": [],
+          "componentCharacteristics": []
+        }
+      }
+    ]
   }
 ]

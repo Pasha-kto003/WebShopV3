@@ -8,7 +8,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-13T12:41:58.7675Z",
+    "timestamp": "2026-01-16T12:23:19.1746782Z",
     "weight": 0.7
   },
   {
@@ -20,7 +20,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-13T12:41:58.7676405Z",
+    "timestamp": "2026-01-16T12:23:19.1749489Z",
     "weight": 0.7
   },
   {
@@ -32,7 +32,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-13T12:41:58.7676415Z",
+    "timestamp": "2026-01-16T12:23:19.1749522Z",
     "weight": 0.7
   },
   {
@@ -44,19 +44,103 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-13T12:41:58.7676421Z",
+    "timestamp": "2026-01-16T12:23:19.174954Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-16T12:23:19.1749554Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-16T12:23:19.1749565Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-16T12:23:19.1749575Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-16T12:23:19.1749583Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-16T12:23:19.1749592Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-16T12:23:19.1749602Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-16T12:23:19.1749611Z",
     "weight": 0.7
   },
   {
     "id": 1,
-    "userId": null,
+    "userId": 2,
     "guestId": "56b44742-201d-47a3-8de9-5d56ead1ed56",
     "actionType": 0,
     "productType": "Computer",
-    "productId": 10,
-    "productName": "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435",
+    "productId": 8,
+    "productName": "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u044B\u0439 \u041F\u041A NAS",
     "category": null,
-    "timestamp": "2026-01-13T12:41:58.7678297Z",
+    "timestamp": "2026-01-16T12:23:19.1760563Z",
     "weight": 0.7
   }
 ]

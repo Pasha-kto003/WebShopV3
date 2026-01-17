@@ -106,7 +106,15 @@ builder.Services.AddScoped<IComparisonService, ComparisonService>();
 builder.Services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
 builder.Services.AddScoped<IComponentLinkService, ComponentLinkService>();
 
-builder.Services.AddHttpClient<IYookassaService, YookassaService>();
+// Добавьте HttpClient с именем
+builder.Services.AddHttpClient("Yookassa", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
+// Регистрация YookassaService
+builder.Services.AddScoped<IYookassaService, YookassaService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 

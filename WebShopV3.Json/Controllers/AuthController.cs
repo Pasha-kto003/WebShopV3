@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using WebShopV3.Json.Services;
+using System.Text.Json;
 using WebShopV3.Json.Models;
+using WebShopV3.Json.Services;
 using Order = WebShopV3.Json.Models.Order;
 
 namespace WebShopV3.Json.Controllers
@@ -135,17 +136,17 @@ namespace WebShopV3.Json.Controllers
 
                 // Создаем claims
                 var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.UserType?.Name ?? "Пользователь"),
-            new Claim("UserType", user.UserType?.Name ?? "Пользователь"),
-            new Claim("FullName", $"{user.FirstName} {user.LastName}".Trim()),
-            new Claim("LastLogin", DateTime.Now.ToString("O")),
-            // Добавляем хэш пароля для проверки при продлении сессии
-            new Claim("PasswordHashCheck", _passwordHasher.GetPasswordHashCheck(password))
-        };
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, user.UserType?.Name ?? "Пользователь"),
+                    new Claim("UserType", user.UserType?.Name ?? "Пользователь"),
+                    new Claim("FullName", $"{user.FirstName} {user.LastName}".Trim()),
+                    new Claim("LastLogin", DateTime.Now.ToString("O")),
+                    // Добавляем хэш пароля для проверки при продлении сессии
+                    new Claim("PasswordHashCheck", _passwordHasher.GetPasswordHashCheck(password))
+                };
 
                 var claimsIdentity = new ClaimsIdentity(
                     claims,
@@ -234,6 +235,8 @@ namespace WebShopV3.Json.Controllers
                 {
                     await MergeGuestCartWithUserCart(user.Id);
                 }
+
+                await LoadUserCartToSession(user.Id);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -353,15 +356,296 @@ namespace WebShopV3.Json.Controllers
             try
             {
                 var cartJson = HttpContext.Session.GetString("Cart");
-                if (!string.IsNullOrEmpty(cartJson))
+                if (string.IsNullOrEmpty(cartJson))
                 {
-                    HttpContext.Session.Remove("Cart");
-                    _logger.LogInformation("Корзина гостя перенесена для пользователя {UserId}", userId);
+                    _logger.LogDebug("Корзина гостя пуста, нечего переносить");
+                    return;
                 }
+
+                // Десериализуем корзину гостя
+                var guestCart = JsonSerializer.Deserialize<Cart>(cartJson);
+                if (guestCart == null || !guestCart.Items.Any())
+                {
+                    _logger.LogDebug("Корзина гостя пуста или некорректна");
+                    HttpContext.Session.Remove("Cart");
+                    return;
+                }
+
+                // Получаем корзину пользователя из базы (или создаем новую)
+                var userCart = await GetUserCartFromJsonAsync(userId) ?? new Cart();
+
+                // Объединяем корзины
+                await MergeCartsAsync(userCart, guestCart, userId);
+
+                // Сохраняем объединенную корзину для пользователя
+                await SaveUserCartToJsonAsync(userId, userCart);
+
+                // Удаляем гостевую корзину из сессии
+                HttpContext.Session.Remove("Cart");
+
+                _logger.LogInformation(
+                    "Корзина гостя успешно перенесена для пользователя {UserId}. " +
+                    "Перенесено {ItemCount} товаров на сумму {TotalAmount:C}",
+                    userId, guestCart.Items.Count, guestCart.TotalAmount);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Ошибка при переносе корзины для пользователя {UserId}", userId);
+                // Не удаляем корзину из сессии в случае ошибки
+            }
+        }
+
+        private async Task<Cart?> GetUserCartFromJsonAsync(int userId)
+        {
+            try
+            {
+                var carts = await LoadUserCartsFromJsonAsync();
+                return carts.FirstOrDefault(c => c.UserId == userId)?.CartData;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private async Task SaveUserCartToJsonAsync(int userId, Cart cart)
+        {
+            try
+            {
+                var carts = await LoadUserCartsFromJsonAsync();
+
+                // Удаляем старую корзину пользователя, если есть
+                var existingCart = carts.FirstOrDefault(c => c.UserId == userId);
+                if (existingCart != null)
+                {
+                    carts.Remove(existingCart);
+                }
+
+                // Добавляем новую корзину
+                carts.Add(new UserCart
+                {
+                    UserId = userId,
+                    CartData = cart,
+                    LastUpdated = DateTime.UtcNow
+                });
+
+                await SaveUserCartsToJsonAsync(carts);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при сохранении корзины пользователя {UserId}", userId);
+                throw;
+            }
+        }
+
+        private async Task MergeCartsAsync(Cart userCart, Cart guestCart, int userId)
+        {
+            // Получаем актуальные данные о товарах
+            var computers = await _jsonData.GetAllAsync<Computer>("Computers");
+            var components = await _jsonData.GetAllAsync<Component>("Components");
+
+            foreach (var guestItem in guestCart.Items)
+            {
+                if (guestItem.IsComputer)
+                {
+                    await MergeComputerItemAsync(userCart, guestItem, computers, userId);
+                }
+                else if (guestItem.IsComponent)
+                {
+                    await MergeComponentItemAsync(userCart, guestItem, components, userId);
+                }
+            }
+        }
+
+        private async Task MergeComputerItemAsync(
+            Cart userCart,
+            CartItem guestItem,
+            List<Computer> computers,
+            int userId)
+        {
+            // Проверяем существование компьютера
+            var computer = computers.FirstOrDefault(c => c.Id == guestItem.ComputerId);
+            if (computer == null)
+            {
+                _logger.LogWarning(
+                    "Компьютер с ID {ComputerId} не найден при переносе корзины пользователя {UserId}",
+                    guestItem.ComputerId, userId);
+                return;
+            }
+
+            // Проверяем наличие
+            if (computer.Quantity < guestItem.Quantity)
+            {
+                _logger.LogWarning(
+                    "Недостаточно компьютеров '{ComputerName}' (ID: {ComputerId}) в наличии. " +
+                    "Требуется: {Requested}, В наличии: {Available}",
+                    computer.Name, computer.Id, guestItem.Quantity, computer.Quantity);
+
+                // Можно либо не добавлять, либо добавить максимально доступное количество
+                if (computer.Quantity > 0)
+                {
+                    guestItem.Quantity = computer.Quantity;
+                }
+                else
+                {
+                    return; // Товара нет в наличии
+                }
+            }
+
+            // Ищем такой же товар в корзине пользователя
+            var existingItem = userCart.Items.FirstOrDefault(x =>
+                x.IsComputer && x.ComputerId == guestItem.ComputerId);
+
+            if (existingItem != null)
+            {
+                // Объединяем количество, но проверяем лимит наличия
+                var newQuantity = existingItem.Quantity + guestItem.Quantity;
+                if (newQuantity > computer.Quantity)
+                {
+                    newQuantity = computer.Quantity;
+                    _logger.LogWarning(
+                        "Объединенное количество компьютеров '{ComputerName}' превышает наличие. " +
+                        "Установлено максимальное: {MaxQuantity}",
+                        computer.Name, computer.Quantity);
+                }
+                existingItem.Quantity = newQuantity;
+            }
+            else
+            {
+                // Добавляем новый товар
+                userCart.Items.Add(new CartItem
+                {
+                    ComputerId = guestItem.ComputerId,
+                    Name = guestItem.Name,
+                    Price = guestItem.Price,
+                    Quantity = guestItem.Quantity,
+                    ImageUrl = guestItem.ImageUrl
+                });
+            }
+
+            _logger.LogDebug(
+                "Компьютер '{ComputerName}' (ID: {ComputerId}) добавлен/обновлен в корзине пользователя {UserId}",
+                computer.Name, computer.Id, userId);
+        }
+
+        private async Task MergeComponentItemAsync(
+            Cart userCart,
+            CartItem guestItem,
+            List<Component> components,
+            int userId)
+        {
+            // Проверяем существование компонента
+            var component = components.FirstOrDefault(c => c.Id == guestItem.ComponentId);
+            if (component == null)
+            {
+                _logger.LogWarning(
+                    "Компонент с ID {ComponentId} не найден при переносе корзины пользователя {UserId}",
+                    guestItem.ComponentId, userId);
+                return;
+            }
+
+            // Проверяем наличие
+            if (component.Quantity < guestItem.Quantity)
+            {
+                _logger.LogWarning(
+                    "Недостаточно компонентов '{ComponentName}' (ID: {ComponentId}) в наличии. " +
+                    "Требуется: {Requested}, В наличии: {Available}",
+                    component.Name, component.Id, guestItem.Quantity, component.Quantity);
+
+                if (component.Quantity > 0)
+                {
+                    guestItem.Quantity = component.Quantity;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            // Ищем такой же товар в корзине пользователя
+            var existingItem = userCart.Items.FirstOrDefault(x =>
+                x.IsComponent && x.ComponentId == guestItem.ComponentId);
+
+            if (existingItem != null)
+            {
+                // Объединяем количество
+                var newQuantity = existingItem.Quantity + guestItem.Quantity;
+                if (newQuantity > component.Quantity)
+                {
+                    newQuantity = component.Quantity;
+                    _logger.LogWarning(
+                        "Объединенное количество компонентов '{ComponentName}' превышает наличие. " +
+                        "Установлено максимальное: {MaxQuantity}",
+                        component.Name, component.Quantity);
+                }
+                existingItem.Quantity = newQuantity;
+            }
+            else
+            {
+                // Добавляем новый товар
+                userCart.Items.Add(new CartItem
+                {
+                    ComponentId = guestItem.ComponentId,
+                    Name = guestItem.Name,
+                    Price = guestItem.Price,
+                    Quantity = guestItem.Quantity,
+                    ImageUrl = guestItem.ImageUrl
+                });
+            }
+
+            _logger.LogDebug(
+                "Компонент '{ComponentName}' (ID: {ComponentId}) добавлен/обновлен в корзине пользователя {UserId}",
+                component.Name, component.Id, userId);
+        }
+
+        // Методы для работы с JSON файлом корзин пользователей
+        private async Task<List<UserCart>> LoadUserCartsFromJsonAsync()
+        {
+            try
+            {
+                var carts = await _jsonData.GetAllAsync<UserCart>("UserCarts");
+                return carts;
+            }
+            catch
+            {
+                return new List<UserCart>();
+            }
+        }
+
+        private async Task SaveUserCartsToJsonAsync(List<UserCart> carts)
+        {
+            await _jsonData.SaveAllAsync("UserCarts", carts);
+        }
+
+        // Модель для хранения корзины пользователя в JSON
+        public class UserCart
+        {
+            public int UserId { get; set; }
+            public Cart CartData { get; set; } = new Cart();
+            public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+
+            // Для удобства поиска при сериализации
+            public int Id => UserId;
+        }
+
+        private async Task LoadUserCartToSession(int userId)
+        {
+            try
+            {
+                var userCart = await GetUserCartFromJsonAsync(userId);
+                if (userCart != null && userCart.Items.Any())
+                {
+                    var cartJson = JsonSerializer.Serialize(userCart);
+                    HttpContext.Session.SetString("Cart", cartJson);
+
+                    _logger.LogDebug(
+                        "Корзина пользователя {UserId} загружена в сессию: {ItemCount} товаров",
+                        userId, userCart.Items.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при загрузке корзины пользователя {UserId} в сессию", userId);
             }
         }
 
