@@ -214,5 +214,29 @@
   {
     "computerId": 12,
     "componentId": 24
+  },
+  {
+    "computerId": 13,
+    "componentId": 1
+  },
+  {
+    "computerId": 13,
+    "componentId": 5
+  },
+  {
+    "computerId": 13,
+    "componentId": 9
+  },
+  {
+    "computerId": 13,
+    "componentId": 13
+  },
+  {
+    "computerId": 13,
+    "componentId": 17
+  },
+  {
+    "computerId": 13,
+    "componentId": 24
   }
 ]
