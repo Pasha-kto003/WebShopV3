@@ -25,6 +25,25 @@
     "createdAt": "2026-01-16T20:34:04.5832076+10:00",
     "lastLoginAt": "2026-01-16T23:20:15.3888224+10:00",
     "userType": {
+      "id": 3,
+      "name": "\u0410\u0434\u043C\u0438\u043D",
+      "users": []
+    },
+    "orders": [],
+    "favorites": []
+  },
+  {
+    "id": 3,
+    "username": "Pashka",
+    "email": "Luchok@gmail.com",
+    "passwordHash": "5AH2aUmPC9BC\u002BRuhW7vCqIWiVkVNq\u002BnsKfB5c4XrpAGOmEE8h9ssoN4H2pYNnBTV",
+    "firstName": "Pasha",
+    "lastName": "Voin",
+    "phone": "89111111111",
+    "userTypeId": 1,
+    "createdAt": "2026-01-23T17:33:54.0037709+10:00",
+    "lastLoginAt": "2026-01-23T17:35:57.3945788+10:00",
+    "userType": {
       "id": 1,
       "name": "\u0410\u0434\u043C\u0438\u043D",
       "users": []

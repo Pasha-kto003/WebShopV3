@@ -72,21 +72,14 @@
         </div>
     </div>
 
-    <!-- Кнопки действий -->
     <div class="space-y-4 mb-6">
         @if (Model.Quantity > 0)
         {
-            <div class="flex items-center gap-4 mb-3">
-                <label for="quantity" class="text-gray-300">Количество:</label>
-                <input type="number" id="quantity" 
-                       class="w-20 bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-primary focus:ring-1 focus:ring-primary" 
-                       value="1" min="1" max="@Model.Quantity">
-            </div>
             <button class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center add-to-cart"
-                    data-computer-id="@Model.Id" 
+                    data-computer-id="@Model.Id"
                     data-computer-name="@Model.Name">
                 <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Добавить в корзину
             </button>
@@ -97,14 +90,98 @@
                 Нет в наличии
             </button>
         }
-        
+
         <div class="grid grid-cols-2 gap-3">
-            <button class="bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200">
-                💝 В избранное
-            </button>
-            <a href="@Url.Action("Catalog", "Home")" class="bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 text-center">
-                ← Назад
+            <!-- Кнопка редактирования конфигурации -->
+            @if (User.IsInRole("Админ") || User.IsInRole("Менеджер"))
+            {
+                <a href="@Url.Action("EditConfiguration", "PcBuilder", new { computerId = Model.Id })"
+                   class="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition duration-200 text-center flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Редактировать
+                </a>
+            }
+            else
+            {
+                <button class="bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 flex items-center justify-center gap-2"
+                        onclick="showEditModal()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Редактировать
+                </button>
+            }
+
+            <a href="@Url.Action("Catalog", "Home")" class="bg-dark border border-gray-700 text-white py-3 rounded-lg font-semibold hover:border-primary transition duration-200 text-center flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Назад
             </a>
+        </div>
+    </div>
+
+    <!-- Модальное окно для не-админов -->
+    <div id="editModal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-2xl p-6 max-w-md w-full border border-gray-700">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Редактирование конфигурации</h3>
+                <p class="text-gray-400">Только администраторы могут редактировать конфигурации</p>
+            </div>
+
+            <div class="space-y-4">
+                <p class="text-sm text-gray-300">
+                    Если вы хотите внести изменения в эту конфигурацию, пожалуйста:
+                </p>
+
+                <ul class="text-sm text-gray-400 space-y-2">
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Свяжитесь с администратором</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Или создайте свою конфигурацию</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Или скопируйте эту конфигурацию</span>
+                    </li>
+                </ul>
+
+                <div class="pt-4 border-t border-gray-700 flex flex-col gap-3">
+                    <a href="@Url.Action("Index", "PcBuilder")"
+                       class="bg-gradient-to-r from-primary to-green-500 text-dark py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-primary/25 transition text-center">
+                        Создать свою конфигурацию
+                    </a>
+
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <a href="@Url.Action("CloneConfiguration", "PcBuilder", new { computerId = Model.Id })"
+                           class="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition text-center">
+                            Клонировать эту конфигурацию
+                        </a>
+                    }
+
+                    <button onclick="hideEditModal()"
+                            class="bg-gray-700 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition">
+                        Закрыть
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -119,3 +196,48 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    // Функции для показа/скрытия модального окна
+    function showEditModal() {
+        document.getElementById('editModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideEditModal() {
+        document.getElementById('editModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Закрытие по клику вне модального окна
+    document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideEditModal();
+        }
+    });
+
+    // Закрытие по Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            hideEditModal();
+        }
+    });
+</script>
+
+<style>
+    #editModal {
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+</style>

@@ -8,7 +8,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1746782Z",
+    "timestamp": "2026-01-23T08:42:08.1745863Z",
     "weight": 0.7
   },
   {
@@ -20,7 +20,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1749489Z",
+    "timestamp": "2026-01-23T08:42:08.1745898Z",
     "weight": 0.7
   },
   {
@@ -32,7 +32,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1749522Z",
+    "timestamp": "2026-01-23T08:42:08.1745909Z",
     "weight": 0.7
   },
   {
@@ -44,7 +44,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.174954Z",
+    "timestamp": "2026-01-23T08:42:08.1745918Z",
     "weight": 0.7
   },
   {
@@ -56,7 +56,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1749554Z",
+    "timestamp": "2026-01-23T08:42:08.1745926Z",
     "weight": 0.7
   },
   {
@@ -68,7 +68,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1749565Z",
+    "timestamp": "2026-01-23T08:42:08.1745936Z",
     "weight": 0.7
   },
   {
@@ -80,7 +80,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1749575Z",
+    "timestamp": "2026-01-23T08:42:08.1745943Z",
     "weight": 0.7
   },
   {
@@ -92,7 +92,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1749583Z",
+    "timestamp": "2026-01-23T08:42:08.1745951Z",
     "weight": 0.7
   },
   {
@@ -104,7 +104,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1749592Z",
+    "timestamp": "2026-01-23T08:42:08.1745959Z",
     "weight": 0.7
   },
   {
@@ -116,7 +116,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1749602Z",
+    "timestamp": "2026-01-23T08:42:08.1745968Z",
     "weight": 0.7
   },
   {
@@ -128,19 +128,91 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1749611Z",
+    "timestamp": "2026-01-23T08:42:08.1745976Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-23T08:42:08.1745984Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-23T08:42:08.1745991Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-23T08:42:08.1745999Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-23T08:42:08.1746007Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-23T08:42:08.1746015Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-23T08:42:08.1746022Z",
     "weight": 0.7
   },
   {
     "id": 1,
-    "userId": 2,
+    "userId": 3,
     "guestId": "56b44742-201d-47a3-8de9-5d56ead1ed56",
     "actionType": 0,
     "productType": "Computer",
-    "productId": 8,
-    "productName": "\u0421\u0435\u0440\u0432\u0435\u0440\u043D\u044B\u0439 \u041F\u041A NAS",
+    "productId": 12,
+    "productName": "\u041D\u043E\u0432\u0430\u044F \u043A\u043E\u043D\u0444\u0438\u0433\u04301",
     "category": null,
-    "timestamp": "2026-01-16T12:23:19.1760563Z",
+    "timestamp": "2026-01-23T08:42:08.174611Z",
     "weight": 0.7
   }
 ]

@@ -105,6 +105,7 @@ builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IComparisonService, ComparisonService>();
 builder.Services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
 builder.Services.AddScoped<IComponentLinkService, ComponentLinkService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 // Добавьте HttpClient с именем
 builder.Services.AddHttpClient("Yookassa", client =>

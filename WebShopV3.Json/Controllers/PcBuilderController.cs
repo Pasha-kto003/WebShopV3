@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebShopV3.Json.Services;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebShopV3.Json.Models;
+using WebShopV3.Json.Services;
 
 namespace WebShopV3.Json.Controllers
 {
@@ -23,13 +24,105 @@ namespace WebShopV3.Json.Controllers
             return View();
         }
 
-        // GET: PcBuilder/EditConfiguration - Редактирование существующего компьютера
+        // GET: PcBuilder/MyConfigurations - Мои конфигурации
+        [Authorize]
+        public async Task<IActionResult> MyConfigurations()
+        {
+            try
+            {
+                var userId = User.Identity?.Name; // или User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var computers = await _jsonData.GetAllAsync<Computer>("Computers");
+
+                // Фильтруем компьютеры по создателю
+                var myComputers = computers
+                    .Where(c => c.CreatedBy == userId)
+                    .ToList();
+
+                // Загружаем компоненты для каждого компьютера
+                var allComputerComponents = await _jsonData.GetAllAsync<ComputerComponent>("ComputerComponents");
+                var allComponents = await _jsonData.GetAllAsync<Component>("Components");
+
+                foreach (var computer in myComputers)
+                {
+                    var componentIds = allComputerComponents
+                        .Where(cc => cc.ComputerId == computer.Id)
+                        .Select(cc => cc.ComponentId)
+                        .ToList();
+
+                    computer.ComputerComponents = allComponents
+                        .Where(c => componentIds.Contains(c.Id))
+                        .Select(c => new ComputerComponent
+                        {
+                            ComputerId = computer.Id,
+                            ComponentId = c.Id,
+                            Component = c
+                        })
+                        .ToList();
+                }
+
+                return View(myComputers);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Не удалось загрузить ваши конфигурации";
+                return View(new List<Computer>());
+            }
+        }
+
+        // GET: PcBuilder/CloneConfiguration - Клонирование конфигурации
+        [Authorize]
+        public async Task<IActionResult> CloneConfiguration(int computerId)
+        {
+            try
+            {
+                var computer = await GetComputerWithComponents(computerId);
+                if (computer == null)
+                {
+                    return NotFound();
+                }
+
+                var components = await GetComponentsWithCharacteristics();
+                ViewBag.Components = components;
+
+                // Не передаем ComputerId для создания новой конфигурации
+                ViewBag.SelectedComponentIds = computer.ComputerComponents.Select(cc => cc.ComponentId).ToList();
+                ViewBag.ComputerName = $"{computer.Name} (Копия)";
+                ViewBag.ComputerDescription = computer.Description;
+                ViewBag.IsClone = true;
+
+                return View("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Не удалось клонировать конфигурацию";
+                return RedirectToAction("MyConfigurations");
+            }
+        }
+
+        [Authorize(Roles = "Админ,Менеджер")]
         public async Task<IActionResult> EditConfiguration(int computerId)
         {
             var computer = await GetComputerWithComponents(computerId);
             if (computer == null)
             {
                 return NotFound();
+            }
+
+            var userId = User.Identity?.Name;
+            var isAdmin = User.IsInRole("Админ") || User.IsInRole("Менеджер");
+
+            if (!isAdmin && computer.CreatedBy != userId)
+            {
+                TempData["ErrorMessage"] = "Вы можете редактировать только свои конфигурации";
+                return RedirectToAction("MyConfigurations");
+            }
+
+            // Дополнительная проверка: только админ или менеджер может редактировать
+            if (!User.IsInRole("Админ") && !User.IsInRole("Менеджер"))
+            {
+                TempData["ErrorMessage"] = "У вас нет прав для редактирования конфигураций";
+                return RedirectToAction("Index");
             }
 
             var components = await GetComponentsWithCharacteristics();
@@ -99,6 +192,16 @@ namespace WebShopV3.Json.Controllers
         {
             try
             {
+                if (!User.Identity?.IsAuthenticated ?? true)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Для сохранения конфигурации необходимо авторизоваться"
+                    });
+                }
+
+
                 // Проверяем совместимость перед сохранением
                 var selectedComponents = await GetComponentsByIds(ComponentIds);
                 var compatibilityResult = _compatibilityService.CheckCompatibility(selectedComponents);
@@ -201,21 +304,14 @@ namespace WebShopV3.Json.Controllers
             }
         }
 
-        private async Task<JsonResult> UpdateExistingComputer(
-            int computerId,
-            string name,
-            string description,
-            decimal finalPrice,
-            int quantity,
-            string imageUrl,
-            List<Component> selectedComponents)
+        private async Task<JsonResult> UpdateExistingComputer(int computerId, string name, string description, decimal finalPrice, int quantity, string imageUrl, List<Component> selectedComponents)
         {
             try
             {
                 // Получаем данные
                 var computers = await _jsonData.GetAllAsync<Computer>("Computers");
                 var components = await _jsonData.GetAllAsync<Component>("Components");
-                var computerComponents = await _jsonData.GetAllAsync<ComputerComponent>("ComputerComponents");
+                var allComputerComponents = await _jsonData.GetAllAsync<ComputerComponent>("ComputerComponents");
 
                 // Находим компьютер
                 var computer = computers.FirstOrDefault(c => c.Id == computerId);
@@ -228,8 +324,7 @@ namespace WebShopV3.Json.Controllers
                     });
                 }
 
-                // ВОЗВРАЩАЕМ СТАРЫЕ КОМПЛЕКТУЮЩИЕ НА СКЛАД
-                var oldComponentRelations = computerComponents
+                var oldComponentRelations = allComputerComponents
                     .Where(cc => cc.ComputerId == computerId)
                     .ToList();
 
@@ -238,12 +333,11 @@ namespace WebShopV3.Json.Controllers
                     var oldComponent = components.FirstOrDefault(c => c.Id == relation.ComponentId);
                     if (oldComponent != null)
                     {
-                        oldComponent.Quantity += 1; // Возвращаем на склад
+                        oldComponent.Quantity += 1; 
                         await _jsonData.UpdateAsync("Components", oldComponent);
                     }
                 }
 
-                // Обновляем данные компьютера
                 computer.Name = name;
                 computer.Description = description;
                 computer.Price = finalPrice;
@@ -256,21 +350,18 @@ namespace WebShopV3.Json.Controllers
 
                 await _jsonData.UpdateAsync("Computers", computer);
 
-                // Удаляем старые связи
-                var updatedComputerComponents = computerComponents
+                var updatedComputerComponents = allComputerComponents
                     .Where(cc => cc.ComputerId != computerId)
                     .ToList();
 
-                // СПИСЫВАЕМ НОВЫЕ КОМПЛЕКТУЮЩИЕ СО СКЛАДА
                 foreach (var component in selectedComponents)
                 {
                     var dbComponent = components.FirstOrDefault(c => c.Id == component.Id);
                     if (dbComponent != null)
                     {
-                        dbComponent.Quantity -= 1; // Списываем со склада
+                        dbComponent.Quantity -= 1;
                         await _jsonData.UpdateAsync("Components", dbComponent);
 
-                        // Создаем связь компьютер-комплектующее
                         updatedComputerComponents.Add(new ComputerComponent
                         {
                             ComputerId = computerId,
@@ -318,7 +409,8 @@ namespace WebShopV3.Json.Controllers
                     Description = description,
                     Price = finalPrice,
                     Quantity = quantity,
-                    ImageUrl = imageUrl
+                    ImageUrl = imageUrl,
+                    CreatedBy = User.Identity?.Name
                 };
 
                 await _jsonData.CreateAsync("Computers", computer);
@@ -366,7 +458,7 @@ namespace WebShopV3.Json.Controllers
             }
         }
 
-        // Вспомогательные методы
+
 
         private async Task<List<Component>> GetComponentsWithCharacteristics()
         {

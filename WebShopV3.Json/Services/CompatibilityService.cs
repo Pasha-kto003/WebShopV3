@@ -257,9 +257,8 @@ namespace WebShopV3.Json.Services
         private bool IsCoolerCompatible(Component cpu, Component cooler)
         {
             if (string.IsNullOrEmpty(cpu.Socket) || string.IsNullOrEmpty(cooler.Socket))
-                return true; // Если сокет не указан, считаем совместимым
+                return true;
 
-            // Проверяем, содержит ли строка сокета кулера сокет процессора
             var coolerSockets = cooler.Socket.Split(new[] { '/', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
             return coolerSockets.Any(socket => socket.Trim().Equals(cpu.Socket.Trim(), StringComparison.OrdinalIgnoreCase));
         }
@@ -269,7 +268,6 @@ namespace WebShopV3.Json.Services
             int m2Count = storageDevices.Count(s => s.FormFactor?.Contains("M.2") == true);
             int sataCount = storageDevices.Count(s => s.FormFactor?.Contains("2.5") == true || s.FormFactor?.Contains("3.5") == true);
 
-            // Проверяем M.2 слоты
             if (m2Count > 0)
             {
                 var m2Slots = GetM2SlotCount(motherboard);
@@ -279,7 +277,6 @@ namespace WebShopV3.Json.Services
                 }
             }
 
-            // Проверяем SATA порты
             if (sataCount > 0)
             {
                 var sataPorts = GetSataPortCount(motherboard);
@@ -292,7 +289,7 @@ namespace WebShopV3.Json.Services
 
         private int GetM2SlotCount(Component motherboard)
         {
-            // Пытаемся извлечь из характеристик
+            
             if (motherboard.ComponentCharacteristics != null)
             {
                 var m2Char = motherboard.ComponentCharacteristics
@@ -301,7 +298,6 @@ namespace WebShopV3.Json.Services
                     return m2Slots;
             }
 
-            // Значения по умолчанию в зависимости от чипсета
             var chipset = GetChipsetFromName(motherboard.Name);
             return chipset switch
             {
@@ -315,7 +311,6 @@ namespace WebShopV3.Json.Services
 
         private int GetSataPortCount(Component motherboard)
         {
-            // Пытаемся извлечь из характеристик
             if (motherboard.ComponentCharacteristics != null)
             {
                 var sataChar = motherboard.ComponentCharacteristics
@@ -324,7 +319,6 @@ namespace WebShopV3.Json.Services
                     return sataPorts;
             }
 
-            // Значения по умолчанию
             var chipset = GetChipsetFromName(motherboard.Name);
             return chipset switch
             {
@@ -434,7 +428,6 @@ namespace WebShopV3.Json.Services
             if (match.Success && int.TryParse(match.Groups[1].Value, out var extractedPower))
                 return extractedPower;
 
-            // Значение по умолчанию
             return 500;
         }
     }
@@ -445,8 +438,6 @@ namespace WebShopV3.Json.Services
         public List<string> Errors { get; set; } = new List<string>();
         public string SuccessMessage { get; set; } = string.Empty;
         public List<string> Warnings { get; set; } = new List<string>();
-
-        // Дополнительная информация о совместимости
         public Dictionary<string, string> CompatibilityDetails { get; set; } = new Dictionary<string, string>();
     }
 }

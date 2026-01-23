@@ -23,6 +23,8 @@ namespace WebShopV3.Json.Models
         [Required]
         public int Quantity { get; set; }
 
+        public string CreatedBy { get; set; }
+
         public string ImageUrl { get; set; }
 
         // НАВИГАЦИОННЫЕ СВОЙСТВА (заполняются при загрузке)
