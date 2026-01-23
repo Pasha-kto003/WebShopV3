@@ -7,7 +7,7 @@
     "quantity": 7,
     "type": "CPU",
     "socket": "LGA1700",
-    "imageUrl": "https://example.com/images/i9-14900k.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -92,7 +92,7 @@
     "quantity": 6,
     "type": "CPU",
     "socket": "AM5",
-    "imageUrl": "https://example.com/images/ryzen9-7950x.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -177,7 +177,7 @@
     "quantity": 20,
     "type": "CPU",
     "socket": "LGA1700",
-    "imageUrl": "https://example.com/images/i5-13400f.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -189,7 +189,7 @@
     "quantity": 15,
     "type": "CPU",
     "socket": "AM4",
-    "imageUrl": "https://example.com/images/ryzen5-5600x.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -205,7 +205,7 @@
     "formFactor": "ATX",
     "maxMemory": 128,
     "memorySlots": 4,
-    "imageUrl": "https://example.com/images/z790-hero.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -246,7 +246,7 @@
     "formFactor": "ATX",
     "maxMemory": 128,
     "memorySlots": 4,
-    "imageUrl": "https://example.com/images/b650-tomahawk.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -287,7 +287,7 @@
     "formFactor": "Micro-ATX",
     "maxMemory": 96,
     "memorySlots": 2,
-    "imageUrl": "https://example.com/images/b760m-ds3h.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -303,7 +303,7 @@
     "formFactor": "Micro-ATX",
     "maxMemory": 128,
     "memorySlots": 4,
-    "imageUrl": "https://example.com/images/b550m-pro4.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -315,7 +315,7 @@
     "quantity": 24,
     "type": "RAM",
     "memoryType": "DDR5",
-    "imageUrl": "https://example.com/images/gskill-ddr5-32gb.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -364,7 +364,7 @@
     "quantity": 30,
     "type": "RAM",
     "memoryType": "DDR4",
-    "imageUrl": "https://example.com/images/corsair-ddr4-16gb.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -413,7 +413,7 @@
     "quantity": 10,
     "type": "RAM",
     "memoryType": "DDR5",
-    "imageUrl": "https://example.com/images/kingston-64gb.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -425,7 +425,7 @@
     "quantity": 20,
     "type": "RAM",
     "memoryType": "DDR4",
-    "imageUrl": "https://example.com/images/crucial-32gb.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -437,7 +437,7 @@
     "quantity": 2,
     "type": "GPU",
     "powerConnector": "16-pin",
-    "imageUrl": "https://example.com/images/rtx4090.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -498,7 +498,7 @@
     "quantity": 5,
     "type": "GPU",
     "powerConnector": "3x8-pin",
-    "imageUrl": "https://example.com/images/rx7900xtx.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -510,7 +510,7 @@
     "quantity": 12,
     "type": "GPU",
     "powerConnector": "16-pin",
-    "imageUrl": "https://example.com/images/rtx4070.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -571,7 +571,7 @@
     "quantity": 18,
     "type": "GPU",
     "powerConnector": "8-pin",
-    "imageUrl": "https://example.com/images/rx7600.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -582,7 +582,7 @@
     "price": 199.99,
     "quantity": 9,
     "type": "PSU",
-    "imageUrl": "https://example.com/images/corsair-rm1000x.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -618,7 +618,7 @@
     "price": 129.99,
     "quantity": 15,
     "type": "PSU",
-    "imageUrl": "https://example.com/images/evga-750g6.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -629,7 +629,7 @@
     "price": 99.99,
     "quantity": 20,
     "type": "PSU",
-    "imageUrl": "https://example.com/images/seasonic-650w.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -665,7 +665,7 @@
     "price": 79.99,
     "quantity": 25,
     "type": "PSU",
-    "imageUrl": "https://example.com/images/bequiet-550w.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -677,7 +677,7 @@
     "quantity": 12,
     "type": "Cooler",
     "socket": "LGA1700/AM5/AM4",
-    "imageUrl": "https://example.com/images/noctua-d15.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -714,7 +714,7 @@
     "quantity": 15,
     "type": "Cooler",
     "socket": "LGA1700/AM5/AM4",
-    "imageUrl": "https://example.com/images/deepcool-ak620.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -726,7 +726,7 @@
     "quantity": 20,
     "type": "Cooler",
     "socket": "LGA1700/AM4",
-    "imageUrl": "https://example.com/images/hyper212.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -738,7 +738,7 @@
     "quantity": 17,
     "type": "Case",
     "formFactor": "ATX",
-    "imageUrl": "https://example.com/images/meshify-c.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -763,7 +763,7 @@
     "quantity": 22,
     "type": "Case",
     "formFactor": "ATX",
-    "imageUrl": "https://example.com/images/nzxt-h5-flow.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -775,7 +775,7 @@
     "quantity": 25,
     "type": "Case",
     "formFactor": "Micro-ATX",
-    "imageUrl": "https://example.com/images/cm-nr600.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -787,7 +787,7 @@
     "quantity": 30,
     "type": "SSD",
     "formFactor": "M.2",
-    "imageUrl": "https://example.com/images/samsung-980pro-2tb.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -836,7 +836,7 @@
     "quantity": 39,
     "type": "SSD",
     "formFactor": "M.2",
-    "imageUrl": "https://example.com/images/wd-sn570-1tb.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": [
       {
@@ -885,7 +885,7 @@
     "quantity": 35,
     "type": "HDD",
     "formFactor": "3.5\u0022",
-    "imageUrl": "https://example.com/images/seagate-2tb-hdd.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   },
@@ -897,7 +897,7 @@
     "quantity": 28,
     "type": "SSD",
     "formFactor": "2.5\u0022",
-    "imageUrl": "https://example.com/images/crucial-mx500-2tb.jpg",
+    "imageUrl": "6.jpg",
     "computerComponents": [],
     "componentCharacteristics": []
   }

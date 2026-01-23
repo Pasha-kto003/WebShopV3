@@ -185,7 +185,7 @@
                     <!-- Кнопки действий -->
                     <div class="space-y-4">
                         <!-- Счетчик количества -->
-                        <div class="flex items-center justify-between bg-gray-900/50 rounded-xl p-4 border border-gray-800">
+                        @*<div class="flex items-center justify-between bg-gray-900/50 rounded-xl p-4 border border-gray-800">
                             <span class="text-gray-300">Количество:</span>
                             <div class="flex items-center space-x-3">
                                 <button class="w-8 h-8 rounded-lg bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 transition-colors">
@@ -201,7 +201,7 @@
                                 </button>
                             </div>
                         </div>
-
+                        *@
                         <!-- Основные кнопки -->
                         <div class="grid grid-cols-2 gap-4">
                             <a href="@Url.Action("AddToCart", "Cart", new { componentId = @Model.Id, quantity = 1 })" class="w-full bg-gradient-to-r from-primary to-green-400 text-dark py-4 rounded-lg font-bold text-lg hover:shadow-lg hover:shadow-primary/25 transition duration-300 flex items-center justify-center add-to-cart-details">

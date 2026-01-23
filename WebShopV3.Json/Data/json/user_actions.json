@@ -8,7 +8,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745863Z",
+    "timestamp": "2026-01-23T09:11:37.616426Z",
     "weight": 0.7
   },
   {
@@ -20,7 +20,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745898Z",
+    "timestamp": "2026-01-23T09:11:37.6167254Z",
     "weight": 0.7
   },
   {
@@ -32,7 +32,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745909Z",
+    "timestamp": "2026-01-23T09:11:37.6167275Z",
     "weight": 0.7
   },
   {
@@ -44,7 +44,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745918Z",
+    "timestamp": "2026-01-23T09:11:37.6167288Z",
     "weight": 0.7
   },
   {
@@ -56,7 +56,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745926Z",
+    "timestamp": "2026-01-23T09:11:37.61673Z",
     "weight": 0.7
   },
   {
@@ -68,7 +68,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745936Z",
+    "timestamp": "2026-01-23T09:11:37.6167313Z",
     "weight": 0.7
   },
   {
@@ -80,7 +80,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745943Z",
+    "timestamp": "2026-01-23T09:11:37.6167324Z",
     "weight": 0.7
   },
   {
@@ -92,7 +92,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745951Z",
+    "timestamp": "2026-01-23T09:11:37.6167347Z",
     "weight": 0.7
   },
   {
@@ -104,7 +104,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745959Z",
+    "timestamp": "2026-01-23T09:11:37.6167361Z",
     "weight": 0.7
   },
   {
@@ -116,7 +116,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745968Z",
+    "timestamp": "2026-01-23T09:11:37.6167373Z",
     "weight": 0.7
   },
   {
@@ -128,7 +128,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745976Z",
+    "timestamp": "2026-01-23T09:11:37.6167384Z",
     "weight": 0.7
   },
   {
@@ -140,7 +140,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745984Z",
+    "timestamp": "2026-01-23T09:11:37.6167395Z",
     "weight": 0.7
   },
   {
@@ -152,7 +152,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745991Z",
+    "timestamp": "2026-01-23T09:11:37.6167406Z",
     "weight": 0.7
   },
   {
@@ -164,7 +164,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1745999Z",
+    "timestamp": "2026-01-23T09:11:37.6167417Z",
     "weight": 0.7
   },
   {
@@ -176,7 +176,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1746007Z",
+    "timestamp": "2026-01-23T09:11:37.6167428Z",
     "weight": 0.7
   },
   {
@@ -188,7 +188,7 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1746015Z",
+    "timestamp": "2026-01-23T09:11:37.6167439Z",
     "weight": 0.7
   },
   {
@@ -200,7 +200,31 @@
     "productId": 0,
     "productName": null,
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.1746022Z",
+    "timestamp": "2026-01-23T09:11:37.616745Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-23T09:11:37.6167461Z",
+    "weight": 0.7
+  },
+  {
+    "id": 0,
+    "userId": null,
+    "guestId": null,
+    "actionType": 0,
+    "productType": "Computer",
+    "productId": 0,
+    "productName": null,
+    "category": null,
+    "timestamp": "2026-01-23T09:11:37.6167472Z",
     "weight": 0.7
   },
   {
@@ -208,11 +232,11 @@
     "userId": 3,
     "guestId": "56b44742-201d-47a3-8de9-5d56ead1ed56",
     "actionType": 0,
-    "productType": "Computer",
-    "productId": 12,
-    "productName": "\u041D\u043E\u0432\u0430\u044F \u043A\u043E\u043D\u0444\u0438\u0433\u04301",
+    "productType": "Component",
+    "productId": 29,
+    "productName": "Seagate Barracuda 2TB 3.5\u0022 HDD",
     "category": null,
-    "timestamp": "2026-01-23T08:42:08.174611Z",
+    "timestamp": "2026-01-23T09:11:37.617775Z",
     "weight": 0.7
   }
 ]
